@@ -4,6 +4,7 @@ import "./navbar.css"
 import {dataHelper} from "../../helper/DataHelper";
 import {Buttons} from "../../ui/Button/Buttons";
 import {Button} from "../../ui/Button/Button";
+import {isUndefined} from "util";
 
 type NavbarButton = {
     id: string
@@ -19,13 +20,15 @@ export const Navbar = (props:NavbarProps) => {
     const [buttons, setButtons] = useState<NavbarButton[]>([])
     const [key,setKey]=useState("key")
 
+    const nameOf = (child:any)=>(child.type!==undefined && child.type.name!==undefined) ? child.type.name : child.type
+
     useEffect(()=>{
         const buttons:NavbarButton[]=[]
         React.Children.forEach(props.children, (child:ReactElement<any>, index:number)=>{
             if (React.isValidElement(child)) {
                 buttons.push({
                     id:dataHelper.genKey(),
-                    label:child.type.toString(),
+                    label:nameOf(child),
                     onClick:()=>setCurrChildren(index),
                     children: child
                 })

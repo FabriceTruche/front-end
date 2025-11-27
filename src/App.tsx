@@ -1,19 +1,15 @@
 import React from 'react';
 import './App.css';
-import {Navbar} from "./containers/Navbar/Navbar";
-import {Navbar1} from "./test/Navbar1";
-import {ControlsUI} from "./test/ControlsUI";
+import {TestNavbar} from "./containers/_example/TestNavbar";
 
 
 const App=()=>{
   return (
-      <ControlsUI />
+      <TestNavbar />
   )
 }
 
 export default App;
-
-
 
 
 // function AppOriginal() {

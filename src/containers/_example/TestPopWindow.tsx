@@ -1,10 +1,10 @@
 import {useState} from "react";
-import {PopWindow} from "../PopWindow";
-import {dataHelper} from "../../../helper/DataHelper";
-import {SimpleList} from "../../../ui/List/SimpleList";
-import {PopWindowList} from "../PopWindowList";
+import {PopWindow} from "../PopWindow/PopWindow";
+import {dataHelper} from "../../helper/DataHelper";
+import {SimpleList} from "../../ui/List/SimpleList";
+import {PopWindowList} from "../PopWindow/PopWindowList";
 
-export const TestPopup1 = () => {
+export const TestPopWindow1 = () => {
     return (
         <PopWindow
             title="Example 1"
@@ -17,7 +17,7 @@ export const TestPopup1 = () => {
         />
     )
 }
-export const TestPopup2 = () => {
+export const TestPopWindow2 = () => {
     const [value, setValue] = useState("ok")
     return (
         <PopWindow
@@ -52,7 +52,8 @@ export const TestPopup2 = () => {
     )
 }
 const items: string[] = dataHelper.genWordsArray()
-export const TestPopup3 = () => {
+
+export const TestPopWindow3 = () => {
     const [selectedValue, setSelectedValue] = useState("")
     const [overValue, setOverValue] = useState("")
 
@@ -93,7 +94,7 @@ export const TestPopup3 = () => {
         />
     )
 }
-export const TestPopup4 = () => {
+export const TestPopWindow4 = () => {
     const [value, setValue] = useState("")
 
     return (

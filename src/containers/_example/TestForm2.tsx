@@ -1,12 +1,12 @@
 import { useState } from "react"
-import {dataHelper} from "../../../helper/DataHelper";
-import {AnyObject} from "../../../common/common";
-import {TextInput} from "../../../ui/Text/TextInput";
-import {Radio} from "../../../ui/Radio/Radio";
-import {Checkbox} from "../../../ui/Checkbox/Checkbox";
-import {Textarea} from "../../../ui/Text/Textarea";
-import {List} from "../../../ui/List/List";
-import {Form} from "../Form";
+import {AnyObject} from "../../common/common";
+import {Textarea} from "../../ui/Text/Textarea";
+import {Form} from "../Form/Form";
+import {Checkbox} from "../../ui/Checkbox/Checkbox";
+import {dataHelper} from "../../helper/DataHelper";
+import {Radio} from "../../ui/Radio/Radio";
+import {List} from "../../ui/List/List";
+import {TextInput} from "../../ui/Text/TextInput";
 
 const genItems1=dataHelper.genWordsArray(4,10).map((s:string)=>({value:s,label:s}))
 const genItems2=dataHelper.genWordsArray(5,20).map((s:string)=>({value:s,label:s}))
