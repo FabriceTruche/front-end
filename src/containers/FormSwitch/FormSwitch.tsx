@@ -3,7 +3,7 @@ import React from "react";
 export type FormSwitchProps = {
     __with_form?: boolean
 }
-export function formSwitch<Props extends FormSwitchProps>(
+export function FormSwitch<Props extends FormSwitchProps>(
     WithForm:React.ComponentType<Props>,
     WithoutForm:React.ComponentType<Props>) 
 {

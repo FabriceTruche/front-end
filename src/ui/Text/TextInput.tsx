@@ -2,7 +2,7 @@ import * as React from "react";
 import {useState} from "react";
 import './xinput.css'
 import {dataHelper} from "../../helper/DataHelper";
-import {formSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
+import {FormSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
 
 export type TextInputProps = {
     name: string
@@ -20,7 +20,7 @@ export type TextInputProps = {
     onReset?: ()=>void
 } & FormSwitchProps
 
-export const TextInput=(props:TextInputProps)=>formSwitch(TextInputForm,TextInputNoForm)(props)
+export const TextInput=(props:TextInputProps)=>FormSwitch(TextInputForm,TextInputNoForm)(props)
 
 const TextInputForm=(props:TextInputProps)=>(
     <tr key={props.name}>

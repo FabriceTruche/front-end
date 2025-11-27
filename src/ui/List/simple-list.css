@@ -1,0 +1,9 @@
+.simple-list {
+
+}
+.simple-list-item {
+    cursor: pointer;
+}
+.simple-list-item:hover {
+    background-color: lightgray;
+}

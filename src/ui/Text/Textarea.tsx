@@ -1,5 +1,5 @@
 import * as React from "react";
-import {formSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
+import {FormSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
 
 export type XTextareaProps = {
     label: string
@@ -17,7 +17,7 @@ export type XTextareaProps = {
     onChange?: (value:any)=>void
 } & FormSwitchProps
 
-export const Textarea=(props:XTextareaProps)=>formSwitch(TextareaForm,TextareaNoform)(props)
+export const Textarea=(props:XTextareaProps)=>FormSwitch(TextareaForm,TextareaNoform)(props)
 
 const TextareaNoform=(props:XTextareaProps)=>(
     <div key={props.name}>

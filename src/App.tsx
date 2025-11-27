@@ -1,15 +1,13 @@
 import React from 'react';
 import './App.css';
 import {Navbar} from "./containers/Navbar/Navbar";
+import {Navbar1} from "./test/Navbar1";
+import {ControlsUI} from "./test/ControlsUI";
 
 
 const App=()=>{
   return (
-      <Navbar>
-          <div>Hello</div>
-          <div>World</div>
-          <div>Fabrice</div>
-      </Navbar>
+      <ControlsUI />
   )
 }
 
