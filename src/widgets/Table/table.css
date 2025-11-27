@@ -1,0 +1,110 @@
+:root {
+    --color-container: #fdf6fd;
+    --color-border-container: #bd65bd;
+    --color-row-over: rgba(255, 152, 246, 0.31);
+    --color-col-over: rgba(255, 152, 246, 0.31);
+    --color-cell-over: rgba(255, 152, 246, 0.74);
+    --color-input: rgba(225, 214, 141, 0.37);
+    --array-font-size: 13px;
+    --array-padding-left: 5px;
+    --array-padding-right: 5px;
+}
+.array-container {
+    background: var(--color-container);
+    font-family: "Segoe UI", serif;
+    margin: 4px;
+    padding: 4px;
+    border: 2px solid var(--color-border-container);
+    border-radius: 4px;
+    width: fit-content;
+}
+.array-header {
+    display: flex;
+    align-items: center;
+    background: rgba(128, 128, 128, .8);
+    color: white;
+    border-radius: 3px;
+    margin-left: 1px;
+    padding-right: var(--array-padding-right);
+    padding-left: var(--array-padding-left);
+    font-size: var(--array-font-size);
+    z-index: 1;
+}
+.array-cell {
+    display: flex;
+    align-items: center;
+    border-left: 1px solid lightgray;
+    padding-right: var(--array-padding-right);
+    padding-left: var(--array-padding-left);
+    font-size: var(--array-font-size);
+    /*z-index: 1;*/
+}
+.array-cell:hover {
+    background-color: var(--color-cell-over);
+    cursor: pointer;
+}
+.array-header-hover {
+    background: rgba(128, 128, 128, 0.76);
+}
+.array-header:hover {
+    background: rgba(128, 128, 128, 0.76);
+    cursor: pointer;
+}
+.array-header-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /*color: white;*/
+    width: 100%;
+    /*border: 1px red solid;*/
+}
+.array-header-option-sorted {
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    /*border-radius: 100%;*/
+    /*padding-left: 1px;*/
+}
+.array-find {
+    /*margin: 3px;*/
+    /*z-index: 10;*/
+    background:white;
+    border-left: 1px solid lightgray;
+    display: flex;
+}
+.array-find input {
+    height: calc(100% - 4px);
+    padding: 0;
+    width: calc(100% - 6px);
+    margin: 2px 3px;
+    background-color: var(--color-input);
+}
+.array-find input:valid {
+    background-color: transparent;
+}
+.array-row-hover {
+    background-color: var(--color-row-over);
+}
+.array-col-hover {
+    background-color: var(--color-col-over);
+}
+
+/* div[class^="array-col-"]:hover {
+    background-color: rgba(255, 152, 152, 0.5);
+    border: red 4px solid;
+    z-index: 99999;
+} */
+/*
+.array-cell:hover ~ .array-col {
+    background-color: rgba(255, 152, 152, 0.5);
+    cursor: pointer;
+}
+.array-cell:hover ~ .array-col + .array-cell ~ .array-col {
+    background-color: transparent;
+}
+*/
+/*
+.array-row {
+    background: transparent;
+}
+*/

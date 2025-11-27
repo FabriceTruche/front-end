@@ -1,0 +1,39 @@
+:root {
+    --border-size: 3px;
+}
+.xbg-container {
+    margin: 10px;
+    display: flex;
+}
+.xbg-container > *:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+.xbg-container > *:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+.xbg-container > *:not(:first-child) {
+    border-left: transparent 0 solid;
+}
+.xbg-button:has(+ .xbg-button-selected) {
+    border-right : rgba(128, 128, 128, 32%) var(--border-size) solid;
+}
+.xbg-button:has(+ .xbg-button:hover) {
+    border-right: transparent 0 solid;
+}
+.xbg-button {
+    padding: 10px 10px;
+    font-family: Calibri, serif;
+    font-size: 14px;
+    border: var(--border-size) solid rgba(128, 128, 128, 12%);
+    background: rgba(211, 211, 211, 10%);
+}
+.xbg-button-selected {
+    border-color: rgba(128, 128, 128, 32%);
+    background: rgba(211, 211, 211, 30%);
+}
+.xbg-button:hover {
+    border: var(--border-size) solid rgba(128, 128, 128, 100%);
+    cursor: pointer;
+}
