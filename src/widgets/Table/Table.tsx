@@ -1,22 +1,26 @@
 import {ReactElement, useEffect, useState} from "react";
 import {TableDataInfo, createArrayInfo, ITableManager} from "./TableManager";
 import {AnyObject, Column} from "../../common/common";
-import {ViewportData, ViewportInfoCellBase} from "../../containers/Viewport/ViewportDefinitions";
+import {IViewportManager, ViewportData, ViewportInfoCellBase} from "../../containers/Viewport/ViewportDefinitions";
 import {TextInput} from "../../ui/Text/TextInput"
 import {Viewport} from "../../containers/Viewport/Viewport";
+import "./table.css"
+import {EditRow} from "./EditRow";
 
 export type TableData = {
     data: AnyObject[]
     columns: Column[]
 }
-export const defaultXArrayInputData: TableData = {
+export const defaultTableData: TableData = {
     columns:[],
     data:[]
 }
-// export type XArrayOption = {
-//     sort: number[]
-//     filter: string[]
-// }
+export type CellData = {
+    rowIndex: number
+    columnIndex: number
+    row: any
+    cellValue: any
+}
 export type ViewportCellArray = ViewportInfoCellBase & {
     typeCell: "data"|"header"|"row"|"col"|"find"|"checkWidth"
     rowId?: string
@@ -31,26 +35,29 @@ export type TableProps = {
     onMouseOver?:((cell:ViewportCellArray)=>void)
     onClickHeader?:((indexColumn:number,cell:ViewportData<ViewportCellArray>)=>void)
     onFind?:((text:string)=>void)
+    onClick?:((cell:CellData, info: IViewportManager)=>void)
 }
 export const Table = (props: TableProps) => {
-    // const [arrayInfo, setArrayInfo] = useState<ArrayInfo>()
+    const [arrayInfo, setArrayInfo] = useState<TableDataInfo>()
+    const [editRow, setEditRow] = useState<boolean>(false)
+    const [cellData, setCellData] = useState<CellData>()
+
     // const [key, setKey] = useState<string>(helper.genKey())
 
     const headerRef = <div id="header-ref-style" className="array-header" style={{visibility: "hidden", width:0, height:0}}> HEADER REF STYLE</div>
 
-    // useEffect(() => {
-    //     const ai:IArrayInfo=createArrayInfo()
-    //     const arrayInfo:ArrayInfo=ai.getArrayInfo(props.dbCollection,"header-ref-style")
-    //
-    //     setArrayInfo(arrayInfo)
-    //     setKey(helper.genKey())
-    //
-    // }, [props.dbCollection])
-    //
+    useEffect(() => {
+        const ai:ITableManager=createArrayInfo()
+        const arrayInfo:TableDataInfo=ai.getArrayInfo(props.dbCollection,"header-ref-style")
 
-    const ai:ITableManager=createArrayInfo()
-    const arrayInfo:TableDataInfo=ai.getArrayInfo(props.dbCollection,"header-ref-style")
+        setArrayInfo(arrayInfo)
+        // setKey(helper.genKey())
 
+    }, [props.dbCollection])
+
+
+    // const ai:ITableManager=createArrayInfo()
+    // const arrayInfo:TableDataInfo=ai.getArrayInfo(props.dbCollection,"header-ref-style")
     // setArrayInfo(arrayInfo)
     // setKey(helper.genKey())
 
@@ -92,8 +99,8 @@ export const Table = (props: TableProps) => {
         }
     }
 
-    // if (arrayInfo===undefined)
-    //     return headerRef
+    if (arrayInfo===undefined)
+        return headerRef
 
     return (
         <div className="array-container">
@@ -111,16 +118,22 @@ export const Table = (props: TableProps) => {
                     }}
                 />
             )}
+            <EditRow
+                show={editRow}
+                row={cellData && cellData.row}
+                onCancel={()=>setEditRow(false)}
+                onOk={()=>setEditRow(false)}
+            />
             <Viewport<ViewportCellArray>
                 // key={key}
                 viewportHeight={props.viewportHeight ?? 1000}
-                viewportRowHeight={props.viewportRowHeight ?? 20}
+                viewportRowHeight={props.viewportRowHeight ?? 22}
                 rowCount={props.dbCollection.data.length}
-                viewportGap={1}
+                viewportGap={0}
                 rowHeaderCount={1}
                 collection={arrayInfo.collection}
                 columnsWidth={arrayInfo.widths}
-                onViewportCell={(item: ViewportData<ViewportCellArray>, index:number, style:any) => {
+                onViewportCell={(item: ViewportData<ViewportCellArray>, index:number, style:any, viewportInfo: IViewportManager) => {
                     return (
                         <div
                             id={item.key}
@@ -139,9 +152,17 @@ export const Table = (props: TableProps) => {
                             onMouseOver={()=>props.onMouseOver && props.onMouseOver(item.data)}
                             onClick={()=>{
                                 if (item.data.typeCell==="header") {
-                                    if (props.onClickHeader!==undefined) {
-                                        props.onClickHeader(item.data.x-1,item)
+                                    props.onClickHeader && props.onClickHeader(item.data.x-1,item)
+                                } else {
+                                    const cell: CellData = {
+                                        rowIndex: item.data.y - 2,
+                                        columnIndex: item.data.x - 1,
+                                        cellValue: item.data.value,
+                                        row: props.dbCollection.data[item.data.y - 2],
                                     }
+                                    props.onClick && props.onClick(cell, viewportInfo)
+                                    setEditRow(true)
+                                    setCellData(cell)
                                 }
                             }}
                         >

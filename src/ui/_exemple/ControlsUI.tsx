@@ -1,5 +1,5 @@
-import {TextInput} from "../ui/Text/TextInput";
-import {Form} from "../containers/Form/Form";
+import {Form} from "../../containers/Form/Form";
+import {TextInput} from "../Text/TextInput";
 
 export const ControlsUI = () => {
     return (

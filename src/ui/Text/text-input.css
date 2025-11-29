@@ -27,3 +27,21 @@ input:focus, select:focus, textarea:focus {
 form select {
     width: 100%;
 }
+.input-text span {
+    font-size: 20px;
+    padding: 0 3px;
+    border-right: 1px gray solid;
+    border-top: 1px gray solid;
+    border-bottom: 1px gray solid;
+    border-radius: 0 6px 6px 0;
+}
+.input-text span:hover {
+    cursor: pointer;
+    background: lightgray;
+}
+.input-text {
+    display: flex;
+}
+.input-text input {
+    border-radius: 6px 0 0 6px;
+}

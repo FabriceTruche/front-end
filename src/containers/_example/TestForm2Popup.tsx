@@ -1,7 +1,7 @@
 import {useState} from "react";
-import {TestForm2Content} from "./TestForm2";
 import {AnyObject} from "../../common/common";
 import {PopWindow} from "../PopWindow/PopWindow";
+import {TestForm2Content} from "./TestForm2Content";
 
 export const TestForm2Popup = () => {
     const [values, setValues] = useState<AnyObject>({})

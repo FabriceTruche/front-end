@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {defaultXArrayInputData, ViewportCellArray, Table, TableData, TableProps} from "./Table";
+import {defaultTableData, ViewportCellArray, Table, TableData, TableProps} from "./Table";
 import {AnyObject, Column, DbColumn, ResponseQuery} from "../../common/common";
 import {helper} from "../../helper/Helper";
 import {ViewportData} from "../../containers/Viewport/ViewportDefinitions";
@@ -9,7 +9,7 @@ export type TableFromSqlProps = Omit<TableProps & {sql: string,labelName?:(col:D
 
 export const TableFromSql = (props:TableFromSqlProps) => {
     const [initialDataRows, setInitialDataRows] = useState<AnyObject[]>([])
-    const [collection, setCollection] = useState<TableData>(defaultXArrayInputData)
+    const [collection, setCollection] = useState<TableData>(defaultTableData)
 
     useEffect(() => {
         // console.log('useEffect de XArrayFromSql')
@@ -22,13 +22,13 @@ export const TableFromSql = (props:TableFromSqlProps) => {
                     setCollection(newCollection)
                 } else {
                     setInitialDataRows([])
-                    setCollection(defaultXArrayInputData)
+                    setCollection(defaultTableData)
                 }
             })
 
         return ()=>{
             // console.log('cleanup de useEffect')
-            setCollection(defaultXArrayInputData)
+            setCollection(defaultTableData)
         }
 
     }, [props.sql])

@@ -1,4 +1,4 @@
-import {AnyObject} from "../common/common";
+import {AnyObject, Column} from "../common/common";
 import {TableData} from "../widgets/Table/Table";
 
 export interface IUIHelper {
@@ -13,28 +13,64 @@ export interface IUIHelper {
 
 
 class UIHelper implements IUIHelper {
-    getCssStyle(prop: string, element: Element): string {
-        throw new Error("Not implemented")
+    private static canvas: HTMLCanvasElement = document.createElement("canvas")
+    private static context: CanvasRenderingContext2D|null = UIHelper.canvas.getContext("2d")
+
+    private _getWidthText(text:string, font:string):number {
+        if (UIHelper.context===null)
+            return 0
+
+        UIHelper.context.font = font;
+        const metrics = UIHelper.context.measureText(text);
+
+        return metrics.width;
+    }
+    private _getCanvasFont(el:Element = document.body) {
+        const fontWeight = this.getCssStyle('font-weight',el) || 'normal';
+        const fontSize = this.getCssStyle('font-size',el) || '16px';
+        const fontFamily = this.getCssStyle('font-family',el) || 'Times New Roman';
+
+        return `${fontWeight} ${fontSize} ${fontFamily}`;
     }
 
-    getCssStyleById(prop: string, elementId: string): string {
-        throw new Error("Not implemented")
+    getWidthFromText(text:string, element:Element):number {
+        return this._getWidthText(text,this._getCanvasFont(element))
     }
-
-    getMaxWidthFromArray(text: string[], element: Element): number {
-        throw new Error("Not implemented")
+    getMaxWidthFromArray(textArr:string[], element:Element):number{
+        const font:string=this._getCanvasFont(element)
+        return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
     }
-
-    getMaxWidthFromArrayById(text: string[], elementId: string): number {
-        throw new Error("Not implemented")
+    getMaxWidthFromArrayById(textArr:string[], elementId:string):number{
+        const element:Element|null=document.getElementById(elementId)
+        if (element===null)
+            return -1
+        const font:string=this._getCanvasFont(element)
+        return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
     }
+    getMaxWidthFromCollectionById(collection:TableData, elementId:string, extension?:number):AnyObject {
+        const element:Element|null=document.getElementById(elementId)
+        let res:AnyObject={}
 
-    getMaxWidthFromCollectionById(collection: TableData, elementId: string, extension?: number): AnyObject {
-        throw new Error("Not implemented")
+        if (element) {
+            const font: string = this._getCanvasFont(element)
+
+            collection.columns.forEach((c: Column) => {
+                let arr: string[] = collection.data.map((row: AnyObject) => row[c.name])
+                arr.push(c.label)
+                res[c.name] = Math.ceil(this.getMaxWidthFromArray(arr, element) + (extension===undefined?0:extension)) + "px"
+            })
+        }
+
+        return res
     }
-
-    getWidthFromText(text: string, element: Element): number {
-        throw new Error("Not implemented")
+    getCssStyle(prop:string,element:Element):string {
+        return window.getComputedStyle(element, null).getPropertyValue(prop);
+    }
+    getCssStyleById(prop:string,elementId:string):string {
+        const elt:Element|null=document.getElementById(elementId)
+        if (elt)
+            return window.getComputedStyle(elt, null).getPropertyValue(prop);
+        return ""
     }
 }
 

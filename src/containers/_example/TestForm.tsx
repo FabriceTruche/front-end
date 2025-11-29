@@ -2,7 +2,7 @@ import {AnyObject} from "../../common/common";
 import {Form} from "../Form/Form";
 import {List} from "../../ui/List/List";
 import {dataHelper} from "../../helper/DataHelper";
-import {TextInput} from "../../ui/Text/TextInput";
+import {TextInput, TextInputProps} from "../../ui/Text/TextInput";
 
 export const TestForm = () => {
     return (

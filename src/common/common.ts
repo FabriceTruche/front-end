@@ -26,3 +26,6 @@ export type DataResult = {
     data:any[]
     sql:string
 }
+export interface UIElementProps {
+    __uiElement: string
+}

@@ -1,5 +1,5 @@
-import {TableData, ViewportCellArray} from "./Table";
-import {AnyObject, Column} from "../../common/common";
+import {CellData, TableData, ViewportCellArray} from "./Table";
+import {AnyObject, Column, DbColumn} from "../../common/common";
 import {dataHelper} from "../../helper/DataHelper";
 import {uiHelper} from "../../helper/UIHelper";
 
@@ -9,20 +9,26 @@ export type TableDataInfo = {
 }
 export interface ITableManager {
     getArrayInfo(dbCollection: TableData, elementId: string): TableDataInfo
+    editRow(row: CellData): void
 }
 class TableManager implements ITableManager {
-    // const newTexts: ValueObject = {}
-    // private lenCols: number
-    // private rowCount:number
-    // private rowStart = 2
-
     private newCells: ViewportCellArray[] = []
     private mapCol: string[] = []
     private mapHeader: string[] = []
 
-    constructor() {
+    /**
+     *
+     * @param row
+     */
+    public editRow(row: CellData) {
+
     }
 
+    /**
+     *
+     * @param dbCollection
+     * @param elementId
+     */
     public getArrayInfo(dbCollection: TableData, elementId: string): TableDataInfo {
         // const newCells: ViewportCellArray[] = []
         // // const newTexts: ValueObject = {}

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {FormSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
+// import {FormSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
 export type ListItem = {
     value: string
     label: string
@@ -13,46 +13,46 @@ export type ListProps = {
     items: ListItem[]
     debug?:boolean
     onChange?: (value:ListItem[])=>void
-} & FormSwitchProps
+} //& FormSwitchProps
 
-export const List=(props:ListProps)=>FormSwitch(ListForm,ListNoForm)(props)
+// export const List=(props:ListProps)=>FormSwitch(ListForm,ListNoForm)(props)
+//
+// const ListForm=(props:ListProps)=>(
+//     <tr key={props.name}>
+//         <td>
+//             <label htmlFor={props.name}>{props.label}</label>
+//         </td>
+//         <td>
+//             <ListInput {...props} />
+//             <br/>
+//             {props.help && <span className="input-help">({props.help})</span>}
+//         </td>
+//         <td>
+//             {props.debug && (
+//                 <div className="input-debug">{props.name}</div>
+//             )}
+//         </td>
+//     </tr>
+// )
+//
+// const ListNoForm=(props:ListProps)=>(
+//     <div key={props.name}>
+//         <div>
+//             <label htmlFor={props.name}>{props.label}</label>
+//         </div>
+//         <div>
+//             <ListInput {...props} />
+//         </div>
+//         <div>
+//             {props.help && <span className="input-help">({props.help})</span>}
+//             {props.debug && (
+//                 <div className="input-debug">{props.name}</div>
+//             )}
+//         </div>
+//     </div>
+// )
 
-const ListForm=(props:ListProps)=>(
-    <tr key={props.name}>
-        <td>
-            <label htmlFor={props.name}>{props.label}</label>
-        </td>
-        <td>
-            <ListInput {...props} />
-            <br/>
-            {props.help && <span className="input-help">({props.help})</span>}
-        </td>
-        <td>
-            {props.debug && (
-                <div className="input-debug">{props.name}</div>
-            )}
-        </td>
-    </tr>
-)
-
-const ListNoForm=(props:ListProps)=>(
-    <div key={props.name}>
-        <div>
-            <label htmlFor={props.name}>{props.label}</label>
-        </div>
-        <div>
-            <ListInput {...props} />
-        </div>
-        <div>
-            {props.help && <span className="input-help">({props.help})</span>}
-            {props.debug && (
-                <div className="input-debug">{props.name}</div>
-            )}
-        </div>
-    </div>
-)
-
-const ListInput=(props:ListProps)=>{
+export const List=(props:ListProps)=>{
     const getValue=(e:any): ListItem[] => {
         let res:ListItem[] = []
         if (props.multiple) {

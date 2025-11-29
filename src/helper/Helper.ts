@@ -27,69 +27,11 @@ class Helper implements IHelper {
     /********************************************************************************
      * UI text width calculation
      */
-    private static canvas: HTMLCanvasElement = document.createElement("canvas")
-    private static context: CanvasRenderingContext2D|null = Helper.canvas.getContext("2d")
-
-    getWidthFromText(text:string, element:Element):number {
-        return this._getWidthText(text,this._getCanvasFont(element))
-    }
-    getMaxWidthFromArray(textArr:string[], element:Element):number{
-        const font:string=this._getCanvasFont(element)
-        return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
-    }
-    getMaxWidthFromArrayById(textArr:string[], elementId:string):number{
-        const element:Element|null=document.getElementById(elementId)
-        if (element===null)
-            return -1
-        const font:string=this._getCanvasFont(element)
-        return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
-    }
-    getMaxWidthFromCollectionById(collection:TableData, elementId:string, extension?:number):AnyObject {
-        const element:Element|null=document.getElementById(elementId)
-        let res:AnyObject={}
-
-        if (element) {
-            const font: string = this._getCanvasFont(element)
-
-            collection.columns.forEach((c: Column) => {
-                let arr: string[] = collection.data.map((row: AnyObject) => row[c.name])
-                arr.push(c.label)
-                res[c.name] = Math.ceil(this.getMaxWidthFromArray(arr, element) + (extension===undefined?0:extension)) + "px"
-            })
-        }
-
-        return res
-    }
-    getCssStyle(prop:string,element:Element):string {
-        return window.getComputedStyle(element, null).getPropertyValue(prop);
-    }
-    getCssStyleById(prop:string,elementId:string):string {
-        const elt:Element|null=document.getElementById(elementId)
-        if (elt)
-            return window.getComputedStyle(elt, null).getPropertyValue(prop);
-        return ""
-    }
 
 
     // private _getWidthFromTextAndFont(text:string, font:string):number {
     //     return this._getWidthText(text,font)
     // }
-    private _getWidthText(text:string, font:string):number {
-        if (Helper.context===null)
-            return 0
-
-        Helper.context.font = font;
-        const metrics = Helper.context.measureText(text);
-
-        return metrics.width;
-    }
-    private _getCanvasFont(el:Element = document.body) {
-        const fontWeight = this.getCssStyle('font-weight',el) || 'normal';
-        const fontSize = this.getCssStyle('font-size',el) || '16px';
-        const fontFamily = this.getCssStyle('font-family',el) || 'Times New Roman';
-
-        return `${fontWeight} ${fontSize} ${fontFamily}`;
-    }
 
     /*********************************************************************************************************
      * sql local database

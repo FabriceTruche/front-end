@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import {TestNavbar} from "./containers/_example/TestNavbar";
+import {TestNavbar1} from "./containers/_example/TestNavbar1";
 
 
 const App=()=>{
   return (
-      <TestNavbar />
+      <TestNavbar1 />
   )
 }
 

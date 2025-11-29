@@ -1,7 +1,7 @@
-import {Navbar} from "../containers/Navbar/Navbar";
-import {TextInput} from "../ui/Text/TextInput";
+import {TextInput} from "../../ui/Text/TextInput";
+import { Navbar } from "../../widgets/Navbar/Navbar";
 
-export const Navbar1 = () => {
+export const TestNavBar0 = () => {
     return (
         <Navbar>
             <TextInput name="name" label="Nom" />

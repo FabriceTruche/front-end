@@ -1,0 +1,13 @@
+:root {
+    --size-border: 0px;
+}
+td, tr, table {
+    vertical-align: top;
+}
+td {
+    border: var(--size-border) solid gray;
+}
+table {
+    font-family: "Segoe UI", "Segoe UI", serif;
+    font-size: 13px;
+}

@@ -1,37 +1,36 @@
 import * as React from 'react'
 import {useEffect, useState} from "react"
-import {AnyObject, Column, ResponseQuery} from "../../common/common";
-import {helper} from "../../helper/Helper";
-import {defaultXArrayInputData, Table, TableData, ViewportCellArray} from "../Table/Table";
+import {AnyObject, Column} from "../../common/common";
+import {defaultTableData, Table, TableData, ViewportCellArray} from "../Table/Table";
 import {ViewportData} from "../../containers/Viewport/ViewportDefinitions";
-import {dataHelper} from "../../helper/DataHelper";
-import {apiHelper} from "../../helper/ApiHelper";
+import {dataGen, GenColumn} from "../../helper/GenHelper";
 
-export type TestXArrayProps = {
-}
-export const TestXArray = (props: TestXArrayProps) => {
-    const [initialDataRows, setInitialDataRows] = useState<AnyObject[]>([])
-    const [collection, setCollection] = useState<TableData>(defaultXArrayInputData)
+export const TestTable1 = () => {
+    const [rows, setRows] = useState<AnyObject[]>([])
+    const [collection, setCollection] = useState<TableData>(defaultTableData)
     const [item,setItem] = useState<ViewportCellArray|undefined>()
     const [text,setText] = useState("")
 
     useEffect(() => {
-        apiHelper.executeQuery('select id, numero, libelle from majestim.compte')
-            .then((response: ResponseQuery) => {
-                const collection: TableData | null = helper.toCollection(response)
-                if (collection) {
-                    setInitialDataRows([...response.data])
-                    setCollection(collection)
-                } else {
-                    setInitialDataRows([])
-                    setCollection(defaultXArrayInputData)
-                }
-            })
+        const schema: GenColumn[] = [
+            { name: "id", type: "index" },
+            { name: "numero", type: "number" },
+            { name: "date_entree", type: "Date" },
+            { name: "date_sortie", type: "Date", ratioNull: 0.1 },
+            { name: "libelle", type: "string" },
+            { name: "adresse", type: "string", ratioNull: 0.8, min: 2, max: 10 }
+        ]
+        const rows = dataGen.generateData(schema, 300)
+        const collection: TableData | null = dataGen.convertToDataTable(rows,schema)
+
+        setRows([...rows])
+        setCollection(collection)
+        console.log(collection.columns.length)
     }, [])
 
     const sortData=(column:string,sort:number): AnyObject[] => {
         if (sort===0)
-            return [...initialDataRows]
+            return [...rows]
 
         const res:number = (sort===1)?1:-1
 
@@ -49,11 +48,11 @@ export const TestXArray = (props: TestXArrayProps) => {
         const result: AnyObject[] = []
 
         if (text==="")
-            return initialDataRows
+            return rows
 
         const re = new RegExp(text,'i')
 
-        initialDataRows.forEach((row: AnyObject) => {
+        rows.forEach((row: AnyObject) => {
             let isValid: boolean = false
             for (let i = 0; i < collection.columns.length; i++) {
                 const col:string=collection.columns[i].name
@@ -79,11 +78,10 @@ export const TestXArray = (props: TestXArrayProps) => {
     if (collection.columns.length===0)
         return null
 
-    // console.log('=>',datarows.data.length)
-
     return (
         <div>
             <Table
+                findOption={true}
                 dbCollection={collection}
                 viewportHeight={400}
                 onMouseOver={(cell:ViewportCellArray)=>{
