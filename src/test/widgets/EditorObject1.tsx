@@ -1,4 +1,4 @@
-import {Editor} from "../../widgets/Editor/Editor";
+import {AnyObject, Editor} from "../../widgets/Editor/Editor";
 import {List} from "../../ui/List/List";
 import React from "react";
 import {dataHelper} from "../../helper/DataHelper";
@@ -15,12 +15,22 @@ enum TypeBien {
     Local,
 }
 
-const obj = {
+type MyType = {
+    p1: string
+    p2: string
+    choix: string
+    p3: number
+    p4?: Date
+    typeBien: TypeBien
+    validate: boolean
+}
+
+const obj: MyType = {
     p1: "Fabrice",
     p2: "Audouard",
     choix: "css",
     p3: 123456,
-    p4: new Date(2000,7,5),
+    p4: undefined,
     typeBien: TypeBien.Local,
     validate: false,
 }
@@ -37,7 +47,7 @@ const editInfo = {
     props: {
         p2: {items: items, multiple: true},
         p3: {label: "Ceci est un nombre"},
-        p4: {label: "Une Date"},
+        p4: {label: "Une Date", type:"date"},
         choix: {choices},
         typeBien: {enum:TypeBien, label: "Type de bien"}
     },
@@ -57,6 +67,9 @@ export const EditorObject1 = () => {
                 object={obj}
                 props={editInfo.props}
                 editors={editInfo.editors}
+                onChange={(values: AnyObject, isValid: boolean) => {
+                    console.log(values)
+                }}
             />
         </div>
     )

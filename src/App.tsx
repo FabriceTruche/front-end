@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
 import {AllTests} from "./test/AllTests";
+import {MainApp} from "./Main";
 
 const App=()=>{
   return (
-      <AllTests />
+      <MainApp />
   )
 }
 

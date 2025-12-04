@@ -19,6 +19,7 @@ import {TestList} from "./ui/TestList";
 import {EditorObject1} from "./widgets/EditorObject1";
 import {TestPopWindowV2} from "./containers/TestPopWindowV2";
 import {TestModal1} from "./containers/TestModal1";
+import {Page1} from "./containers/Page1";
 
 
 export const AllTests = ()=> {
@@ -27,6 +28,7 @@ export const AllTests = ()=> {
 
             {/**** containers  ********************/}
             <Navbar label="Containers"  >
+                <Page1 />
                 <TestPopWindow1/>
                 <TestPopWindow2/>
                 <TestPopWindow3/>

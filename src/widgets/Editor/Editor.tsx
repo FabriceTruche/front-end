@@ -16,6 +16,7 @@ export type EditorProps = {
     object: any
     editors?: any
     props?: any
+    onChange?: (obj: any, isValid: boolean)=>void
 }
 export class Editor extends React.Component<EditorProps> implements IEditor {
 
@@ -33,7 +34,8 @@ export class Editor extends React.Component<EditorProps> implements IEditor {
         return (
             <Form
                 onFormChange={(values: AnyObject, isValid: boolean) => {
-                    console.log(">>", JSON.stringify(values, null, 3))
+                    if (this.props.onChange)
+                        this.props.onChange(values,isValid)
                 }}
             >
                 {Object.keys(this.props.object).map((field: string) => {
@@ -41,7 +43,7 @@ export class Editor extends React.Component<EditorProps> implements IEditor {
                     const pr = allProps[field]
 
                     return (
-                        <Control {...pr}></Control>
+                        <Control key={field} {...pr}></Control>
                     )
                 })}
             </Form>

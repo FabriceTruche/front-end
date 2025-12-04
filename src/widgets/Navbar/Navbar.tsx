@@ -6,6 +6,7 @@ import {Buttons} from "../../ui/Button/Buttons";
 import {Button} from "../../ui/Button/Button";
 
 export type NavbarProps = {
+    image?: string
     label?: string
     showTitle?: boolean
     children: ReactElement[]|ReactElement
@@ -18,14 +19,24 @@ export const Navbar = (props:NavbarProps) => {
         if (child.props.label !== undefined)
             return child.props.label
 
+        if (child.props.title !== undefined)
+            return child.props.title
+
         if (child.type !== undefined && child.type.name !== undefined)
             return child.type.name
 
         return "??"
     }
+    const isNav = (child: any) => {
+        return childName(child) === "Navbar"
+    }
+    const childName = (child: any) => {
+        return (child.type!==undefined && child.type.name!==undefined)  ? child.type.name : "?"
+    }
 
     return (
         <div>
+
             <Buttons>
                 {React.Children.map(props.children, (child: ReactElement<any>, index: number) => {
                     return (
@@ -33,7 +44,31 @@ export const Navbar = (props:NavbarProps) => {
                             onClick={() => setCurrChildren(index)}
                             key={index}
                         >
-                            {nameOf(child)}
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center"
+                            }}>
+
+                                {(child.props.image!==undefined) && (
+                                    <span
+                                        style={{paddingRight:6, fontSize: 24, fontWeight: "normal"}}
+                                        className="material-symbols-outlined"
+                                    >
+                                        {child.props.image}
+                                    </span>
+                                )}
+                                {nameOf(child)}
+                                {isNav(child) && (
+                                    <span
+                                        style={{paddingLeft:10, fontSize: 12, fontWeight: "bold"}}
+                                        className="material-symbols-outlined"
+                                    >
+                                        arrow_forward_ios
+                                    </span>
+                                )}
+
+                            </div>
+
                         </Button>
                     )
                 })
