@@ -13,45 +13,7 @@ export type ListProps = {
     items: ListItem[]
     debug?:boolean
     onChange?: (value:ListItem[])=>void
-} //& FormSwitchProps
-
-// export const List=(props:ListProps)=>FormSwitch(ListForm,ListNoForm)(props)
-//
-// const ListForm=(props:ListProps)=>(
-//     <tr key={props.name}>
-//         <td>
-//             <label htmlFor={props.name}>{props.label}</label>
-//         </td>
-//         <td>
-//             <ListInput {...props} />
-//             <br/>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//         </td>
-//         <td>
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </td>
-//     </tr>
-// )
-//
-// const ListNoForm=(props:ListProps)=>(
-//     <div key={props.name}>
-//         <div>
-//             <label htmlFor={props.name}>{props.label}</label>
-//         </div>
-//         <div>
-//             <ListInput {...props} />
-//         </div>
-//         <div>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </div>
-//     </div>
-// )
-
+}
 export const List=(props:ListProps)=>{
     const getValue=(e:any): ListItem[] => {
         let res:ListItem[] = []
@@ -67,7 +29,7 @@ export const List=(props:ListProps)=>{
         res=[{
             value: e.target.selectedOptions[0].value,
             label: e.target.selectedOptions[0].label,
-            }]
+        }]
 
         return res
     }
@@ -97,3 +59,5 @@ export const List=(props:ListProps)=>{
         </select>
     )
 }
+
+

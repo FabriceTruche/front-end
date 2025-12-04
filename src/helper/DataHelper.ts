@@ -3,6 +3,7 @@ export interface IDataGeneratorHelper {
     genKey():string
     genNumber(min:number, max:number):number
     genInteger(min:number, max:number):number
+    genFloat(min:number, max:number):number
     genWords(min:number, max:number):string
     genWordsArray(min?:number, max?:number,predicate?:(item:string, index:number)=>string):string[]
     genDate():Date
@@ -29,6 +30,9 @@ class DataHelper implements IDataGeneratorHelper {
 
     genInteger(min: number, max: number): number {
         return Math.trunc(this.genNumber(min,max))
+    }
+    genFloat(min: number, max: number): number {
+        return this.genNumber(min,max)
     }
     genWordsArray(min:number=10, max:number=100, predicate: (item: string, index: number) => string=this.defaultPredicate): string[] {
         const N = this.genInteger(min,max)

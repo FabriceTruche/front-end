@@ -1,6 +1,5 @@
 import {
-    ViewportInfoCellBase,
-    ViewportData,
+    ViewportInfoCell,
     ViewportHeaderStyle,
     ViewportRange,
     IViewportManager
@@ -11,7 +10,7 @@ export const defaultViewportRange: ViewportRange = {
     rowEnd: 0,
 }
 export class ViewportManager implements IViewportManager {
-    private _viewportGap: number;
+    private readonly _viewportGap: number;
 
     constructor(viewportHeight: number, viewportRowHeight: number, rowsCount: number, rowsHeaderCount: number = 0, viewportGap:number=2) {
         this._viewportHeight = viewportHeight
@@ -24,7 +23,7 @@ export class ViewportManager implements IViewportManager {
     }
 
     private _rowsHeaderCount: number;
-    private _viewportHeight: number
+    private readonly _viewportHeight: number
     private _viewportTop: number
     private _viewportRowHeight: number
     private _rowsCount: number
@@ -36,15 +35,15 @@ export class ViewportManager implements IViewportManager {
         this._colsCount = value;
     }
 
-    public getColsCount(): number {
+    public get colsCount(): number {
         return this._colsCount
     }
 
-    public getViewportGap(): number {
+    public get viewportGap(): number {
         return this._viewportGap
     }
 
-    public getRowsHeaderCount(): number {
+    public get rowsHeaderCount(): number {
         return this._rowsHeaderCount;
     }
 
@@ -53,10 +52,10 @@ export class ViewportManager implements IViewportManager {
     }
 
     public isRowVisible(rowIndex: number) {
-        return !(rowIndex > this.lastVisibleRow() || rowIndex < this.firstVisibleRow())
+        return !(rowIndex > this.lastVisibleRow || rowIndex < this.firstVisibleRow)
     }
 
-    public getViewportRowHeight(): number {
+    public get viewportRowHeight(): number {
         return this._viewportRowHeight
     }
 
@@ -68,11 +67,11 @@ export class ViewportManager implements IViewportManager {
         this._viewportRowHeight = value;
     }
 
-    public getViewportHeight() {
+    public get viewportHeight() {
         return this._viewportHeight
     }
 
-    public getViewportContentHeight() {
+    public get viewportContentHeight() {
         return (this._rowsCount * this.viewportRowGapHeight)
     }
 
@@ -80,39 +79,39 @@ export class ViewportManager implements IViewportManager {
         this._viewportTop = value;
     }
 
-    public firstVisibleRow(): number {
+    public get firstVisibleRow(): number {
         return Math.trunc(this._viewportTop / this.viewportRowGapHeight) + 1
     }
 
-    public lastVisibleRow(): number {
+    public get lastVisibleRow(): number {
         return Math.trunc((this._viewportTop + this._viewportHeight) / this.viewportRowGapHeight) + 1
     }
 
-    public getVisibleRowsCount(): number {
-        return 1 + (this.lastVisibleRow() - this.firstVisibleRow())
+    public get visibleRowsCount(): number {
+        return 1 + (this.lastVisibleRow - this.firstVisibleRow)
     }
 
-    public getRowsCount(): number {
+    public get rowsCount(): number {
         return this._rowsCount;
     }
 
-    public getViewportRange(): ViewportRange {
+    public get viewportRange(): ViewportRange {
         return {
-            rowStart: this.firstScrollableVisibleRow(),
-            rowEnd: this.lastVisibleRow(),
+            rowStart: this.firstScrollableVisibleRow,
+            rowEnd: this.lastVisibleRow,
         }
     }
 
-    public getViewportTop(): number {
+    public get viewportTop(): number {
         return this._viewportTop
     }
 
-    public firstScrollableVisibleRow(): number {
-        return this.firstVisibleRow() + this._rowsHeaderCount
+    public get firstScrollableVisibleRow(): number {
+        return this.firstVisibleRow + this._rowsHeaderCount
     }
 
-    public getScrollableRowsCount(): number {
-        return 1 + (this.lastVisibleRow() - this.firstScrollableVisibleRow())
+    public get scrollableRowsCount(): number {
+        return 1 + (this.lastVisibleRow - this.firstScrollableVisibleRow)
     }
 
     public fixedRowStyle(y:number): ViewportHeaderStyle {
@@ -131,77 +130,81 @@ export class ViewportManager implements IViewportManager {
 
     public isVisibleRow(rowIndex: number): boolean {
         return (
-            (rowIndex >= this.firstScrollableVisibleRow() && rowIndex <= this.lastVisibleRow()) ||
-            (rowIndex <= this.getRowsHeaderCount())
+            (rowIndex >= this.firstScrollableVisibleRow && rowIndex <= this.lastVisibleRow) ||
+            (rowIndex <= this.rowsHeaderCount)
         )
     }
 
     public isHeaderRow(rowIndex: number): boolean {
-        return (rowIndex <= this.getRowsHeaderCount())
+        return (rowIndex <= this.rowsHeaderCount)
     }
 
-    public projectExtension<T extends ViewportInfoCellBase>(collection: T[]): ViewportData<T>[] {
-        const isOverTop=(item: T) => {
-            const firstScrollable=this.firstVisibleRow()+this.getRowsHeaderCount()
-            if ((firstScrollable>item.y) && (firstScrollable<(item.y+item.ySpan)))
+    // public projectExtension<T extends ViewportInfoCellBase>(collection: T[]): ViewportData<T>[] {
+    //     const isOverTop=(item: T) => {
+    //         const firstScrollable=this.firstVisibleRow+this.rowsHeaderCount
+    //         if ((firstScrollable>item.y) && (firstScrollable<(item.y+item.ySpan)))
+    //             return true
+    //         return false
+    //     }
+    //
+    //     let extensionCells:ViewportData<T>[] = []
+    //
+    //     collection.filter((item: T) => isOverTop(item)).forEach((item: T) => {
+    //         // const yFixExtension=1+this.getRowsHeaderCount()
+    //         const top = -10 + (this._viewportRowHeight*this._rowsHeaderCount)+(this._viewportGap*(this._rowsHeaderCount-1))+"px"
+    //
+    //         extensionCells.push({
+    //             data: item,
+    //             key: "OVERTOP-" + item.id,
+    //             isRowLimit: false,
+    //             isHeader: false,
+    //             fixedStyle: {
+    //                 position: "sticky",
+    //                 top: top,
+    //             }
+    //         })
+    //     })
+    //
+    //     return extensionCells
+    // }
+
+    // public selectVisibleCells<T extends ViewportInfoCellBase>(collection: T[]): ViewportData<T>[] {
+    public selectVisibleCells<T extends ViewportInfoCell>(collection: T[]): T[] {
+        const isVisibleCell=(item: T) => {
+            if (item.y <= this.rowsHeaderCount)
                 return true
-            return false
-        }
 
-        let extensionCells:ViewportData<T>[] = []
-
-        collection.filter((item: T) => isOverTop(item)).forEach((item: T) => {
-            // const yFixExtension=1+this.getRowsHeaderCount()
-            const top = -10 + (this._viewportRowHeight*this._rowsHeaderCount)+(this._viewportGap*(this._rowsHeaderCount-1))+"px"
-
-            extensionCells.push({
-                data: item,
-                key: "OVERTOP-" + item.id,
-                isRowLimit: false,
-                isHeader: false,
-                fixedStyle: {
-                    position: "sticky",
-                    top: top,
-                }
-            })
-        })
-
-        return extensionCells
-    }
-
-    public projectCells<T extends ViewportInfoCellBase>(collection: T[]): ViewportData<T>[] {
-        const isVisibleBlock=(item: T) => {
-            if (item.y <= this.getRowsHeaderCount())
-                return true
-
-            if ((this.firstVisibleRow() > (item.y + item.ySpan)) || (this.lastVisibleRow() < item.y))
+            if ((this.firstVisibleRow > (item.y + item.ySpan)) || (this.lastVisibleRow < item.y))
                 return false
 
             return true
         }
 
-        const res:ViewportData<T>[] = collection.filter((item: T) => isVisibleBlock(item)).map((item: T) => {
-            let yVirtual:number = item.y
-            let yVirtualSpan:number = item.ySpan
-            let fixedRowStyle:any={}
-            let key:string=item.id
-            const isRowLimit = item.y === this.firstScrollableVisibleRow() || item.y === this.lastVisibleRow()
+        return collection.filter((item: T) => isVisibleCell(item))
 
-            if (item.y <= this.getRowsHeaderCount())
-                fixedRowStyle = this.fixedRowStyle(item.y)
 
-            return ({
-                data: item,
-                key: key,
-                yVirtual: yVirtual,
-                ySpanVirtual: yVirtualSpan,
-                isRowLimit: isRowLimit,
-                isHeader: this.isHeaderRow(item.y),
-                fixedStyle: fixedRowStyle
-            })
-        })
-
-        return res
+        // const res:ViewportData<T>[] = collection.filter((item: T) => isVisibleCell(item)).map((item: T) => {
+        //     // let yVirtual:number = item.y
+        //     // let yVirtualSpan:number = item.ySpan
+        //     let fixedRowStyle:any={}
+        //     // let key:string=item.id
+        //     // const isRowLimit = item.y === this.firstScrollableVisibleRow || item.y === this.lastVisibleRow
+        //
+        //     // if (item.y <= this.rowsHeaderCount)
+        //     //     fixedRowStyle = this.fixedRowStyle(item.y)
+        //
+        //     return ({
+        //         data: item,
+        //         // key: key,
+        //         // yVirtual: yVirtual,
+        //         // ySpanVirtual: yVirtualSpan,
+        //         // isRowLimit: isRowLimit,
+        //         // isHeader: this.isHeaderRow(item.y),
+        //         // fixedStyle: fixedRowStyle
+        //     })
+        // })
+        //
+        // return res
     }
 }
 

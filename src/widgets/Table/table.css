@@ -30,6 +30,19 @@
     font-size: var(--array-font-size);
     z-index: 1;
 }
+.array-footer {
+    display: flex;
+    align-items: center;
+    /*background: rgba(128, 128, 128, .8);*/
+    color: black;
+    border-radius: 3px;
+    margin-left: 1px;
+    padding-right: var(--array-padding-right);
+    padding-left: var(--array-padding-left);
+    font-size: var(--array-font-size);
+    font-weight: bold;
+    z-index: 1;
+}
 .array-cell {
     display: flex;
     align-items: center;
@@ -88,7 +101,15 @@
 .array-col-hover {
     background-color: var(--color-col-over);
 }
-
+.red-value {
+    color: red;
+    font-weight: bold;
+}
+.blue-date {
+    color: blue;
+    font-weight: bold;
+    /*justify-content: center;*/
+}
 /* div[class^="array-col-"]:hover {
     background-color: rgba(255, 152, 152, 0.5);
     border: red 4px solid;

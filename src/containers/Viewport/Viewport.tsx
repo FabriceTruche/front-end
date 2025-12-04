@@ -8,10 +8,12 @@
 import {
     defaultViewportRange, ViewportManager,
 } from "./ViewportManager";
-import {ViewportInfoCellBase, ViewportData, ViewportRange, IViewportManager} from "./ViewportDefinitions";
+import {ViewportInfoCell, ViewportRange, IViewportManager} from "./ViewportDefinitions";
  import {AnyObject} from "../../common/common";
 
-export type ViewportProps<T extends ViewportInfoCellBase> = {
+export type ViewportProps<T extends ViewportInfoCell> = {
+    collection: T[]
+    columnsWidth?:AnyObject
     viewportHeight: number
     viewportRowHeight: number
     viewportGap?: number
@@ -19,15 +21,11 @@ export type ViewportProps<T extends ViewportInfoCellBase> = {
     rowHeaderCount: number
     headerPanelStyle?: CSSProperties
     onChange?: (viewportInfo:IViewportManager,viewportRange: ViewportRange)=>void
-    onViewportCell: (cell: ViewportData<T>, index:number, style:any, viewportInfo:IViewportManager)=>ReactElement
+    onViewportCell: (cell: T, index:number, style:any, viewportInfo:IViewportManager)=>ReactElement|null
     className?: string
-    collection: T[]
-    extension?: boolean
-    columnsWidth?:AnyObject
 }
-export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>) => {
-    const [viewData, setViewData] = useState<ViewportData<T>[]>([])
-    const [viewDataExtension, setViewDataExtension] = useState<ViewportData<T>[]>([])
+export const Viewport = <T extends ViewportInfoCell,>(props:ViewportProps<T>) => {
+    const [viewData, setViewData] = useState<T[]>([])
     const [viewportInfo, setViewportInfo] = useState<IViewportManager>()
     const [range, setRange] = useState<ViewportRange>(defaultViewportRange)
     const viewPortRef = useRef<any>(null)
@@ -42,7 +40,7 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
 
     const defineColsCount = (vpi: IViewportManager) => {
         // compute colsCount
-        const colsCount:ViewportInfoCellBase = {
+        const colsCount:ViewportInfoCell = {
             xSpan:0,
             value:"",
             y:0,
@@ -50,7 +48,7 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
             x:0,
             id:""
         };
-        const maxColsCount:ViewportInfoCellBase = props.collection.reduce(
+        const maxColsCount:ViewportInfoCell = props.collection.reduce(
             (accumulator, currentValue) => (accumulator.x<currentValue.x)?currentValue:accumulator,
             colsCount,
         );
@@ -58,16 +56,17 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
     }
 
     const refresh = (vpi: IViewportManager) => {
-        const data: ViewportData<T>[] =vpi.projectCells(props.collection)
+        // const data: ViewportData<T>[] =vpi.selectVisibleCells(props.collection)
+        const data: T[] =vpi.selectVisibleCells(props.collection)
         // console.log(3,data.length)
         defineColsCount(vpi)
-        const vpr: ViewportRange = vpi.getViewportRange()
+        const vpr: ViewportRange = vpi.viewportRange
         setRange(vpr)
         setViewData(data)
-        if (!!props.extension) {
-            setViewDataExtension(vpi.projectExtension(props.collection))
-            // console.log(viewDataExtension.length)
-        }
+        // if (!!props.extension) {
+        //     setViewDataExtension(vpi.projectExtension(props.collection))
+        //     // console.log(viewDataExtension.length)
+        // }
         if (props.onChange)
             props.onChange(vpi, vpr)
     }
@@ -78,20 +77,21 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
         return null
 
     const gridTemplateColumns:string|undefined = (props.columnsWidth===undefined) ? undefined : Object.values(props.columnsWidth).join(" ")
+    // console.log(">>", gridTemplateColumns)
 
     return (
         <div
             style={{
                 width: "fit-content",
                 minHeight: "auto",
-                maxHeight: viewportInfo.getViewportHeight() + "px",
+                maxHeight: viewportInfo.viewportHeight + "px",
                 overflowY: "auto",
             }}
             ref={viewPortRef}
             onScroll={() => {
                 if (viewportInfo !== undefined) {
                     viewportInfo.setViewportTop(viewPortRef.current.scrollTop)
-                    if (viewportInfo.firstScrollableVisibleRow() !== range.rowStart || viewportInfo.lastVisibleRow() !== range.rowEnd) {
+                    if (viewportInfo.firstScrollableVisibleRow !== range.rowStart || viewportInfo.lastVisibleRow !== range.rowEnd) {
                         refresh(viewportInfo)
                     }
                 }
@@ -99,32 +99,34 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
         >
             <div
                 style={{
-                    height: viewportInfo.getViewportContentHeight() + "px",
+                    height: viewportInfo.viewportContentHeight + "px",
                     display: "grid",
-                    gridAutoRows: viewportInfo.getViewportRowHeight() + "px",
+                    gridAutoRows: viewportInfo.viewportRowHeight + "px",
                     gridTemplateColumns: gridTemplateColumns,
-                    gridGap: viewportInfo.getViewportGap() + "px",
+                    gridGap: viewportInfo.viewportGap + "px",
                 }}
                 className={props.className}
             >
-                <div
-                    style={{
-                        ...(props.headerPanelStyle || defaultHeaderPanelStyle),
-                        gridRow: `1 / span ${viewportInfo.getRowsHeaderCount()}`,
-                        gridColumn: `1 / span ${viewportInfo.getColsCount()}`,
-                        top: "0",
-                        position: "sticky",
-                    }}
-                />
+                {props.rowHeaderCount>0 && (
+                    <div
+                        style={{
+                            ...(props.headerPanelStyle || defaultHeaderPanelStyle),
+                            gridRow: `1 / span ${viewportInfo.rowsHeaderCount}`,
+                            gridColumn: `1 / span ${viewportInfo.colsCount}`,
+                            top: "0",
+                            position: "sticky",
+                        }}
+                    />
+                )}
 
-                {viewData.map((item: ViewportData<T>, index: number) => {
+                {viewData.map((item: T, index: number) => {
                     const style:any = {
-                        gridRow: `${item.data.y} / span ${item.data.ySpan}`,
-                        gridColumn: `${item.data.x} / span ${item.data.xSpan}`,
-                        ...item.fixedStyle,
+                        gridRow: `${item.y} / span ${item.ySpan}`,
+                        gridColumn: `${item.x} / span ${item.xSpan}`,
+                        // ...item.fixedStyle,
                     }
                     return (
-                        <Fragment key={item.key}>
+                        <Fragment key={item.id}>
                             {props.onViewportCell(
                                 item,
                                 index,
@@ -135,31 +137,6 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
                     )
                 })}
 
-                {(!!props.extension) && viewDataExtension.map((item: ViewportData<T>, index: number) => {
-                    return (
-                        <div
-                            key={item.key}
-                            style={{
-                                gridRow: `${item.data.y} / span ${item.data.ySpan}`,
-                                gridColumn: `${item.data.x} / span ${item.data.xSpan}`,
-                                ...item.fixedStyle
-                            }}
-                        >
-                            <pre
-                                style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    fontSize: "10px",
-                                }}
-                            >
-                                <span>{item.data.value}</span>
-                                <span className="material-symbols-outlined">stat_1</span>
-                            </pre>
-                        </div>
-                    )
-                })}
-
             </div>
         </div>
     )
@@ -167,3 +144,30 @@ export const Viewport = <T extends ViewportInfoCellBase,>(props:ViewportProps<T>
 
 
 
+ // // const [viewDataExtension, setViewDataExtension] = useState<ViewportData<T>[]>([])
+ //
+ // {/*{(!!props.extension) && viewDataExtension.map((item: ViewportData<T>, index: number) => {*/}
+ // {/*    return (*/}
+ // {/*        <div*/}
+ // {/*            key={item.key}*/}
+ // {/*            style={{*/}
+ // {/*                gridRow: `${item.data.y} / span ${item.data.ySpan}`,*/}
+ // {/*                gridColumn: `${item.data.x} / span ${item.data.xSpan}`,*/}
+ // {/*                ...item.fixedStyle*/}
+ // {/*            }}*/}
+ // {/*        >*/}
+ // {/*            <pre*/}
+ // {/*                style={{*/}
+ // {/*                    display: "flex",*/}
+ // {/*                    justifyContent: "center",*/}
+ // {/*                    alignItems: "center",*/}
+ // {/*                    fontSize: "10px",*/}
+ // {/*                }}*/}
+ // {/*            >*/}
+ // {/*                <span>{item.data.value}</span>*/}
+ // {/*                <span className="material-symbols-outlined">stat_1</span>*/}
+ // {/*            </pre>*/}
+ // {/*        </div>*/}
+ // {/*    )*/}
+ // {/*})}*/}
+ //extension?: boolean

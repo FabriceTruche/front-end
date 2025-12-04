@@ -5,7 +5,7 @@ import {Column} from "../common/common";
 
 export type GenColumn = {
     name: string
-    type: "number"|"string"|"Date"|"boolean"|"index"
+    type: "integer"|"string"|"Date"|"boolean"|"index"|"float"
     label?: string
     ratioNull?: number
     min?: number
@@ -43,14 +43,17 @@ class GenHelper implements IGenHelper {
                     case "index":
                         row[genCol.name]=i+1
                         break;
-                    case "number":
+                    case "integer":
                         row[genCol.name]=this.checkNull(genCol, dataHelper.genInteger(genCol.min ?? 1,genCol.max ?? 100))
+                        break;
+                    case "float":
+                        row[genCol.name]=this.checkNull(genCol, dataHelper.genFloat(genCol.min ?? 1,genCol.max ?? 100))
                         break;
                     case "string":
                         row[genCol.name]=this.checkNull(genCol, dataHelper.genWords(genCol.min ?? 1,genCol.max ?? 1))
                         break;
                     case "Date":
-                        row[genCol.name]=this.checkNull(genCol, dataHelper.genDate().toLocaleDateString())
+                        row[genCol.name]=this.checkNull(genCol, dataHelper.genDate())
                         break;
                     case "boolean":
                         row[genCol.name]=this.checkNull(genCol, dataHelper.rand(0,1)>0.5)
@@ -77,8 +80,7 @@ class GenHelper implements IGenHelper {
                 name: c.name,
                 type: c.type,
                 sort: 0,
-                filter: "",
-                label: labelPred ? labelPred(c) : ( c.label ?? c.name )
+                label: labelPred ? labelPred(c) : ( c.label ?? c.name ),
             }))
         }
         return inputData
@@ -86,4 +88,4 @@ class GenHelper implements IGenHelper {
 
 }
 
-export const dataGen: IGenHelper = new GenHelper()
+export const genHelper: IGenHelper = new GenHelper()

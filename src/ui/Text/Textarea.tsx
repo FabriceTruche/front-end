@@ -15,56 +15,7 @@ export type TextareaProps = {
     maxlength?:number
     debug?:boolean
     onChange?: (value:any)=>void
-} // & FormSwitchProps
-
-// export const Textarea=(props:XTextareaProps)=>FormSwitch(TextareaForm,TextareaNoform)(props)
-//
-// const TextareaNoform=(props:XTextareaProps)=>(
-//     <div key={props.name}>
-//         <div>
-//             <label id={props.name}>
-//                 {props.label}
-//             </label>
-//         </div>
-//         <div>
-//             <TextareaInput {...props} />
-//             <span className="input-control">
-//                 {props.required ? "(*)" : ""}
-//             </span><br/>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//         </div>
-//         <div className="input-decoration">
-//
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </div>
-//     </div>
-// )
-//
-// const TextareaForm=(props:XTextareaProps)=>(
-//     <tr key={props.name}>
-//         <td>
-//             <label id={props.name}>
-//                 {props.label}
-//             </label>
-//         </td>
-//         <td>
-//             <TextareaInput {...props} />
-//             <span className="input-control">
-//                 {props.required ? "(*)" : ""}
-//             </span><br/>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//         </td>
-//         <td className="input-decoration">
-//
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </td>
-//     </tr>
-// )
-
+}
 export const Textarea=(props:TextareaProps)=>{
     const getValue=(e:any): any => {
         const nie: boolean = (props.nullIfEmpty === undefined) ? true : props.nullIfEmpty

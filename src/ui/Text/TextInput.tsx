@@ -2,7 +2,6 @@ import * as React from "react";
 import {useState} from "react";
 import './text-input.css'
 import {dataHelper} from "../../helper/DataHelper";
-// import {FormSwitch, FormSwitchProps} from "../../containers/FormSwitch/FormSwitch";
 
 export type TextInputProps = {
     name: string
@@ -18,54 +17,7 @@ export type TextInputProps = {
     debug?:boolean
     onChange?: (value:any)=>void
     onReset?: ()=>void
-} //  & FormSwitchProps
-
-// export const TextInput=(props:TextInputProps)=>FormSwitch(TextInputForm,TextInputNoForm)(props)
-//
-// const TextInputForm=(props:TextInputProps)=>(
-//     <tr key={props.name}>
-//         <td>
-//             <label id={props.name}>
-//                 {props.label}
-//             </label>
-//
-//         </td>
-//         <td>
-//             <TextInputAtomic {...props} />
-//             <br/>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//         </td>
-//         <td className="input-decoration">
-//
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </td>
-//     </tr>
-// )
-//
-// const TextInputNoForm=(props:TextInputProps)=>(
-//     <div key={props.name} >
-//         <div>
-//             <label id={props.name}>
-//                 {props.label}
-//             </label>
-//         </div>
-//         <div>
-//             <TextInputAtomic {...props} />
-//             <br/>
-//             {props.help && <span className="input-help">({props.help})</span>}
-//         </div>
-//         <div className="input-decoration">
-//
-//             {props.debug && (
-//                 <div className="input-debug">{props.name}</div>
-//             )}
-//         </div>
-//     </div>
-// )
-
-// const TextInputAtomic=(props:TextInputProps)=>{
+}
 export const TextInput=(props:TextInputProps)=>{
     const [value,setValue]=useState<string >(props.defaultValue??"")
 
@@ -87,6 +39,7 @@ export const TextInput=(props:TextInputProps)=>{
                     required={props.required}
                     defaultValue={props.defaultValue}
                     value={value}
+                    step={"any"}
                     onChange={(e: any) => {
                         const v = getValue(e)
                         setValue(v)

@@ -1,5 +1,6 @@
 import {AnyObject, Column} from "../common/common";
 import {TableData} from "../widgets/Table/Table";
+import {CSSProperties} from "react";
 
 export interface IUIHelper {
     // UI text width calculation
@@ -9,6 +10,9 @@ export interface IUIHelper {
     getMaxWidthFromArray(text:string[], element:Element):number
     getMaxWidthFromArrayById(text:string[], elementId:string):number
     getMaxWidthFromCollectionById(collection:TableData, elementId:string, extension?:number):AnyObject
+
+    mergeClassName(cls1: string|undefined, cls2: string|undefined): string|undefined
+    mergeCSSProperties(style1: CSSProperties|undefined, style2: CSSProperties|undefined): CSSProperties|undefined
 }
 
 
@@ -71,6 +75,24 @@ class UIHelper implements IUIHelper {
         if (elt)
             return window.getComputedStyle(elt, null).getPropertyValue(prop);
         return ""
+    }
+
+    /**
+     *
+     * @param cls1
+     * @param cls2
+     */
+    mergeClassName(cls1: string|undefined, cls2: string|undefined): string|undefined {
+        if (cls1===undefined)
+            return cls2
+
+        if (cls2===undefined)
+            return cls1
+
+        return cls1 + " " + cls2
+    }
+    mergeCSSProperties(style1: CSSProperties|undefined, style2: CSSProperties|undefined): CSSProperties|undefined {
+        return {...style1,...style2}
     }
 }
 

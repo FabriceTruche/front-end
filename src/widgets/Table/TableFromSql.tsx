@@ -1,11 +1,10 @@
 import {useEffect, useState} from "react";
-import {defaultTableData, ViewportCellArray, Table, TableData, TableProps} from "./Table";
+import {defaultTableData, ViewportTableInfoCell, Table, TableData, TableProps} from "./Table";
 import {AnyObject, Column, DbColumn, ResponseQuery} from "../../common/common";
 import {helper} from "../../helper/Helper";
-import {ViewportData} from "../../containers/Viewport/ViewportDefinitions";
 import {apiHelper} from "../../helper/ApiHelper";
 
-export type TableFromSqlProps = Omit<TableProps & {sql: string,labelName?:(col:DbColumn)=>string},"dbCollection">
+export type TableFromSqlProps = Omit<TableProps & {sql: string,labelName?:(col:DbColumn)=>string},"dataRows">
 
 export const TableFromSql = (props:TableFromSqlProps) => {
     const [initialDataRows, setInitialDataRows] = useState<AnyObject[]>([])
@@ -78,12 +77,12 @@ export const TableFromSql = (props:TableFromSqlProps) => {
 
     return (
         <Table
-            dbCollection={collection}
+            dataRows={collection}
             viewportHeight={props.viewportHeight}
-            onMouseOver={(cell: ViewportCellArray) => {
+            onMouseOver={(cell: ViewportTableInfoCell) => {
                 if (props.onMouseOver) props.onMouseOver(cell)
             }}
-            onClickHeader={(indexHeader: number, cell: ViewportData<ViewportCellArray>) => {
+            onClickHeader={(indexHeader: number, cell: ViewportTableInfoCell) => {
                 const newSort = (collection.columns[indexHeader].sort + 1) % 3
                 const newRows = sortData(collection.columns[indexHeader].name, newSort)
                 collection.columns.forEach((c: Column) => c.sort = 0)

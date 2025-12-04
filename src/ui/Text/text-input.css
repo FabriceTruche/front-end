@@ -24,6 +24,9 @@ input:focus, select:focus, textarea:focus {
     /* outline-offset: -2px; */
     /* border-color: green; */
 }
+input[type="number"] {
+    text-align: right;
+}
 form select {
     width: 100%;
 }

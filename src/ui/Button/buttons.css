@@ -4,6 +4,7 @@
 .xbg-container {
     margin: 10px;
     display: flex;
+    flex-wrap: wrap;
 }
 .xbg-container > *:first-child {
     border-top-left-radius: 8px;

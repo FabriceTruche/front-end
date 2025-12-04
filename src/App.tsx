@@ -1,11 +1,10 @@
 import React from 'react';
 import './App.css';
-import {TestNavbar1} from "./containers/_example/TestNavbar1";
-
+import {AllTests} from "./test/AllTests";
 
 const App=()=>{
   return (
-      <TestNavbar1 />
+      <AllTests />
   )
 }
 
