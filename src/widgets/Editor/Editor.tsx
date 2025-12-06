@@ -4,10 +4,15 @@ import {Checkbox} from "../../ui/Checkbox/Checkbox";
 import {List} from "../../ui/List/List";
 import {TextInput} from "../../ui/Text/TextInput";
 import {DateHelper} from "../../helper/DateHelper";
+import any = jasmine.any;
 
 export type ComponentObject = { [prop:string] : React.ElementType }
 export type AnyObject = { [prop:string] : any }
 
+export type EditorConf = {
+    editors?: any
+    props?: any
+}
 export interface IEditor {
     getEditors(): ComponentObject
     getProps(): any

@@ -1,13 +1,16 @@
 import * as React from 'react'
 import {useEffect, useState} from "react"
-import {AnyObject, Column} from "../../common/common";
+import {AnyObject} from "../../common/common";
 import {genHelper, GenColumn} from "../../helper/GenHelper";
-import {defaultTableData, Table, TableData, ViewportTableInfoCell} from "../../widgets/Table/Table";
-import {DataFormatter} from "../../widgets/Table/Formatter";
+import {Table, ViewportTableInfoCell} from "../../widgets/Table/Table";
+import {defaultTableData, TableData} from "../../widgets/Table/TableData";
+import {TypeExemple} from "./ExemplesType";
+import {DataFormatter} from "../../widgets/Table/DataFormatter";
+
 
 export const TestTable2 = () => {
-    const [rows, setRows] = useState<AnyObject[]>([])
-    const [collection, setCollection] = useState<TableData>(defaultTableData)
+    const [rows, setRows] = useState<TypeExemple[]>([])
+    const [collection, setCollection] = useState<TableData<TypeExemple>>(defaultTableData)
     const [item,setItem] = useState<ViewportTableInfoCell|undefined>()
     const [text,setText] = useState("")
 
@@ -20,7 +23,7 @@ export const TestTable2 = () => {
             { name: "montant", type: "float", label: "Montant total", min:-500, max:999 },
         ]
         const rows: any[] = genHelper.generateData(schema, 100)
-        const collection: TableData = genHelper.convertToDataTable(rows,schema)
+        const collection: TableData<TypeExemple> = genHelper.convertToDataTable(rows,schema)
 
         // totaux
         collection.totals = {}
@@ -47,9 +50,9 @@ export const TestTable2 = () => {
                 allowEdit={true}
                 allowFind={false}
                 viewportHeight={400}
-                onMouseOver={(cell:ViewportTableInfoCell)=>{
-                    setItem(cell)
-                }}
+                // onMouseOver={(cell:ViewportTableInfoCell)=>{
+                //     setItem(cell)
+                // }}
                 /*
                 onClick={(cell:CellData)=>{
                     const data: string = JSON.stringify(cell,null,3)

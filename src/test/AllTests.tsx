@@ -6,11 +6,9 @@ import {TestForm2} from "./containers/TestForm2";
 import {TestForm3} from "./containers/TestForm3";
 import {TestButtonGroup} from "./ui/TestButtonGroup";
 import {TestForm} from "./containers/TestForm";
-import {TestForm2Content} from "./containers/TestForm2Content";
 import {TestPopWindow2} from "./containers/TestPopWindow2";
 import {TestForm2Popup} from "./containers/TestForm2Popup";
 import {TestPopWindow1} from "./containers/TestPopWindow1";
-import {Navbar} from "../widgets/Navbar/Navbar";
 import {TestTable2} from "./widgets/TestTable2";
 import {TestTable1} from "./widgets/TestTable1";
 import {TestButtonImage} from "./ui/TestButtonImage";
@@ -20,58 +18,123 @@ import {EditorObject1} from "./widgets/EditorObject1";
 import {TestPopWindowV2} from "./containers/TestPopWindowV2";
 import {TestModal1} from "./containers/TestModal1";
 import {Page1} from "./containers/Page1";
+import {Menu, MenuItem} from "../widgets/Menu/Menu";
 
 
-export const AllTests = ()=> {
-    return (
-        <Navbar showTitle={false}>
+export const allTests: MenuItem[] = [
+    {
+        label: "Containers", content: [
+            {content: Page1},
+            {content: TestPopWindow1},
+            {content: TestPopWindow2},
+            {content: TestPopWindow3},
+            {content: TestPopWindow4},
+            {content: TestPopWindowV2},
+            {content: TestForm},
+            {content: TestForm2},
+            {content: TestForm2Popup},
+            {content: TestForm3},
+            {content: TestForm10},
+            {content: TestModal1},
+        ]
+    },
+    {
+        label: "Widgets", content: [
+            {content: TestTable1},
+            {content: TestTable2},
+        ]
+    },
+    {
+        label: "UI", content: [
+            {
+                label: "List", content: [
+                    {content: TestList},
+                ]
+            },
+            {
+                label: "Button", content: [
+                    {content: TestButtonGroup},
+                    {content: TestButtonImage},
+                ]
+            },
+            {
+                label: "Input", content: [
+                    {content: TestInput},
+                    {content: EditorObject1},
+                ]
+            },
+        ]
+    }
+]
 
-            {/**** containers  ********************/}
-            <Navbar label="Containers"  >
-                <Page1 />
-                <TestPopWindow1/>
-                <TestPopWindow2/>
-                <TestPopWindow3/>
-                <TestPopWindow4/>
-                <TestPopWindowV2 />
-                <TestForm/>
-                <TestForm2/>
-                <TestForm2Content
-                    onChange={() => {
-                    }}
-                    showButton={true}
-                />
-                <TestForm2Popup/>
-                <TestForm3/>
-                <TestForm10/>
-                <TestModal1/>
-            </Navbar>
-
-            {/**** widgets  ********************/}
-            <Navbar label="Widgets">
-                <TestTable1/>
-                <TestTable2/>
-            </Navbar>
-
-            {/**** UI  ***************************************/}
-            <Navbar label="UI">
-                <Navbar label="List">
-                    <TestList />
-                </Navbar>
-                <Navbar label="Button">
-                    <TestButtonGroup/>
-                    <TestButtonImage/>
-                </Navbar>
-                <Navbar label="Input">
-                    <TestInput />
-                    <EditorObject1 />
-                </Navbar>
-                <Navbar label="Box">
-
-                </Navbar>
-
-            </Navbar>
-
-        </Navbar>
-    )
-}
+//export const AllTests = ()=> <Menu items={allTests} />
+//
+//     <Navbar label="List">
+//         <TestList />
+//     </Navbar>
+//     <Navbar label="Button">
+//         <TestButtonGroup/>
+//         <TestButtonImage/>
+//     </Navbar>
+//     <Navbar label="Input">
+//         <TestInput />
+//         <EditorObject1 />
+//     </Navbar>
+//     <Navbar label="Box">
+//
+//     </Navbar>
+//
+// export const AllTests = ()=> {
+//     return (
+//         <Navbar showTitle={false}>
+//
+//             {/**** containers  ********************/}
+//             <Navbar label="Containers"  >
+//                 <Page1 />
+//                 <TestPopWindow1/>
+//                 <TestPopWindow2/>
+//                 <TestPopWindow3/>
+//                 <TestPopWindow4/>
+//                 <TestPopWindowV2 />
+//                 <TestForm/>
+//                 <TestForm2/>
+//                 <TestForm2Content
+//                     onChange={() => {
+//                     }}
+//                     showButton={true}
+//                 />
+//                 <TestForm2Popup/>
+//                 <TestForm3/>
+//                 <TestForm10/>
+//                 <TestModal1/>
+//             </Navbar>
+//
+//             {/**** widgets  ********************/}
+//             <Navbar label="Widgets">
+//                 <TestTable1/>
+//                 <TestTable2/>
+//                 <TestNav2 />
+//             </Navbar>
+//
+//             {/**** UI  ***************************************/}
+//             <Navbar label="UI">
+//                 <Navbar label="List">
+//                     <TestList />
+//                 </Navbar>
+//                 <Navbar label="Button">
+//                     <TestButtonGroup/>
+//                     <TestButtonImage/>
+//                 </Navbar>
+//                 <Navbar label="Input">
+//                     <TestInput />
+//                     <EditorObject1 />
+//                 </Navbar>
+//                 <Navbar label="Box">
+//
+//                 </Navbar>
+//
+//             </Navbar>
+//
+//         </Navbar>
+//     )
+// }

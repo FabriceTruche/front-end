@@ -1,23 +1,20 @@
-import {GridCellData, TableData, ViewportTableInfoCell} from "./Table";
-import {CSSProperties, ReactElement} from "react";
-import {Column} from "../../common/common";
-import {DataFormatter} from "./Formatter";
-import {DisplayedCellData} from "./IFormatter";
+import {ViewportTableInfoCell} from "./Table";
 import {uiHelper} from "../../helper/UIHelper";
+import {TableData} from "./TableData";
 
-export type TableItemProps = {
+export type TableItemProps<T> = {
     item: ViewportTableInfoCell
     index: number
     style: any
     // viewportInfo: IViewportManager
-    dataRows: TableData
+    // dataRows: TableData<T>
     allowEdit?:boolean
     onMouseOver?:((cell:ViewportTableInfoCell)=>void)
     onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
-    onClick?:((cell:GridCellData/*, info: IViewportManager*/)=>void)
+    onClick?:((cell:ViewportTableInfoCell/*, info: IViewportManager*/)=>void)
 }
 
-export const TableBody= (props: TableItemProps)=> {
+export const TableBody = <T,>(props: TableItemProps<T>)=> {
 
     const assignHover=(itemData:ViewportTableInfoCell, clsName:string, id:string|undefined, setHover:boolean)=>{
         if (id!==undefined) {
@@ -34,13 +31,13 @@ export const TableBody= (props: TableItemProps)=> {
 
     const item: ViewportTableInfoCell = props.item
 
-    const cell: GridCellData = {
-        rowIndex: item.y - 1,
-        columnIndex: item.x - 1,
-        cellValue: item.value,
-        row: props.dataRows.data[item.y - 1],
-        // columns: props.dataRows.columns
-    }
+    // const cell: CellDataSelection = {
+    //     rowIndex: item.y - 1,
+    //     colIndex: item.x - 1,
+    //     value: item.value,
+    //     row: props.dataRows.data[item.y - 1],
+    //     // columns: props.dataRows.columns
+    // }
 
     const style = uiHelper.mergeCSSProperties(item.style, props.style)
 
@@ -65,7 +62,7 @@ export const TableBody= (props: TableItemProps)=> {
             }}
             onClick={()=>{
                 if (props.onClick)
-                    props.onClick(cell)
+                    props.onClick(item)
             }}
         >
             {item.value}

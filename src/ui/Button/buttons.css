@@ -1,5 +1,5 @@
 :root {
-    --border-size: 3px;
+    --border-size: 2px;
 }
 .xbg-container {
     margin: 10px;
@@ -32,7 +32,7 @@
 }
 .xbg-button-selected {
     border-color: rgba(128, 128, 128, 32%);
-    background: rgba(211, 211, 211, 30%);
+    background: rgba(47, 47, 47, 0.3);
 }
 .xbg-button:hover {
     border: var(--border-size) solid rgba(128, 128, 128, 100%);

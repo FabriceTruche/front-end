@@ -1,11 +1,15 @@
-import {TableDataCellInfo} from "./TableManager";
 import {ViewportTableInfoCell} from "./Table";
+import {TableDataCellInfo} from "./ITableManager";
 
 export type TableHeaderProps = {
-    tableDataCells: TableDataCellInfo
+    tableDataCells: TableDataCellInfo|null
+    onClick:(colIndex:number)=>void
 }
 
 export  const TableHeader = (props: TableHeaderProps) => {
+    if (props.tableDataCells === null)
+        return null
+
     const widths = Object.values(props.tableDataCells.widths).join(" ")
 
     return (
@@ -26,6 +30,9 @@ export  const TableHeader = (props: TableHeaderProps) => {
                         style={{
                             gridRow: `1 / span 1`,
                             gridColumn: `${c.x} / span 1`,
+                        }}
+                        onClick={()=>{
+                            props.onClick(c.x-1)
                         }}
                     >
                         {c.value}

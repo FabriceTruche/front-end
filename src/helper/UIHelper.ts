@@ -1,6 +1,8 @@
-import {AnyObject, Column} from "../common/common";
-import {TableData} from "../widgets/Table/Table";
+import {AnyObject} from "../common/common";
 import {CSSProperties} from "react";
+import {Column} from "../widgets/Table/Column";
+import {TableData} from "../widgets/Table/TableData";
+import {TypeExemple} from "../test/widgets/ExemplesType";
 
 export interface IUIHelper {
     // UI text width calculation
@@ -9,7 +11,7 @@ export interface IUIHelper {
     getWidthFromText(text:string, element:Element):number
     getMaxWidthFromArray(text:string[], element:Element):number
     getMaxWidthFromArrayById(text:string[], elementId:string):number
-    getMaxWidthFromCollectionById(collection:TableData, elementId:string, extension?:number):AnyObject
+    getMaxWidthFromCollectionById(collection:TableData<{[strProp: string]: string}>, elementId:string, extension?:number): {[strProp: string]: number}
 
     mergeClassName(cls1: string|undefined, cls2: string|undefined): string|undefined
     mergeCSSProperties(style1: CSSProperties|undefined, style2: CSSProperties|undefined): CSSProperties|undefined
@@ -51,7 +53,7 @@ class UIHelper implements IUIHelper {
         const font:string=this._getCanvasFont(element)
         return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
     }
-    getMaxWidthFromCollectionById(collection:TableData, elementId:string, extension?:number):AnyObject {
+    getMaxWidthFromCollectionById(collection:TableData<{[strProp: string]: string}>, elementId:string, extension?:number):{[strProp: string]: number} {
         const element:Element|null=document.getElementById(elementId)
         let res:AnyObject={}
 
@@ -59,9 +61,9 @@ class UIHelper implements IUIHelper {
             const font: string = this._getCanvasFont(element)
 
             collection.columns.forEach((c: Column) => {
-                let arr: string[] = collection.data.map((row: AnyObject) => row[c.name])
-                arr.push(c.label)
-                res[c.name] = Math.ceil(this.getMaxWidthFromArray(arr, element) + (extension===undefined?0:extension)) + "px"
+                let tableDataStr: string[] = collection.data.map((row: {[strProp: string]: string}) => row[c.name].toString() )
+                tableDataStr.push(c.label)
+                res[c.name] = Math.ceil(this.getMaxWidthFromArray(tableDataStr, element) + (extension===undefined?0:extension)) + "px"
             })
         }
 

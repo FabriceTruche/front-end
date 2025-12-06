@@ -1,7 +1,7 @@
-import {TableData, ViewportTableInfoCell} from "./Table";
-import {TableDataCellInfo} from "./TableManager";
+import {ViewportTableInfoCell} from "./Table";
 import {uiHelper} from "../../helper/UIHelper";
 import {CSSProperties} from "react";
+import {TableDataCellInfo} from "./ITableManager";
 
 export type TableFooterProps = {
     tableDataCells: TableDataCellInfo

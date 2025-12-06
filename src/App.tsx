@@ -1,35 +1,17 @@
 import React from 'react';
 import './App.css';
-import {AllTests} from "./test/AllTests";
-import {MainApp} from "./Main";
+import {Menu, MenuItem} from "./widgets/Menu/Menu";
+import {MxMenu} from "./test/widgets/MxMenu";
+import {myMenu} from "./test/widgets/TestMenu";
+import {allTests} from "./test/AllTests";
 
 const App=()=>{
   return (
-      <MainApp />
+      <div>
+        {/*<Menu items={allTests} />*/}
+        <MxMenu />
+      </div>
   )
 }
 
 export default App;
-
-
-// function AppOriginal() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.tsx</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-

@@ -1,5 +1,5 @@
-import {AnyObject, Column, DbColumn, ResponseQuery} from "../common/common";
-import {TableData} from "../widgets/Table/Table";
+import {DbColumn, ResponseQuery} from "../common/common";
+import {defaultTableData, TableData} from "../widgets/Table/TableData";
 
 export interface IHelper {
 
@@ -10,7 +10,7 @@ export interface IHelper {
     getById<T extends {id:string} >(items:T[],id:string):T|null
 
     // with table ...
-    toCollection(response:any, pred?:(c:DbColumn)=>string): TableData|null
+    toCollection<T>(response:any, pred?:(c:DbColumn)=>string): TableData<T>
 }
 
 class Helper implements IHelper {
@@ -87,11 +87,11 @@ class Helper implements IHelper {
      * @param response
      * @param pr
      */
-    public toCollection(response: any, pr?:(c:DbColumn)=>string): TableData | null {
+    public toCollection<T>(response: any, pr?:(c:DbColumn)=>string): TableData<T>  {
         const pred=(pr===undefined) ? (c:DbColumn):string=>c.name : pr
 
         if (response.error === undefined) {
-            const inputData: TableData = {
+            const inputData: TableData<T> = {
                 data: response.data,
                 columns: response.meta.map((c: DbColumn) => ({
                     name: c.name,
@@ -103,7 +103,7 @@ class Helper implements IHelper {
             }
             return inputData
         }
-        return null
+        return defaultTableData
     }
 
 }

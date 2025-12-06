@@ -1,7 +1,6 @@
 import {useState} from "react";
 import {AnyObject, DbColumn} from "../../common/common";
 import {Buttons} from "../../ui/Button/Buttons";
-import {TableFromSql} from "../../widgets/Table/TableFromSql";
 import {Button} from "../../ui/Button/Button";
 
 export const TestXArray2 = ()=> {
@@ -47,13 +46,13 @@ export const TestXArray2 = ()=> {
                     Select 2
                 </Button>
             </Buttons>
-            {(sql!=="") && (
-                <TableFromSql
-                    sql={sql}
-                    labelName={mapLabel}
-                    viewportHeight={600}
-                />
-            )}
+            {/*{(sql!=="") && (*/}
+            {/*    <TableFromSql*/}
+            {/*        sql={sql}*/}
+            {/*        labelName={mapLabel}*/}
+            {/*        viewportHeight={600}*/}
+            {/*    />*/}
+            {/*)}*/}
         </div>
     )
 }

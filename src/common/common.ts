@@ -13,14 +13,6 @@ export type DbColumn = {
     orgTable: string
     type: string
 }
-export type Column = {
-    name: string
-    type: string
-    sort: number
-    label: string
-    dataFormat?: IFormatter
-    editor?: JSX.Element
-}
 export type ResponseQuery = {
     data: any[]
     meta: any[]

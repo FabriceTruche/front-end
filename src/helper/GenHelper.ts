@@ -1,7 +1,6 @@
 import {dataHelper} from "./DataHelper";
-import {TableData} from "../widgets/Table/Table";
-import {Column} from "../common/common";
-
+import {Column} from "../widgets/Table/Column";
+import {TableData} from "../widgets/Table/TableData";
 
 export type GenColumn = {
     name: string
@@ -14,7 +13,7 @@ export type GenColumn = {
 
 export interface IGenHelper {
     generateData(genColumns: GenColumn[], count: number): any[]
-    convertToDataTable(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): TableData
+    convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): TableData<T>
 }
 
 class GenHelper implements IGenHelper {
@@ -73,8 +72,8 @@ class GenHelper implements IGenHelper {
      * @param columns
      * @param labelPred
      */
-    public convertToDataTable(data: any[], columns: GenColumn[], labelPred?:(c:GenColumn)=>string): TableData {
-        const inputData: TableData = {
+    public convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?:(c:GenColumn)=>string): TableData<T> {
+        const inputData: TableData<T> = {
             data: data,
             columns: columns.map((c: GenColumn):Column => ({
                 name: c.name,

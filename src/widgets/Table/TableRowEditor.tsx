@@ -1,13 +1,9 @@
-import {Form} from "../../containers/Form/Form";
-import {TextInput} from "../../ui/Text/TextInput";
 import {Popup} from "../../containers/Popup/Popup";
-import {GridCellData} from "./Table";
-import {Column} from "../../common/common";
 import {Editor} from "../Editor/Editor";
 
 export type EditRowProps = {
     show: boolean
-    row:GridCellData
+    row: any
     onOk?: ()=>void
     onCancel?: ()=>void
 }

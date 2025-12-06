@@ -1,0 +1,6 @@
+.page-container {
+    border-radius: 2px;
+    border: 2px lightgray solid;
+    width: 80vw;
+    padding: 10px;
+}

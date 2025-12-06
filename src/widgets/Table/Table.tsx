@@ -1,66 +1,65 @@
 import {useEffect, useState} from "react";
-import {TableDataCellInfo, TableManager} from "./TableManager";
-import {AnyObject, Column} from "../../common/common";
 import {ViewportInfoCell} from "../../containers/Viewport/ViewportDefinitions";
 import {TextInput} from "../../ui/Text/TextInput"
 import {Viewport} from "../../containers/Viewport/Viewport";
 import {TableRowEditor} from "./TableRowEditor";
 import {TableBody} from "./TableBody";
-import "./table.css"
 import {TableFooter} from "./TableFooter";
 import {TableHeader} from "./TableHeader";
+import {TableData} from "./TableData";
+import {createTableManager, ITableManager, TableDataCellInfo} from "./ITableManager";
+import "./table.css"
 
-export type TableData = {
-    data: AnyObject[]
-    columns: Column[]
-    totals?: { [property: string]: number }
-}
-export const defaultTableData: TableData = {
-    columns:[],
-    data:[]
-}
-export type GridCellData = {
-    rowIndex: number
-    columnIndex: number
-    row: any
-    cellValue: any
-    // columns: Column[]
-}
+// export type CellDataSelection = {
+//     rowIndex: number
+//     colIndex: number
+//     row: any
+//     value: any
+// }
 export type ViewportTableInfoCell = ViewportInfoCell & {
     typeCell: "data"|"row"|"col"|"header"|"footer"
     rowId?: string
     colId?: string
-    // headerId?: string
 }
-export type TableProps = {
-    dataRows: TableData
+export type TableProps<T> = {
+    dataRows: TableData<T>
     allowFind?:boolean
     allowEdit?:boolean
     viewportHeight?: number
     viewportRowHeight?: number
-    onMouseOver?:((cell:ViewportTableInfoCell)=>void)
-    onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
-    onFind?:((text:string)=>void)
-    // onClick?:((cell:CellData, info: IViewportManager)=>void)
+    // onMouseOver?:((cell:ViewportTableInfoCell)=>void)
+    // onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
+    // onFind?:((text:string)=>void)
+    // onClick?:((cell:CellDataSelection)=>void)
 }
-export const Table = (props: TableProps) => {
-    const [tableDataCells, setTableDataCells] = useState<TableDataCellInfo>()
+export const Table = <T,>(props: TableProps<T>) => {
+    const [tableMgr,setTableMgr] = useState<ITableManager<T>>()
+    const [tableDataCells, setTableDataCells] = useState<TableDataCellInfo|null>(null)
     const [editRow, setEditRow] = useState<boolean>(false)
-    const [cellData, setCellData] = useState<GridCellData>()
-    const [columnsWidth, setColumnsWidth] = useState("")
+    const [cellData, setCellData] = useState<ViewportTableInfoCell>()
 
     const headerRef = <div id="header-ref-style" className="array-header" style={{visibility: "hidden", width:0, height:0}}> HEADER REF STYLE</div>
 
     useEffect(() => {
-        // const ai:ITableManager=createTableManager()
-        const allCells:TableDataCellInfo = TableManager.calcTableDataCellInfo(props.dataRows,"header-ref-style")
-        const gridTemplateColumns:string = Object.values(allCells.widths).join(" ")
+        const tm: ITableManager<T> = createTableManager(props.dataRows, "header-ref-style")
+        setTableMgr(tm)
+        setTableDataCells(tm.calcTableDataCellInfo(props.dataRows.data, "header-ref-style"))
 
-        setColumnsWidth(gridTemplateColumns)
-        setTableDataCells(allCells)
+        // const tm:ITableManager<T> = createTableManager()
+        // const allCells:TableDataCellInfo = tm.calcTableDataCellInfo("header-ref-style")
+        // const gridTemplateColumns:string = Object.values(allCells.widths).join(" ")
+        // setColumnsWidth(gridTemplateColumns)
+
     }, [props.dataRows])
 
-    if (tableDataCells===undefined)
+    const currentRow = (): T|null => {
+        if (tableMgr && cellData) {
+            return tableMgr.rowAt(cellData.y-1)
+        }
+        return null
+    }
+
+    if (tableDataCells === null)
         return headerRef
 
     return (
@@ -72,24 +71,27 @@ export const Table = (props: TableProps) => {
                     label="Find"
                     nullIfEmpty={false}
                     onChange={(text:string)=>{
-                        if (props.onFind) props.onFind(text)
+                        // if (props.onFind) props.onFind(text)
                     }}
                     onReset={()=>{
-                        if (props.onFind) props.onFind("")
+                        // if (props.onFind) props.onFind("")
                     }}
                 />
             )}
             <TableRowEditor
                 show={editRow}
-                row={cellData && cellData.row}
+                row={currentRow()} //cellData && cellData.row}
                 onCancel={()=>setEditRow(false)}
                 onOk={()=>setEditRow(false)}
             />
 
             <TableHeader
                 tableDataCells={tableDataCells}
-                // dataRows={props.dataRows}
-                // columnsWidth={columnsWidth}
+                onClick={(colIndex:number)=>{
+                    if (tableMgr!==undefined) {
+                        setTableDataCells(tableMgr.sort(colIndex))
+                    }
+                }}
             />
 
             <Viewport<ViewportTableInfoCell>
@@ -111,13 +113,16 @@ export const Table = (props: TableProps) => {
                             index={index}
                             style={style}
                             // viewportInfo={viewportInfo}
-                            dataRows={props.dataRows}
-                            onMouseOver={()=>props.onMouseOver && props.onMouseOver(item)}
-                            onClick={((cell:GridCellData,)=>{
+                            // dataRows={props.dataRows}
+                            // onMouseOver={()=>props.onMouseOver && props.onMouseOver(item)}
+                            onClick={((cell:ViewportTableInfoCell,)=>{
                                 if (!!props.allowEdit)
                                     setEditRow(true)
 
                                 setCellData(cell)
+
+                                // if (props.onClick)
+                                //     props.onClick(cell)
                             })}
                         />
 
@@ -132,51 +137,3 @@ export const Table = (props: TableProps) => {
         </div>
     )
 }
-
-
-
-
-
-
-
-// <div
-//     id={item.key}
-//     className={item.data.className}
-//     style={style}
-//     onMouseEnter={()=> {
-//         assignHover(item.data,"array-row-hover",item.data.rowId,true)
-//         assignHover(item.data,"array-col-hover",item.data.colId,true)
-//         assignHover(item.data,"array-header-hover",item.data.headerId,true)
-//     }}
-//     onMouseLeave={()=>{
-//         assignHover(item.data,"array-row-hover",item.data.rowId,false)
-//         assignHover(item.data,"array-col-hover",item.data.colId,false)
-//         assignHover(item.data,"array-header-hover",item.data.headerId,false)
-//     }}
-//     onMouseOver={()=>props.onMouseOver && props.onMouseOver(item.data)}
-//     onClick={()=>{
-//         if (item.data.typeCell==="header") {
-//             props.onClickHeader && props.onClickHeader(item.data.x-1,item)
-//         } else {
-//             const cell: CellData = {
-//                 rowIndex: item.data.y - 2,
-//                 columnIndex: item.data.x - 1,
-//                 cellValue: item.data.value,
-//                 row: props.dataRows.data[item.data.y - 2],
-//             }
-//             props.onClick && props.onClick(cell, viewportInfo)
-//
-//             if (!!props.allowEdit)
-//                 setEditRow(true)
-//
-//             setCellData(cell)
-//         }
-//     }}
-// >
-//     {displayCell(item)}
-// </div>
-/*                                if (item.typeCell==="header") {
-                                    props.onClickHeader && props.onClickHeader(item.x-1,item)
-                                } else {
-                                }
-*/

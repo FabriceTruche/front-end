@@ -1,6 +1,17 @@
+.root_V0 {
+    --color-container: #5c6cab;
+    --color-border-container: #461e1e;
+    --color-row-over: rgba(255, 152, 246, 0.31);
+    --color-col-over: rgba(255, 152, 246, 0.31);
+    --color-cell-over: rgba(255, 152, 246, 0.74);
+    --color-input: rgba(225, 214, 141, 0.37);
+    --array-font-size: 13px;
+    --array-padding-left: 5px;
+    --array-padding-right: 5px;
+}
 :root {
     --color-container: #fdf6fd;
-    --color-border-container: #bd65bd;
+    --color-border-container: #c4c4c4;
     --color-row-over: rgba(255, 152, 246, 0.31);
     --color-col-over: rgba(255, 152, 246, 0.31);
     --color-cell-over: rgba(255, 152, 246, 0.74);
