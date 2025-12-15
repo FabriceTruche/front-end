@@ -1,10 +1,10 @@
 import {Form} from "../../containers/Form/Form";
-import {dataHelper} from "../../helper/DataHelper";
 import {SimpleList} from "../../ui/List/SimpleList";
 import {List} from "../../ui/List/List";
 import {TextInput} from "../../ui/Text/TextInput";
+import {helper} from "../../common/Helper";
 
-const items: string[] = dataHelper.genWordsArray(10,30)
+const items: string[] = helper.genWordsArray(10,30)
 
 export const ControlsUI = () => {
     return (

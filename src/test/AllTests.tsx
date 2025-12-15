@@ -9,8 +9,8 @@ import {TestForm} from "./containers/TestForm";
 import {TestPopWindow2} from "./containers/TestPopWindow2";
 import {TestForm2Popup} from "./containers/TestForm2Popup";
 import {TestPopWindow1} from "./containers/TestPopWindow1";
-import {TestTable2} from "./widgets/TestTable2";
-import {TestTable1} from "./widgets/TestTable1";
+import {TestTable2} from "./Table/TestTable2";
+import {TestTable1} from "./Table/TestTable1";
 import {TestButtonImage} from "./ui/TestButtonImage";
 import {TestInput} from "./ui/TestInput";
 import {TestList} from "./ui/TestList";
@@ -19,6 +19,7 @@ import {TestPopWindowV2} from "./containers/TestPopWindowV2";
 import {TestModal1} from "./containers/TestModal1";
 import {Page1} from "./containers/Page1";
 import {Menu, MenuItem} from "../widgets/Menu/Menu";
+import {Tcd1} from "./Tcd/Tcd1";
 
 
 export const allTests: MenuItem[] = [
@@ -42,6 +43,7 @@ export const allTests: MenuItem[] = [
         label: "Widgets", content: [
             {content: TestTable1},
             {content: TestTable2},
+            {content: Tcd1 }
         ]
     },
     {

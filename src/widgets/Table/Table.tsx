@@ -1,129 +1,113 @@
-import {useEffect, useState} from "react";
 import {ViewportInfoCell} from "../../containers/Viewport/ViewportDefinitions";
 import {TextInput} from "../../ui/Text/TextInput"
 import {Viewport} from "../../containers/Viewport/Viewport";
-import {TableRowEditor} from "./TableRowEditor";
 import {TableBody} from "./TableBody";
 import {TableFooter} from "./TableFooter";
 import {TableHeader} from "./TableHeader";
-import {TableData} from "./TableData";
-import {createTableManager, ITableManager, TableDataCellInfo} from "./ITableManager";
+import {ITableData} from "./TableData";
+import {useTableHook} from "./useTableHook";
+import {TableRowEditor} from "./TableRowEditor";
+import {useState} from "react";
 import "./table.css"
+import {helper} from "../../common/Helper";
 
-// export type CellDataSelection = {
-//     rowIndex: number
-//     colIndex: number
-//     row: any
-//     value: any
-// }
+
+export type TableRow = {
+    rowIndex: number
+    colIndex: number
+    row: any
+    value: any
+}
+export type TypeCell = "data"|"row"|"col"|"header"|"footer"
+
 export type ViewportTableInfoCell = ViewportInfoCell & {
-    typeCell: "data"|"row"|"col"|"header"|"footer"
+    typeCell: TypeCell
     rowId?: string
     colId?: string
 }
 export type TableProps<T> = {
-    dataRows: TableData<T>
+    dataRows: ITableData<T>
     allowFind?:boolean
     allowEdit?:boolean
     viewportHeight?: number
     viewportRowHeight?: number
-    // onMouseOver?:((cell:ViewportTableInfoCell)=>void)
-    // onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
-    // onFind?:((text:string)=>void)
-    // onClick?:((cell:CellDataSelection)=>void)
+    onClick?:(cell:ViewportTableInfoCell)=>void
 }
 export const Table = <T,>(props: TableProps<T>) => {
-    const [tableMgr,setTableMgr] = useState<ITableManager<T>>()
-    const [tableDataCells, setTableDataCells] = useState<TableDataCellInfo|null>(null)
-    const [editRow, setEditRow] = useState<boolean>(false)
-    const [cellData, setCellData] = useState<ViewportTableInfoCell>()
+
+    const [editIsOn,setEditIsOn] = useState(false)
+    const [key,setKey] = useState(helper.genKey())
+
+    const {
+        tableDataView,
+        handleSort,
+        sortedColIndex,
+        handleFilter,
+        handleResetFilter,
+        selectCell,
+        rowData,
+    } = useTableHook(props.dataRows)
 
     const headerRef = <div id="header-ref-style" className="array-header" style={{visibility: "hidden", width:0, height:0}}> HEADER REF STYLE</div>
-
-    useEffect(() => {
-        const tm: ITableManager<T> = createTableManager(props.dataRows, "header-ref-style")
-        setTableMgr(tm)
-        setTableDataCells(tm.calcTableDataCellInfo(props.dataRows.data, "header-ref-style"))
-
-        // const tm:ITableManager<T> = createTableManager()
-        // const allCells:TableDataCellInfo = tm.calcTableDataCellInfo("header-ref-style")
-        // const gridTemplateColumns:string = Object.values(allCells.widths).join(" ")
-        // setColumnsWidth(gridTemplateColumns)
-
-    }, [props.dataRows])
-
-    const currentRow = (): T|null => {
-        if (tableMgr && cellData) {
-            return tableMgr.rowAt(cellData.y-1)
-        }
-        return null
-    }
-
-    if (tableDataCells === null)
-        return headerRef
 
     return (
         <div className="array-container">
             {headerRef}
+
             {(!!props.allowFind) && (
                 <TextInput
                     name="array-find-input"
                     label="Find"
                     nullIfEmpty={false}
-                    onChange={(text:string)=>{
-                        // if (props.onFind) props.onFind(text)
-                    }}
-                    onReset={()=>{
-                        // if (props.onFind) props.onFind("")
-                    }}
+                    onChangeEnter={handleFilter}
+                    onReset={handleResetFilter}
                 />
             )}
-            <TableRowEditor
-                show={editRow}
-                row={currentRow()} //cellData && cellData.row}
-                onCancel={()=>setEditRow(false)}
-                onOk={()=>setEditRow(false)}
-            />
+
+            {(!!props.allowEdit) && (rowData!==null) && (
+                <TableRowEditor
+                    show={editIsOn}
+                    object={rowData.row}
+                    columns={props.dataRows.columns}
+                    // editors={props.editors}
+                    onCancel={()=>setEditIsOn(false)}
+                    onOk={()=>setEditIsOn(false)}
+                />
+            )}
 
             <TableHeader
-                tableDataCells={tableDataCells}
+                tableDataCells={tableDataView}
+                sortedColIndex={sortedColIndex}
                 onClick={(colIndex:number)=>{
-                    if (tableMgr!==undefined) {
-                        setTableDataCells(tableMgr.sort(colIndex))
-                    }
+                    handleSort(colIndex)
+                    setKey(helper.genKey())
                 }}
             />
 
             <Viewport<ViewportTableInfoCell>
-                // key={key}
+                key={key}
                 viewportHeight={props.viewportHeight ?? 1000}
                 viewportRowHeight={props.viewportRowHeight ?? 22}
-                rowCount={props.dataRows.data.length}
+                rowCount={tableDataView ? tableDataView.rowCount : 0}
                 viewportGap={0}
                 rowHeaderCount={0}
-                collection={tableDataCells.body}
-                columnsWidth={tableDataCells.widths}
+                collection={tableDataView ? tableDataView.body : []}
+                columnsWidth={tableDataView ? tableDataView.widths : {}}
                 onViewportCell={(item: ViewportTableInfoCell, index:number, style:any) => {
                     if (item.typeCell==="header" || item.typeCell==="footer")
                         return null
 
                     return (
                         <TableBody
+                            // key={key}
                             item={item}
                             index={index}
                             style={style}
-                            // viewportInfo={viewportInfo}
-                            // dataRows={props.dataRows}
-                            // onMouseOver={()=>props.onMouseOver && props.onMouseOver(item)}
-                            onClick={((cell:ViewportTableInfoCell,)=>{
-                                if (!!props.allowEdit)
-                                    setEditRow(true)
-
-                                setCellData(cell)
-
-                                // if (props.onClick)
-                                //     props.onClick(cell)
-                            })}
+                            onRowClick={(cell:ViewportTableInfoCell)=>{
+                                selectCell(cell)
+                                setEditIsOn(true)
+                                props.onClick && props.onClick(cell)
+                            }}
                         />
 
                     )
@@ -131,9 +115,55 @@ export const Table = <T,>(props: TableProps<T>) => {
             />
 
             <TableFooter
-                tableDataCells={tableDataCells}
+                tableDataCells={tableDataView}
             />
-
         </div>
     )
 }
+
+
+
+
+/*
+            {props.allowEdit && (
+                <div>
+                    HELLO WORLD
+                    <pre>
+                        {JSON.stringify(rowData,null,3)}
+                    </pre>
+                </div>
+            )}
+*/    // onMouseOver?:((cellData:ViewportTableInfoCell, rowData: TableRow)=>void)
+// onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
+// onFind?:((text:string)=>void)
+// onClick?:((cell:CellDataSelection)=>void)
+// const [tableMgr,setTableMgr] = useState<ITableManager<T>>()
+// const [tableDataCells, setTableDataCells] = useState<TableDataView|null>(null)
+// const [editRow, setEditRow] = useState<boolean>(false)
+// const [cellData, setCellData] = useState<ViewportTableInfoCell>()
+
+
+// useEffect(() => {
+//     const tm: ITableManager<T> = createTableManager(props.dataRows, "header-ref-style")
+//     setTableMgr(tm)
+//     setTableDataCells(tm.calcTableDataCellInfo(props.dataRows.data, "header-ref-style"))
+//
+//     // const tm:ITableManager<T> = createTableManager()
+//     // const allCells:TableDataCellInfo = tm.calcTableDataCellInfo("header-ref-style")
+//     // const gridTemplateColumns:string = Object.values(allCells.widths).join(" ")
+//     // setColumnsWidth(gridTemplateColumns)
+//
+// }, [props.dataRows])
+
+// const currentRow = (): T|null => {
+//     if (tableMgr && cellData) {
+//         return tableMgr.rowAt(cellData.y-1)
+//     }
+//     return null
+// }
+//
+// if (tableDataCells === null)
+//     return headerRef
+// console.log("rowData=",rowData)
+// console.log("cellData=",cellData)
+

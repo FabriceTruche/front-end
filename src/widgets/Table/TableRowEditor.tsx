@@ -1,24 +1,19 @@
 import {Popup} from "../../containers/Popup/Popup";
 import {Editor} from "../Editor/Editor";
+import {IColumn} from "./Column";
 
-export type EditRowProps = {
-    show: boolean
-    row: any
+export type TableRowEditorProps = {
+    show?: boolean
+    object: any
+    columns: IColumn[]
     onOk?: ()=>void
     onCancel?: ()=>void
 }
 
-export const TableRowEditor = (props: EditRowProps) => {
+export const TableRowEditor = (props: TableRowEditorProps) => {
 
     if (!props.show)
         return <div />
-
-    // const controls = (props.row===undefined) ? [] : Object.keys(props.row).map((k:string)=> {
-    //     const valueOf=(obj: any,field: string) => (obj!==undefined) ? obj[field] : "?"
-    //     return (
-    //         <TextInput name={k} label={k} defaultValue={valueOf(props.row,k)}/>
-    //     )
-    // })
 
     return (
         <Popup
@@ -32,8 +27,21 @@ export const TableRowEditor = (props: EditRowProps) => {
             }}
         >
             <Editor
-                object={props.row}
+                object={props.object}
+                columns={props.columns}
             />
         </Popup>
     )
 }
+
+
+
+// const controls = (props.row===undefined) ? [] : Object.keys(props.row).map((k:string)=> {
+//     const valueOf=(obj: any,field: string) => (obj!==undefined) ? obj[field] : "?"
+//     return (
+//         <TextInput name={k} label={k} defaultValue={valueOf(props.row,k)}/>
+//     )
+// })
+// editors?: any
+
+

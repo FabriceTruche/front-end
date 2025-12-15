@@ -1,9 +1,9 @@
-import {dataHelper} from "../../helper/DataHelper";
 import {useState} from "react";
 import {SimpleList} from "../../ui/List/SimpleList";
 import {Popup_V0} from "../../containers/Popup/Popup_V0";
+import {helper} from "../../common/Helper";
 
-const items: string[] = dataHelper.genWordsArray()
+const items: string[] = helper.genWordsArray()
 
 export const TestPopWindow3 = () => {
     const [selectedValue, setSelectedValue] = useState("")

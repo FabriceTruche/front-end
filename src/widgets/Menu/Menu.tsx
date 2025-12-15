@@ -1,9 +1,9 @@
 import React, {useState} from "react";
 import {Buttons} from "../../ui/Button/Buttons";
 import {Button} from "../../ui/Button/Button";
-import {dataHelper} from "../../helper/DataHelper";
-import {Page1} from "../../test/containers/Page1";
 import {Page} from "../../containers/Page/Page";
+import {helper} from "../../common/Helper";
+
 
 export type MenuItem = {
     image?: string
@@ -94,7 +94,7 @@ export const Menu=(props: MenuProps) => {
                             display: "none"
                         }}
                         onClick={() => {
-                            setKey(dataHelper.genKey())
+                            setKey(helper.genKey())
                         }}
                     >
                         {props.items.map((m: MenuItem, index: number) => {

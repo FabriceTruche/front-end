@@ -1,13 +1,16 @@
 import {ViewportTableInfoCell} from "./Table";
-import {uiHelper} from "../../helper/UIHelper";
 import {CSSProperties} from "react";
-import {TableDataCellInfo} from "./ITableManager";
+import {TableDataView} from "./TableManager";
+import {helper} from "../../common/Helper";
 
 export type TableFooterProps = {
-    tableDataCells: TableDataCellInfo
+    tableDataCells: TableDataView|null
 }
 
 export  const TableFooter = (props: TableFooterProps) => {
+    if (props.tableDataCells === null)
+        return null
+
     const widths = Object.values(props.tableDataCells.widths).join(" ")
 
     return (
@@ -23,7 +26,7 @@ export  const TableFooter = (props: TableFooterProps) => {
                     gridRow: `1 / span 1`,
                     gridColumn: `${item.x} / span 1`,
                 }
-                const style = uiHelper.mergeCSSProperties(item.style, itemStyle)
+                const style = helper.mergeCSSProperties(item.style, itemStyle)
                 return (
                     <div
                         key={item.id}

@@ -1,5 +1,4 @@
 import {CSSProperties} from "react";
-import {Column} from "./Column";
 
 export type DisplayedCellData = {
     style?: CSSProperties
@@ -117,7 +116,7 @@ export class _ColoredCurrencyFormatter extends _CurrencyFormatter {
         const style: CSSProperties = {
             color:  (v>0) ? "green" : "red",
             justifyContent: "end",
-            fontWeight: (v>0) ? "normal" : "bold",
+            // fontWeight: (v>0) ? "normal" : "bold",
         }
 
         return this.getDataCell(this._formatEuro.format(v), style)

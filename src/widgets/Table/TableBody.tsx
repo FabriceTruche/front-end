@@ -1,8 +1,8 @@
 import {ViewportTableInfoCell} from "./Table";
-import {uiHelper} from "../../helper/UIHelper";
-import {TableData} from "./TableData";
+import {helper} from "../../common/Helper";
 
-export type TableItemProps<T> = {
+
+export type TableBodyProps = {
     item: ViewportTableInfoCell
     index: number
     style: any
@@ -11,10 +11,10 @@ export type TableItemProps<T> = {
     allowEdit?:boolean
     onMouseOver?:((cell:ViewportTableInfoCell)=>void)
     onClickHeader?:((indexColumn:number,cell:ViewportTableInfoCell)=>void)
-    onClick?:((cell:ViewportTableInfoCell/*, info: IViewportManager*/)=>void)
+    onRowClick?:((cell:ViewportTableInfoCell/*, info: IViewportManager*/)=>void)
 }
 
-export const TableBody = <T,>(props: TableItemProps<T>)=> {
+export const TableBody = (props: TableBodyProps)=> {
 
     const assignHover=(itemData:ViewportTableInfoCell, clsName:string, id:string|undefined, setHover:boolean)=>{
         if (id!==undefined) {
@@ -39,7 +39,7 @@ export const TableBody = <T,>(props: TableItemProps<T>)=> {
     //     // columns: props.dataRows.columns
     // }
 
-    const style = uiHelper.mergeCSSProperties(item.style, props.style)
+    const style = helper.mergeCSSProperties(item.style, props.style)
 
     return (
         <div
@@ -61,8 +61,8 @@ export const TableBody = <T,>(props: TableItemProps<T>)=> {
                     props.onMouseOver(item)
             }}
             onClick={()=>{
-                if (props.onClick)
-                    props.onClick(item)
+                if (props.onRowClick)
+                    props.onRowClick(item)
             }}
         >
             {item.value}

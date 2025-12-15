@@ -5,13 +5,13 @@ import {MxMenu} from "./test/widgets/MxMenu";
 import {myMenu} from "./test/widgets/TestMenu";
 import {allTests} from "./test/AllTests";
 
-const App=()=>{
-  return (
-      <div>
-        {/*<Menu items={allTests} />*/}
-        <MxMenu />
-      </div>
-  )
+const App=()=> {
+    return (
+        <div>
+            <Menu items={allTests}/>
+            {/*<MxMenu />*/}
+        </div>
+    )
 }
 
 export default App;

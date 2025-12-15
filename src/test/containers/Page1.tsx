@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {Page} from "../../containers/Page/Page";
-import {TestTable2} from "../widgets/TestTable2";
-import {TestTable1} from "../widgets/TestTable1";
+import {TestTable2} from "../Table/TestTable2";
+import {TestTable1} from "../Table/TestTable1";
 
 export const Page1 = ()=> {
     return (

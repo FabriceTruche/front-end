@@ -1,18 +1,18 @@
 import {ViewportTableInfoCell} from "./Table";
-import {dataHelper} from "../../helper/DataHelper";
-import {uiHelper} from "../../helper/UIHelper";
 import {DisplayedCellData, IFormatter} from "./IFormatter";
 import {CSSProperties} from "react";
-import {Column} from "./Column";
-import {TableData} from "./TableData";
+import {IColumn} from "./Column";
 import {AnyObject} from "../../common/common";
-import {DataFormatter} from "./DataFormatter";
+import {ITableData} from "./TableData";
+import {factory} from "../../common/Factory";
+import {helper} from "../../common/Helper";
 
 export type TableDataView = {
     header: ViewportTableInfoCell[]
     body: ViewportTableInfoCell[]
     footer: ViewportTableInfoCell[]
     widths: AnyObject
+    rowCount: number
 }
 export enum SortType {
     asc,
@@ -22,14 +22,12 @@ export enum SortType {
 }
 export interface ITableManager<T> {
     calcTableDataCellInfo(): TableDataView
-    sort(colIndex: number, sortType?: SortType): TableDataView
-    filter(text: string): TableDataView
-    rowAt(index: number): T|null
+    sort(colIndex: number, sortType?: SortType): void
+    filter(text: string): void
+    rowAt(rowIndex: number): T|null
+    currentSort(): SortType
+    currentSortedColIndex(): number
 }
-export function createTableManager<T>(data: TableData<T>, elementId: string):ITableManager<T> {
-    return new TableManager<T>(data, elementId)
-}
-
 /**
  * porte la logique biz de la manipuation des doinnées de la table :
  * - tri
@@ -38,16 +36,19 @@ export function createTableManager<T>(data: TableData<T>, elementId: string):ITa
  * - ...
  *
  */
-class TableManager<T> implements ITableManager<T>{
+export class _TableManager<T> implements ITableManager<T>{
 
     private _currSortType: SortType
+    private _currSortedColIndex: number = -1
     private _currentDataRows: T[]
-    private readonly _dataSet: TableData<T>
+    private _initialDataRows: T[]
+    private readonly _dataSet: ITableData<T>
     private readonly _elementId: string
 
-    public constructor(initialDataSet: TableData<T>, elementId: string) {
-        this._dataSet = initialDataSet
-        this._currentDataRows = [...initialDataSet.data]
+    public constructor(dataSet: ITableData<T>, elementId: string) {
+        this._dataSet = dataSet
+        this._initialDataRows = [...dataSet.data]
+        this._currentDataRows = [...dataSet.data]
         this._elementId = elementId
         this._currSortType = SortType.init
 
@@ -56,11 +57,25 @@ class TableManager<T> implements ITableManager<T>{
 
     /**
      *
-     * @param index
      */
-    public rowAt(index: number): T|null {
-        if (index<this._currentDataRows.length) {
-            return this._currentDataRows[index]
+    public currentSort(): SortType {
+        return this._currSortType
+    }
+
+    /**
+     *
+     */
+    public currentSortedColIndex(): number {
+        return this._currSortedColIndex
+    }
+
+    /**
+     *
+     * @param rowIndex
+     */
+    public rowAt(rowIndex: number): T|null {
+        if (rowIndex<this._currentDataRows.length) {
+            return this._currentDataRows[rowIndex]
         }
 
         return null
@@ -72,41 +87,52 @@ class TableManager<T> implements ITableManager<T>{
      * @param colIndex
      * @param sortType
      */
-    public sort(colIndex: number, sortType: SortType = SortType.next): TableDataView {
+    public sort(colIndex: number, sortType: SortType = SortType.next): void {
         if (colIndex>=this._dataSet.columns.length)
             throw new Error('Index de colonne invalide')
 
-        const colName: keyof T = this._dataSet.columns[colIndex].name as keyof T
         let res: number = 0
 
-        switch (sortType) {
-            case SortType.init:
-                this._currSortType = SortType.init
-                res = 0
-                break; //return [...this._initialRows.data]
+        if (this._currSortedColIndex !== colIndex) {
 
-            case SortType.next:
-                if (this._currSortType===SortType.asc) {
-                    this._currSortType = SortType.desc
-                    res = -1
-                }
-                else if (this._currSortType===SortType.desc) {
+            this._currSortType = SortType.asc
+            this._currSortedColIndex = colIndex
+            res = 1
+
+        } else {
+
+            switch (sortType) {
+                case SortType.init:
                     this._currSortType = SortType.init
                     res = 0
-                    // return [...this._initialRows.data]
-                }
-                else if (this._currSortType===SortType.init) {
-                    this._currSortType = SortType.asc
-                    res = 1
-                }
-                break;
-            default:
-                break;
+                    break; //return [...this._initialRows.data]
+
+                case SortType.next:
+                    if (this._currSortType===SortType.asc) {
+                        this._currSortType = SortType.desc
+                        res = -1
+                    }
+                    else if (this._currSortType===SortType.desc) {
+                        this._currSortType = SortType.init
+                        res = 0
+                        // return [...this._initialRows.data]
+                    }
+                    else if (this._currSortType===SortType.init) {
+                        this._currSortType = SortType.asc
+                        res = 1
+                    }
+                    break;
+                default:
+                    break;
+            }
+
         }
+
+        const colName: keyof T = this._dataSet.columns[this._currSortedColIndex].name as keyof T
 
         // calcul du tri des données d'origine
         //
-        this._currentDataRows = [...this._dataSet.data]
+        this._currentDataRows = [...this._initialDataRows]
 
         if (res !== 0)
             this._currentDataRows.sort((item1: T, item2: T) => {
@@ -118,10 +144,6 @@ class TableManager<T> implements ITableManager<T>{
 
                 return 0
             })
-
-        // calcul des donénes visuelles
-        //
-        return this.calcTableDataCellInfo()
     }
 
     /**
@@ -130,7 +152,7 @@ class TableManager<T> implements ITableManager<T>{
      * Dés que la correspondance est trouvée, la ligne est remontée
      * @param text
      */
-    public filter(text: string): TableDataView {
+    public filter(text: string): void {
 
         if (text !== "") {
 
@@ -152,17 +174,17 @@ class TableManager<T> implements ITableManager<T>{
                 }
                 return isValid
             })
+        } else {
+            this._currentDataRows = [...this._dataSet.data]
         }
 
-        // retourner le tableaux des éléments visuels
-        //
-        return this.calcTableDataCellInfo()
+        // le tri revient au tableau initial (qu'il soit effectivement trié ou pas)
+        this._initialDataRows = [...this._currentDataRows]
+        this._currSortType = SortType.init
     }
 
     /**
      *
-     * @param rows
-     * @param elementId
      */
     public calcTableDataCellInfo(): TableDataView {
         const bodyCells: ViewportTableInfoCell[] = []
@@ -170,32 +192,33 @@ class TableManager<T> implements ITableManager<T>{
         const footerCells: ViewportTableInfoCell[] = []
         const mapCol: string[] = []
         const lenCols = this._dataSet.columns.length
-        const rowCount = this._dataSet.data.length
+        const rowCount = this._currentDataRows.length
         const rowStart = 1
 
-        const viewCollection: TableData<{[prop: string]: string}> = {
-            data: [],
-            columns: this._dataSet.columns
-        }
+        // const viewCollection: ITableData<{[prop: string]: string}> = {
+        //     data: [],
+        //     columns: this._dataSet.columns
+        // }
+        const viewCollection: ITableData<{[prop: string]: string}> = factory.createTableData([],this._dataSet.columns)
 
         // ajouter un element de cellule
         const addItem = (
             array: ViewportTableInfoCell[],
-            column: Column|null, // null si cell non visuelle
+            column: IColumn|null, // null si cell non visuelle
             item: ViewportTableInfoCell,
         ): string => {
-            const id: string = dataHelper.genKey()
+            const id: string = helper.genKey()
 
             let clsName: string|undefined = item.className
             let style: CSSProperties|undefined = {}
             let value: any = ""
 
             if (column) {
-                const formatter: IFormatter = DataFormatter.getFormatter(column)
+                const formatter: IFormatter = column.getFormatter(item.typeCell) //  DataFormatter.getFormatter(column)
                 const dataCell: DisplayedCellData = formatter.format(item.value)
 
-                clsName = uiHelper.mergeClassName(clsName, dataCell.className)
-                style = uiHelper.mergeCSSProperties(style, dataCell.style)
+                clsName = helper.mergeClassName(clsName, dataCell.className)
+                style = helper.mergeCSSProperties(style, dataCell.style)
                 value = dataCell.value
             }
 
@@ -219,7 +242,7 @@ class TableManager<T> implements ITableManager<T>{
         }
 
         // 1. parcours des colonnes
-        this._dataSet.columns.forEach((column: Column, indexCol: number) => {
+        this._dataSet.columns.forEach((column: IColumn, indexCol: number) => {
 
             // 1.1. colonnes de mouse-hover
             const colId = addItem(
@@ -261,7 +284,7 @@ class TableManager<T> implements ITableManager<T>{
                     xSpan: 1,
                     className: "array-footer",
                     typeCell: "footer",
-                    value: (this._dataSet.totals===undefined) ? undefined : this._dataSet.totals[column.name]
+                    value: this._dataSet.getTotals(column.name)
                 })
 
         })
@@ -286,7 +309,7 @@ class TableManager<T> implements ITableManager<T>{
             const viewRowObject: any = {}
 
             // 3.1. cellule de données
-            this._dataSet.columns.forEach((column: Column, indexCol: number) => {
+            this._dataSet.columns.forEach((column: IColumn, indexCol: number) => {
 
                 addItem(
                     bodyCells,
@@ -315,7 +338,8 @@ class TableManager<T> implements ITableManager<T>{
             body: bodyCells,
             header: headerCells,
             footer: footerCells,
-            widths: uiHelper.getMaxWidthFromCollectionById(viewCollection, this._elementId, 25)
+            widths: helper.getMaxWidthFromCollectionById(viewCollection, this._elementId, 30),
+            rowCount: this._currentDataRows.length
         }
     }
 }

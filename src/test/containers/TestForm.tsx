@@ -1,8 +1,8 @@
 import {AnyObject} from "../../common/common";
 import {List} from "../../ui/List/List";
-import {dataHelper} from "../../helper/DataHelper";
 import {TextInput, TextInputProps} from "../../ui/Text/TextInput";
 import {Form} from "../../containers/Form/Form";
+import {helper} from "../../common/Helper";
 
 export const TestForm = () => {
     return (
@@ -26,7 +26,7 @@ export const TestForm = () => {
                 label="Liste de choix"
                 multiple={true}
                 defaultValue={["item2", "item3"]}
-                items={dataHelper.genWordsArray(4, 10).map((s: string) => ({value: s, label: s}))}
+                items={helper.genWordsArray(4, 10).map((s: string) => ({value: s, label: s}))}
                 help="Liste à choix multiple"
             />
         </Form>

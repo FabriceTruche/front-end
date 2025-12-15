@@ -2,15 +2,15 @@ import { useState } from "react"
 import {AnyObject} from "../../common/common";
 import {Textarea} from "../../ui/Text/Textarea";
 import {Checkbox} from "../../ui/Checkbox/Checkbox";
-import {dataHelper} from "../../helper/DataHelper";
 import {Radio} from "../../ui/Radio/Radio";
 import {List} from "../../ui/List/List";
 import {TextInput} from "../../ui/Text/TextInput";
 import {Form} from "../../containers/Form/Form";
+import {helper} from "../../common/Helper";
 
-const genItems1=dataHelper.genWordsArray(4,10).map((s:string)=>({value:s,label:s}))
-const genItems2=dataHelper.genWordsArray(5,20).map((s:string)=>({value:s,label:s}))
-const genItems3=dataHelper.genWordsArray(5,20)
+const genItems1=helper.genWordsArray(4,10).map((s:string)=>({value:s,label:s}))
+const genItems2=helper.genWordsArray(5,20).map((s:string)=>({value:s,label:s}))
+const genItems3=helper.genWordsArray(5,20)
 
 export const TestForm3=()=>{
     const [values,setValues]=useState<AnyObject>({})

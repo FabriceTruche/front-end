@@ -1,7 +1,6 @@
 import { useState } from "react"
 import {AnyObject} from "../../common/common";
 import {Checkbox} from "../../ui/Checkbox/Checkbox";
-import {dataHelper} from "../../helper/DataHelper";
 import {TestForm2Content} from "./TestForm2Content";
 
 

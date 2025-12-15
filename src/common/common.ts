@@ -26,3 +26,9 @@ export type ResponseQuery = {
 //     __uiElement: string
 // }
 //    filter: string
+
+export function ifNull(ifExpIsNull: any, thenExp: any): any {
+    if (!!ifExpIsNull)
+        return thenExp
+    return ifExpIsNull
+}

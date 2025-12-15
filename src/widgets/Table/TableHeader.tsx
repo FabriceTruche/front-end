@@ -1,8 +1,10 @@
 import {ViewportTableInfoCell} from "./Table";
-import {TableDataCellInfo} from "./ITableManager";
+import {SortType, TableDataView} from "./TableManager";
+import {Img} from "../../ui/Icon/Image";
 
 export type TableHeaderProps = {
-    tableDataCells: TableDataCellInfo|null
+    tableDataCells: TableDataView|null
+    sortedColIndex: [number, SortType]
     onClick:(colIndex:number)=>void
 }
 
@@ -23,20 +25,27 @@ export  const TableHeader = (props: TableHeaderProps) => {
             }}
         >
             {props.tableDataCells.header.map((c:ViewportTableInfoCell)=>{
+                const colAscSorted = () => props.sortedColIndex[0]===(c.x-1) && (props.sortedColIndex[1]===SortType.asc)
+                const colDescSorted = () => props.sortedColIndex[0]===(c.x-1) && (props.sortedColIndex[1]===SortType.desc)
                 return (
-                    <div
-                        key={c.id}
-                        className="array-header"
-                        style={{
-                            gridRow: `1 / span 1`,
-                            gridColumn: `${c.x} / span 1`,
-                        }}
-                        onClick={()=>{
-                            props.onClick(c.x-1)
-                        }}
-                    >
-                        {c.value}
-                    </div>
+                        <div
+                            key={c.id}
+                            className="array-header"
+                            style={{
+                                gridRow: `1 / span 1`,
+                                gridColumn: `${c.x} / span 1`,
+                            }}
+                            onClick={()=>{
+                                props.onClick(c.x-1)
+                            }}
+                        >
+                            <span className="array-header-label"
+                            >
+                                {c.value}
+                            </span>
+                            {colAscSorted() && (<Img>keyboard_arrow_down</Img>)}
+                            {colDescSorted() && (<Img>keyboard_arrow_up</Img>)}
+                        </div>
                 )
             })}
         </div>

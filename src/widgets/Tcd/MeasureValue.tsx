@@ -1,0 +1,37 @@
+import {IField} from "./Field";
+import {IMeasure} from "./Measure";
+import {KeyOf} from "./TcdManager";
+
+export interface IMeasureValue<T> {
+    measure: IMeasure
+    dataRows: T[]
+    value: any
+    rowField: IField<T>
+    colField: IField<T>
+}
+
+export class _MeasureValue<T> implements IMeasureValue<T>{
+
+    private _measure: IMeasure
+    private readonly _dataRows: T[]
+    private _value: any
+    private readonly _rowField: IField<T>
+    private readonly _colField: IField<T>
+
+    constructor(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure) {
+        const values: any[] = dataRows.map(row => row[measure.column.name as KeyOf<T>])
+        const aggragateValue = measure.funcGroup(values)
+
+        this._dataRows = dataRows
+        this._measure = measure
+        this._value = aggragateValue
+        this._rowField = rowField
+        this._colField = colField
+    }
+
+    public get dataRows(): T[] { return this._dataRows }
+    public get measure(): any { return this._measure }
+    public get value(): any { return this._value }
+    public get rowField(): IField<T> { return this._rowField }
+    public get colField(): IField<T> { return this._colField }
+}

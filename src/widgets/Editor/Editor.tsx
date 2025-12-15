@@ -1,156 +1,128 @@
 import {Form} from "../../containers/Form/Form";
-import React, {JSX} from "react";
+import React, {FC, JSX} from "react";
 import {Checkbox} from "../../ui/Checkbox/Checkbox";
 import {List} from "../../ui/List/List";
 import {TextInput} from "../../ui/Text/TextInput";
-import {DateHelper} from "../../helper/DateHelper";
-import any = jasmine.any;
+import {IColumn} from "../Table/Column";
+import {helper} from "../../common/Helper";
 
-export type ComponentObject = { [prop:string] : React.ElementType }
+
+// export type ComponentObject = { [prop:string] : React.ElementType }
 export type AnyObject = { [prop:string] : any }
 
-export type EditorConf = {
-    editors?: any
-    props?: any
-}
-export interface IEditor {
-    getEditors(): ComponentObject
-    getProps(): any
-}
 export type EditorProps = {
     object: any
-    editors?: any
-    props?: any
-    onChange?: (obj: any, isValid: boolean)=>void
+    columns: IColumn[]
+    onChange?: (obj: object, isValid: boolean)=>void
 }
-export class Editor extends React.Component<EditorProps> implements IEditor {
+export const Editor=(props: EditorProps) => {
 
-    constructor(props: EditorProps) {
-        super(props)
-    }
+    const allEditors: { [propName: string]: FC<any> } = {}
+    const allProps: any = {}
 
-    /**
-     *
-     */
-    public render(): JSX.Element {
-        const allEditors: ComponentObject = this.getEditors(/*this.props.object, this.props.props, this.props.editors*/)
-        const allProps = this.getProps(/*this.props.object, this.props.props*/)
+    const fieldProps = (column: IColumn, value: any) => {
+        const defaultProps = (column.editor && column.editor.properties) ? column.editor.properties : {}
+        const typeOf = typeof value
+        let newProps: any = {}
 
-        return (
-            <Form
-                onFormChange={(values: AnyObject, isValid: boolean) => {
-                    if (this.props.onChange)
-                        this.props.onChange(values,isValid)
-                }}
-            >
-                {Object.keys(this.props.object).map((field: string) => {
-                    const Control: React.ElementType = allEditors[field]
-                    const pr = allProps[field]
-
-                    return (
-                        <Control key={field} {...pr}></Control>
-                    )
-                })}
-            </Form>
-        )
-    }
-
-    /**
-     *
-     */
-    public getEditors(): ComponentObject {
-
-        const editor = (k: string): JSX.Element | undefined => (this.props.editors !== undefined) ? this.props.editors[k] : undefined
-        const allEditors: any = {}
-
-        Object.keys(this.props.object).forEach((k: string) => {
-            const ed: JSX.Element | undefined = editor(k)
-            const v = this.props.object[k]
-
-            if (ed !== undefined)
-                allEditors[k] = ed
-            else {
-                if (typeof v === "boolean") {
-                    allEditors[k] = Checkbox
-                } else if ((this.props.props !== undefined && this.props.props[k] !== undefined && this.props.props[k].enum !== undefined)) {
-                    // on considére qu'il s'agit d'un enum
-                    allEditors[k] = List
-                } else
-                    allEditors[k] = TextInput
+        if (value instanceof Date)
+            newProps = {
+                type: "date",
+                defaultValue: helper.toStandardDate(value)
             }
-        })
+        else if (column.editor && column.editor.isEnum()) {
+            const enumType = column.editor.enum()
+            const items: unknown[] = Object.values(enumType).filter((itemValue: unknown) => {
+                return (typeof itemValue === "string")
+            }).map((v: any, index: number) => ({value: v, label: v}))
 
-        return allEditors
-    }
-
-    /**
-     *
-     */
-    public getProps(): any {
-
-        const defProps = (k: string): any | undefined => (this.props.props !== undefined) ? this.props.props[k] : undefined
-        // const defaultValue = (value: any) => {
-        //     if (value instanceof Date)
-        //         return DateHelper.toStandardDate(value)
-        //
-        //     return value
-        // }
-        const fieldProps = (k: string, value: any) => {
-            const defaultProps = defProps(k)
-            const typeOf = typeof value
-            let newProps: any = {}
-
-            if (value instanceof Date)
-                newProps = {
-                    type: "date",
-                    defaultValue: DateHelper.toStandardDate(value)
-                }
-            else if (this.props.props !== undefined && this.props.props[k] !== undefined && this.props.props[k].enum !== undefined) {
-                const enumType = this.props.props[k].enum
-                const items: unknown[] = Object.values(enumType).filter((itemValue: unknown) => {
-                    return (typeof itemValue === "string")
-                }).map((v: any, index: number) => ({value: v, label: v}))
-
-                newProps = {
-                    items: items,
-                    defaultValue: this.props.props[k].enum[value]
-                }
-            } else if (typeOf === "number")
-                newProps = {
-                    type: "number",
-                    defaultValue: value,
-                }
-            else if (typeOf === "string" || typeOf === "boolean")
-                newProps = {
-                    type: "text",
-                    defaultValue: value
-                }
-            else
-                newProps = {
-                    type: "text",
-                    defaultValue: value
-                }
-
-            return {
-                ...newProps,
-                ...defaultProps
+            newProps = {
+                items: items,
+                defaultValue: enumType[value]
             }
+        } else if (typeOf === "number")
+            newProps = {
+                type: "number",
+                defaultValue: value,
+            }
+        else if (typeOf === "string" || typeOf === "boolean")
+            newProps = {
+                type: "text",
+                defaultValue: value
+            }
+        else
+            newProps = {
+                type: "text",
+                defaultValue: value
+            }
+
+        return {
+            ...newProps,
+            ...defaultProps
         }
-        const allProps: any = {}
-
-        Object.keys(this.props.object).forEach((k: string) => {
-            const v = this.props.object[k]
-            allProps[k] = {
-                id: k,
-                name: k,
-                label: k,
-                ...fieldProps(k, v)
-            }
-        })
-
-        return allProps
     }
+
+    props.columns.forEach((c: IColumn) => {
+        const fieldName = c.name
+        const filedValue = props.object[fieldName]
+
+        if (c.editor && c.editor.jsx !== undefined)
+            allEditors[fieldName] = c.editor.jsx
+        else {
+            if (typeof filedValue === "boolean") {
+                allEditors[fieldName] = Checkbox
+            } else if (c.editor && c.editor.isEnum()) {
+                // on considére qu'il s'agit d'un enum
+                allEditors[fieldName] = List
+            } else
+                allEditors[fieldName] = TextInput
+        }
+
+        allProps[fieldName] = {
+            id: fieldName,
+            name: fieldName,
+            label: c.label,
+            ...fieldProps(c, props.object[fieldName])
+        }
+    })
+
+    return (
+        <Form
+            onFormChange={(values: AnyObject, isValid: boolean) => {
+                if (props.onChange)
+                    props.onChange(values, isValid)
+            }}
+        >
+            {Object.keys(props.object).map((field: string) => {
+                const Control: React.ElementType = allEditors[field]
+                const pr = allProps[field]
+
+                return (
+                    <Control key={field} {...pr}></Control>
+                )
+            })}
+        </Form>
+    )
 }
 
 
 
+
+
+
+
+// export type EditConf = {
+//     editors?: any
+//     props?: any
+// }
+// export interface IEditor {
+//     getEditors(): ComponentObject
+//     getProps(): any
+// }
+// const defProps = (k: string): any | undefined => (props.columns[k]. !== undefined) ? this.props.properties[k] : undefined
+// const defaultValue = (value: any) => {
+//     if (value instanceof Date)
+//         return DateHelper.toStandardDate(value)
+//
+//     return value
+// }

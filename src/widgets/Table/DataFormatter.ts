@@ -1,4 +1,4 @@
-import {Column} from "./Column";
+
 import {
     _BaseFormatter,
     _ColoredCurrencyFormatter,
@@ -9,10 +9,6 @@ import {
 } from "./IFormatter";
 
 export class DataFormatter {
-
-    public static getFormatter(c: Column): IFormatter {
-        return c.dataFormat ? c.dataFormat : DataFormatter.baseFormatter
-    }
 
     public static readonly baseFormatter: IFormatter = new _BaseFormatter()
     public static readonly numberFormatter: IFormatter = new _NumberFormatter()
@@ -27,3 +23,10 @@ export class DataFormatter {
     public static readonly specialDateFormatter: IFormatter = new _SpecialDateFormatter({month: 'long', year: 'numeric'})
 
 }
+
+
+
+// public static getFormatter(c: Column): IFormatter {
+//     return c.dataFormat ? c.dataFormat : DataFormatter.baseFormatter
+// }
+

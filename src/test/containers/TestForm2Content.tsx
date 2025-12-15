@@ -4,12 +4,12 @@ import {Radio} from "../../ui/Radio/Radio";
 import {Checkbox} from "../../ui/Checkbox/Checkbox";
 import {List} from "../../ui/List/List";
 import {Textarea} from "../../ui/Text/Textarea";
-import {dataHelper} from "../../helper/DataHelper";
 import {Form} from "../../containers/Form/Form";
+import {helper} from "../../common/Helper";
 
-const genItems1=dataHelper.genWordsArray(4,10).map((s:string)=>({value:s,label:s}))
-const genItems2=dataHelper.genWordsArray(5,20).map((s:string)=>({value:s,label:s}))
-const genItems3=dataHelper.genWordsArray(5,20)
+const genItems1=helper.genWordsArray(4,10).map((s:string)=>({value:s,label:s}))
+const genItems2=helper.genWordsArray(5,20).map((s:string)=>({value:s,label:s}))
+const genItems3=helper.genWordsArray(5,20)
 
 type TestForm2Props = {
     showButton: boolean

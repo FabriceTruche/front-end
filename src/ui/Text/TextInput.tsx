@@ -1,7 +1,8 @@
 import * as React from "react";
 import {useState} from "react";
 import './text-input.css'
-import {dataHelper} from "../../helper/DataHelper";
+import {helper} from "../../common/Helper";
+
 
 export type TextInputProps = {
     name: string
@@ -16,6 +17,7 @@ export type TextInputProps = {
     data?: string[]
     debug?:boolean
     onChange?: (value:any)=>void
+    onChangeEnter?: (value:any)=>void
     onReset?: ()=>void
 }
 export const TextInput=(props:TextInputProps)=>{
@@ -25,7 +27,7 @@ export const TextInput=(props:TextInputProps)=>{
         const nie: boolean = (props.nullIfEmpty === undefined) ? true : props.nullIfEmpty
         return (e.target.value === "" && nie) ? null : e.target.value
     }
-    const key=dataHelper.genKey()
+    const key=helper.genKey()
 
     return (
         <>
@@ -43,7 +45,12 @@ export const TextInput=(props:TextInputProps)=>{
                     onChange={(e: any) => {
                         const v = getValue(e)
                         setValue(v)
-                        if (props.onChange) props.onChange(v)
+                        if (props.onChange)
+                            props.onChange(v)
+                    }}
+                    onKeyDown={(e: React.KeyboardEvent)=>{
+                        if ((e.key === "Enter") && props.onChangeEnter)
+                            props.onChangeEnter(value)
                     }}
                     list={(props.data!==undefined) ? props.name+"-data" : undefined}
                 />

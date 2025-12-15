@@ -1,10 +1,10 @@
 import {List} from "../../ui/List/List";
 import React from "react";
 import { Form } from "../../containers/Form/Form";
-import {dataHelper} from "../../helper/DataHelper";
 import {SimpleList} from "../../ui/List/SimpleList";
+import {helper} from "../../common/Helper";
 
-const items: string[] = dataHelper.genWordsArray(10,30)
+const items: string[] = helper.genWordsArray(10,30)
 
 export const TestList = () => (
     <Form>

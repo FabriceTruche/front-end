@@ -5,4 +5,5 @@ export type TypeExemple = {
     date_entree: Date
     date_sortie: Date
     montant: number
+    adresse: string
 }
