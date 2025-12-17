@@ -1,9 +1,9 @@
-import {ITcdColumn} from "./Column";
-import {IColumn} from "../Table/Column";
+import {ITcdColumn} from "./TcdColumn";
 
 export interface IField<T> {
     value: any
     column: ITcdColumn
+    deep: number
     fields: IField<T>[]
     dataRows: T[]
 
@@ -12,24 +12,29 @@ export interface IField<T> {
     lastNestedField(): IField<T>|undefined
     addDataRow(dataRow: T): void
     reset(): void
+    displayValue(): string
 }
 export class _Field<T> implements IField<T> {
     private readonly _value: any
     private readonly _column: ITcdColumn
     private _fields: IField<T>[]
     private _dataRows: T[]
+    private _deep: number
 
     constructor(value: any, column: ITcdColumn) {
         this._value = value
         this._column = column
         this._fields = []
         this._dataRows = []
+        this._deep = 0
     }
 
     public get column(): ITcdColumn { return this._column }
     public get fields(): IField<T>[] { return this._fields }
     public get value(): any { return this._value }
     public get dataRows(): T[] { return this._dataRows }
+    public get deep(): number { return this._deep }
+    public set deep(d: number) { this._deep = d }
 
     public addDataRow(dataRow: T): void {
         this._dataRows.push(dataRow)
@@ -56,4 +61,7 @@ export class _Field<T> implements IField<T> {
         this._dataRows = []
     }
 
+    public displayValue(): string {
+        return this._column.dataFormatter.format(this._value).value
+    }
 }

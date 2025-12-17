@@ -1,22 +1,26 @@
 import {GenColumn, helper} from "../../common/Helper";
-import {ITcdColumn} from "../../widgets/Tcd/Column";
+import {ITcdColumn} from "../../widgets/Tcd/TcdColumn";
 import {factory} from "../../common/Factory";
 import {ITcdManager} from "../../widgets/Tcd/TcdManager";
-import {useMemo} from "react";
+import {JSX, useMemo} from "react";
 import {IField} from "../../widgets/Tcd/Field";
 import {IMeasure} from "../../widgets/Tcd/Measure";
 import {functionsGroup} from "../../widgets/Tcd/functionsGroup";
 import {IMeasureValue} from "../../widgets/Tcd/MeasureValue";
+import {Coord, ITcdViewManager, TcdMode} from "../../widgets/Tcd/TcdViewManager";
+import {Cell, TcdBlock} from "../../widgets/Tcd/TcdBlock";
+import {DataFormatter} from "../../widgets/Table/DataFormatter";
 
-function createDummyData<T>(): ITcdManager<T> {
+function createDummyData<T>(): [ITcdManager<T>, ITcdViewManager<T>] {
 
-    const maxRowCount = 6
+    const maxRowCount = 10
     const schema: GenColumn[] = [
         { name: "id", type: "index", label:"Id" },
         { name: "lot", type: "integer", label:"Numéro", items: [1,2,3,4]/*,5,6,7,8,9,10,11]*/ },
         { name: "type_op", type: "string", label: "Type opération", items:["ACHAT","REGUL","SOLDE","OD"] },
         { name: "depot", type: "integer", label: "Dépôt", items: [100, 200, 350, 450, 500, 650, 620, 680, 820] },
         { name: "facture", type: "boolean", label: "Facturation" },
+        { name: "annee", type: "integer", label: "Année", items: [2023, 2024, 2025] },
         { name: "date_ope", type: "Date", label:"Date opératoin" },
         { name: "libelle", type: "string", label:"Libellé", ratioNull: 0.5 },
         { name: "periode", type: "Date", label: "Période" },
@@ -24,30 +28,38 @@ function createDummyData<T>(): ITcdManager<T> {
         { name: "credit", type: "float", label: "Crédit", min:0, max:5000 },
     ]
     const columns: ITcdColumn[] = helper.generateTcdColumn(schema)
+    // columns[9].dataFormatter = DataFormatter.currencyFormatter // sum debit
+    // columns[10].dataFormatter = DataFormatter.numberFormatter // count credit
+
     const data: any[] = helper.generateData(schema, maxRowCount, (row:any)=>{
         if (helper.tf())
             row.debit=null
         else
             row.credit=null
     })
-    const tcdManager = factory.createTcdManager(data, columns)
-    const mSum: IMeasure = factory.createMeasure(columns[8],functionsGroup.sum)
-    const mCount: IMeasure = factory.createMeasure(columns[9],functionsGroup.count)
+    const tcdManager = factory.createTcdManager<any>(data, columns)
+    const sumDebit: IMeasure = factory.createMeasure(columns[9],functionsGroup.sum)
+    const sumCredit: IMeasure = factory.createMeasure(columns[10],functionsGroup.sum)
 
-    tcdManager.buildTcd(["lot","type_op"],["depot","facture"],[mSum,mCount])
+    tcdManager.buildTcd(["annee","lot","type_op"],["depot"],[sumDebit,sumCredit])
 
-    return tcdManager
-}
-function displayValue (v: any): string {
-    if (v === null || v === undefined) return ""
-    if (v instanceof Date) return v.toDateString()
-    return v.toString()
+    const tcdViewManager = factory.createTcdViewManager<any>()
+    tcdViewManager.buildTcdView(tcdManager)
+
+    return [tcdManager,tcdViewManager]
 }
 
 export const Tcd1=()=> {
-    const tcdManager = useMemo<ITcdManager<any>>(() => {
+    const [tcd,tcdView] = useMemo<[ITcdManager<any>,ITcdViewManager<any>]>(() => {
         return createDummyData()
     }, [])
+
+    // const tcdView = useMemo<ITcdViewManager<any>>(() => {
+    //     return factory.createTcdViewManager()
+    // }, [])
+    // const bodyRowsCells: Cell[] = tcdView.calculateFieldsCoordinates(tcdManager.rowTreeField, TcdMode.top)
+    // const bodyColsCells: Cell[] = tcdView.calculateFieldsCoordinates(tcdManager.colTreeField, TcdMode.top)
+    // console.log(bodyRowsCells)
 
     return (
         <pre>
@@ -58,25 +70,61 @@ export const Tcd1=()=> {
                 display: "flex",
                 flexWrap: "wrap",
             }}>
-
                 <Block>
-                    <FieldView field={tcdManager.rowTreeField} level={0} />
+                    <TcdTable tcdManager={tcd} />
                 </Block>
+               {/*<Block>*/}
+               {/*     <FieldView field={tcd.rowTreeField} level={0} />*/}
+               {/* </Block>*/}
+
+               {/* <Block>*/}
+               {/*     <FieldView field={tcd.colTreeField} level={0} />*/}
+               {/* </Block>*/}
+               {/* <Block>*/}
+               {/*     **ROWS***/}
+               {/*     {tcdView.rowsCell.map((cell:Cell<IField<any>>)=>{*/}
+               {/*         return (*/}
+               {/*             <div>*/}
+               {/*                 [{cell.coord.y};{cell.coord.x}]={cell.object.value.toString()};*/}
+               {/*             </div>*/}
+               {/*         )*/}
+               {/*     })}*/}
+               {/* </Block>*/}
+               {/* <Block>*/}
+               {/*     **COLS***/}
+               {/*     {tcdView.colsCell.map((cell:Cell<IField<any>>)=>{*/}
+               {/*         return (*/}
+               {/*             <div>*/}
+               {/*                 [{cell.coord.y};{cell.coord.x}]={cell.object.value.toString()};*/}
+               {/*             </div>*/}
+               {/*         )*/}
+               {/*     })}*/}
+               {/* </Block>*/}
+
+               {/* <Block>*/}
+               {/*     **MEASURES***/}
+               {/*     {tcdView.measuresCell.map((cell:Cell<IMeasureValue<any>>)=>{*/}
+               {/*         return (*/}
+               {/*             <div>*/}
+               {/*                 [{cell.coord.y};{cell.coord.x}]={cell.object.value.toString()};*/}
+               {/*             </div>*/}
+               {/*         )*/}
+               {/*     })}*/}
+               {/* </Block>*/}
 
                 <Block>
-                    <FieldView field={tcdManager.colTreeField} level={0} />
+                    <TcdBlock origin={{x:0,y:0}} mode={TcdMode.top} header={tcd.rowAxis as string[]} body={tcdView.rowsCell} />
                 </Block>
-
                 <Block>
-                    <Terminals fields={tcdManager.rowsTerminalField} title="ROW TERMINALS:"/>
+                    <TcdBlock origin={{x:0,y:0}} mode={TcdMode.left} header={tcd.colAxis as string[]} body={tcdView.colsCell} />
                 </Block>
-
                 <Block>
-                    <Terminals fields={tcdManager.colsTerminalField} title="COL TERMINALS:"/>
-                </Block>
-
-                <Block>
-                    <MeasuresValue measuresValue={tcdManager.measuresValue} />
+                    <TcdBlock
+                        origin={{x:0,y:0}}
+                        mode={TcdMode.top}
+                        header={tcdView.measuresCell.map((c:Cell<IMeasure>)=>`${c.object.funcGroup.name}(${c.object.column.name})`)}
+                        body={tcdView.measuresValueCell}
+                    />
                 </Block>
 
             </div>
@@ -143,6 +191,11 @@ const style = {
 type TcdTableProps<T> = {
     tcdManager: ITcdManager<T>
 }
+function displayValue (v: any): string {
+    if (v === null || v === undefined) return ""
+    if (v instanceof Date) return v.toDateString()
+    return v.toString()
+}
 const TcdTable = <T,>(props: TcdTableProps<T>) => {
     return (
         <table>
@@ -194,3 +247,19 @@ const MeasuresValue = <T,>(props: MeasuresValueProps<T>) => {
     )
 }
 
+
+/*
+
+                <Block>
+                    <Terminals fields={tcdManager.rowsTerminalField} title="ROW TERMINALS:"/>
+                </Block>
+
+                <Block>
+                    <Terminals fields={tcdManager.colsTerminalField} title="COL TERMINALS:"/>
+                </Block>
+
+                <Block>
+                    <MeasuresValue measuresValue={tcdManager.measuresValue} />
+                </Block>
+
+ */

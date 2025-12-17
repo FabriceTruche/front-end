@@ -71,6 +71,7 @@
     padding-left: var(--array-padding-left);
     font-size: var(--array-font-size);
     /*z-index: 1;*/
+    color: black;
 }
 .array-cell:hover {
     background-color: var(--color-cell-over);
@@ -121,15 +122,15 @@
 .array-col-hover {
     background-color: var(--color-col-over);
 }
-.red-value {
-    color: red;
-    font-weight: bold;
-}
-.blue-date {
-    color: blue;
-    font-weight: bold;
-    /*justify-content: center;*/
-}
+/*.red-value {*/
+/*    color: red;*/
+/*    font-weight: bold;*/
+/*}*/
+/*.blue-date {*/
+/*    color: blue;*/
+/*    font-weight: bold;*/
+/*    !*justify-content: center;*!*/
+/*}*/
 /* div[class^="array-col-"]:hover {
     background-color: rgba(255, 152, 152, 0.5);
     border: red 4px solid;

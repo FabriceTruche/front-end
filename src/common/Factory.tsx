@@ -4,12 +4,13 @@ import {_FieldEditor, IFieldEditor} from "../widgets/Table/IFieldEditor";
 import {_Column, IColumn} from "../widgets/Table/Column";
 import {_TableData, ITableData} from "../widgets/Table/TableData";
 import {_TableManager, ITableManager} from "../widgets/Table/TableManager";
-import {_Tcd, ITcdColumn} from "../widgets/Tcd/Column";
+import {_Tcd, ITcdColumn} from "../widgets/Tcd/TcdColumn";
 import {_Field, IField} from "../widgets/Tcd/Field";
 import {_TcdManager, ITcdManager} from "../widgets/Tcd/TcdManager";
 import {_MeasureValue, IMeasureValue} from "../widgets/Tcd/MeasureValue";
 import {FuncType} from "../widgets/Tcd/functionsGroup";
 import {_Measure, IMeasure} from "../widgets/Tcd/Measure";
+import {_TcdViewManager, ITcdViewManager} from "../widgets/Tcd/TcdViewManager";
 
 export interface IFactory {
 
@@ -20,11 +21,12 @@ export interface IFactory {
     createTableManager<T>(data: ITableData<T>, elementId: string): ITableManager<T>
 
     // tcd
-    createTcdColumn(name: string, type: string, label?: string): ITcdColumn
+    createTcdColumn(name: string, type: string, label?: string, formatter?: IFormatter): ITcdColumn
     createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure
     createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T>
     createField<T>(value: any, column: ITcdColumn): IField<T>
     createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T>
+    createTcdViewManager<T>(): ITcdViewManager<T>
 }
 
 class _Factory implements IFactory {
@@ -45,8 +47,8 @@ class _Factory implements IFactory {
         return new _FieldEditor(jsx, properties)
     }
 
-    public createTcdColumn(name: string, type: string, label:string="") {
-        return new _Tcd(name,type,label)
+    public createTcdColumn(name: string, type: string, label:string="", formatter=undefined) {
+        return new _Tcd(name,type,label, formatter)
     }
 
     public createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure {
@@ -64,6 +66,12 @@ class _Factory implements IFactory {
     public createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T> {
         return new _TcdManager(data,columns)
     }
+
+    public createTcdViewManager<T>(): ITcdViewManager<T> {
+        return new _TcdViewManager<T>()
+    }
+
+
 }
 
 export const factory: IFactory = new _Factory()

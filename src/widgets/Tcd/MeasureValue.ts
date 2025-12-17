@@ -8,13 +8,15 @@ export interface IMeasureValue<T> {
     value: any
     rowField: IField<T>
     colField: IField<T>
+
+    displayValue(): string
 }
 
 export class _MeasureValue<T> implements IMeasureValue<T>{
 
-    private _measure: IMeasure
+    private readonly _measure: IMeasure
     private readonly _dataRows: T[]
-    private _value: any
+    private readonly _value: any
     private readonly _rowField: IField<T>
     private readonly _colField: IField<T>
 
@@ -34,4 +36,8 @@ export class _MeasureValue<T> implements IMeasureValue<T>{
     public get value(): any { return this._value }
     public get rowField(): IField<T> { return this._rowField }
     public get colField(): IField<T> { return this._colField }
+
+    public displayValue(): string {
+        return this._measure.column.dataFormatter.format(this._value).value
+    }
 }

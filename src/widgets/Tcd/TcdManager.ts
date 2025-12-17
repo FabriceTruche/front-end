@@ -1,4 +1,4 @@
-import {ITcdColumn} from "./Column";
+import {ITcdColumn} from "./TcdColumn";
 import {IField} from "./Field";
 import {factory} from "../../common/Factory";
 import {IMeasure} from "./Measure";
@@ -54,8 +54,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._measuresValue = []
         this._data = data
         this._columns = columns
-        this._rowTreeField = factory.createField("__rows_field_root__", factory.createColumn("__rows_field_root__","any"))
-        this._colTreeField = factory.createField("__cols_field_root__", factory.createColumn("__cols_field_root__","any"))
+        this._rowTreeField = factory.createField("__rows_field_root__", factory.createTcdColumn("__rows_field_root__","any"))
+        this._colTreeField = factory.createField("__cols_field_root__", factory.createTcdColumn("__cols_field_root__","any"))
     }
 
     /**
@@ -191,6 +191,31 @@ export class _TcdManager<T> implements ITcdManager<T> {
 
     /**
      *
+     * @private
+     * @param field
+     * @param lenTerminal
+     */
+    private calculateDeep(field: IField<T>, lenTerminal: number): void {
+        if (field.isTerminal()) {
+
+            field.deep = lenTerminal
+
+        } else {
+
+            let sum = 0
+
+            field.fields.forEach((field: IField<T>) => {
+                this.calculateDeep(field, lenTerminal)
+                sum += field.deep
+            })
+
+            field.deep = sum
+        }
+    }
+
+
+    /**
+     *
      * @param rowsAxis
      * @param colsAxis
      * @param measures
@@ -203,6 +228,9 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._colsAxis = [...colsAxis]
         this._measures = [...measures]
 
+        // définir l'ordre des colonnes de measures
+        measures.forEach((measure: IMeasure, index: number) => {measure.index=index})
+
         // initialiser les tableaux servant à calculer l'arbre des fields
         const dataForRowsAxis: T[] = [...this._data]
         const dataForColsAxis: T[] = [...this._data]
@@ -212,11 +240,14 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this.groupBy(dataForColsAxis,this._colsAxis)
 
         // calculer l'abre des fields
-        const rowsTcdColuns: ITcdColumn[] = this._columns.filter((c:ITcdColumn)=>this._rowsAxis.indexOf(c.name as KeyOf<T>)!==-1)
-        const colsTcdColuns: ITcdColumn[] = this._columns.filter((c:ITcdColumn)=>this._colsAxis.indexOf(c.name as KeyOf<T>)!==-1)
-
+        const rowsTcdColuns: ITcdColumn[] = this._rowsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)
+        const colsTcdColuns: ITcdColumn[] = this._colsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)
         this.calculateFields(dataForRowsAxis, this._rowTreeField, rowsTcdColuns, this._rowsTerminalField)
         this.calculateFields(dataForColsAxis, this._colTreeField, colsTcdColuns, this._colsTerminalField)
+
+        // calculer la profondeur des fields
+        this.calculateDeep(this._rowTreeField, 1)
+        this.calculateDeep(this._colTreeField, this._measures.length)
 
         // affecter les measures
         this.calculateMeasures()

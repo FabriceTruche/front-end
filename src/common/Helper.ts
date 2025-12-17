@@ -3,7 +3,7 @@ import {ITableData} from "../widgets/Table/TableData";
 import {factory} from "./Factory";
 import {IColumn} from "../widgets/Table/Column";
 import {CSSProperties} from "react";
-import {ITcdColumn} from "../widgets/Tcd/Column";
+import {ITcdColumn} from "../widgets/Tcd/TcdColumn";
 
 export type GenColumn = {
     name: string

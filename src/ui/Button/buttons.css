@@ -28,13 +28,16 @@
     font-family: Calibri, serif;
     font-size: 14px;
     border: var(--border-size) solid rgba(128, 128, 128, 12%);
-    background: rgba(211, 211, 211, 10%);
+    /*background: rgba(211, 211, 211, 10%);*/
 }
 .xbg-button-selected {
     border-color: rgba(128, 128, 128, 32%);
-    background: rgba(47, 47, 47, 0.3);
+    background: rgba(244, 244, 244, 0.44);
+    color: #fdf6fd;
 }
 .xbg-button:hover {
-    border: var(--border-size) solid rgba(128, 128, 128, 100%);
+    border: var(--border-size) solid rgb(138, 138, 138);
     cursor: pointer;
+    background: rgba(244, 244, 244, 0.44);
+    color: #fdf6fd;
 }
