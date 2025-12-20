@@ -1,7 +1,7 @@
 .tcd-container {
     display: grid;
     grid-gap: 2px;
-    grid-auto-columns: 65px;
+    grid-auto-columns: 90px;
     grid-auto-rows: 20px;
 }
 .tcd-header-row {
@@ -23,21 +23,51 @@
     background: #849cff;
     border-radius: 3px;
 }
-.tcd-row-total, .tcd-col-total {
+.tcd-label-row-total, .tcd-label-col-total {
     background: #4167fd;
     border-radius: 3px;
 }
 .tcd-measure {
-    background: #ff0b0b;
+    background: #ffbfbf;
+    border-radius: 3px;
+    color: black;
+}
+.tcd-total-measure {
+    background: #737373;
     border-radius: 3px;
     color: white;
 }
-.tcd-measure-total {
-    background: #ffa8a8;
+.tcd-total-row-measure {
+    background: #6cffbd;
+    border-radius: 3px;
+    color: black;
+}
+.tcd-total-col-measure {
+    background: #ce94ff;
     border-radius: 3px;
     color: black;
 }
 .tcd-total {
     background: #4c6dff;
     border-radius: 3px;
+}
+.tcd-gt-measure {
+    background: #ff0b0b;
+    border-radius: 3px;
+    color: white;
+}
+.tcd-gt {
+    background: #0217ff;
+    border-radius: 3px;
+    color: white;
+}
+.tcd-gt-label-row {
+    background: #fcbe62;
+    border-radius: 3px;
+    color: black;
+}
+.tcd-gt-label-col {
+    background: #fcbe62;
+    border-radius: 3px;
+    color: black;
 }

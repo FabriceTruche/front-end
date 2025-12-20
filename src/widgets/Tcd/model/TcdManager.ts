@@ -55,8 +55,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._allMeasuresValue = []
         this._data = data
         this._columns = columns
-        this._rowTreeField = factory.createField("__rows_field_root__", factory.createTcdColumn("__rows_field_root__","any"))
-        this._colTreeField = factory.createField("__cols_field_root__", factory.createTcdColumn("__cols_field_root__","any"))
+        this._rowTreeField = factory.createField("GRAND TOTAL", factory.createTcdColumn("__rows_field_root__","any"), true)
+        this._colTreeField = factory.createField("GRAND TOTAL", factory.createTcdColumn("__cols_field_root__","any"), true)
     }
 
     /**
@@ -108,6 +108,9 @@ export class _TcdManager<T> implements ITcdManager<T> {
     private calculateFields(sortedData: T[], rootField: IField<T>, axis: ITcdColumn[], terminals: IField<T>[] ): void {
 
         let currField: IField<T> = rootField
+
+        // ajouter la racine pour le grand total
+        terminals.push(rootField)
 
         // on démarre sur la seconde ligne
         for (let i = 0; i < sortedData.length; i++) {

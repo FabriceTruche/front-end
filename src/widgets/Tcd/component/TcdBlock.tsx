@@ -1,12 +1,24 @@
 import "./tcdBlock.css"
-import {Coord, TcdMode, DisplayValue} from "../model/TcdViewManager";
+import {TcdMode} from "../model/TcdViewManager";
+import {Rect} from "../model/Cell";
+
+class DisplayValue {
+    private readonly _label: string;
+    constructor(label: string) {
+        this._label = label;
+    }
+    public get label() { return this._label}
+
+    public displayValue(): string { return this._label; }
+}
+
 
 export type Cell<T extends { displayValue: ()=>string }> = {
     object: T
-    coord: Coord
+    coord: Rect
 }
 export type TcdBlockProps<T extends { displayValue: ()=>string }> = {
-    origin: Coord
+    origin: Rect
     mode: TcdMode
     header: string[]      // uniquement une liste de valeurs
     body: Cell<T>[]       // valeur et position

@@ -6,6 +6,7 @@ export interface IField<T> {
     deep: number
     fields: IField<T>[]
     dataRows: T[]
+    isRoot: boolean
 
     isTerminal(): boolean
     addField(field: IField<T>): IField<T>
@@ -20,13 +21,15 @@ export class _Field<T> implements IField<T> {
     private _fields: IField<T>[]
     private _dataRows: T[]
     private _deep: number
+    private _isRoot: boolean
 
-    constructor(value: any, column: ITcdColumn) {
+    constructor(value: any, column: ITcdColumn, isRoot: boolean=false) {
         this._value = value
         this._column = column
         this._fields = []
         this._dataRows = []
         this._deep = 0
+        this._isRoot = isRoot
     }
 
     public get column(): ITcdColumn { return this._column }
@@ -35,6 +38,7 @@ export class _Field<T> implements IField<T> {
     public get dataRows(): T[] { return this._dataRows }
     public get deep(): number { return this._deep }
     public set deep(d: number) { this._deep = d }
+    public get isRoot(): boolean { return this._isRoot }
 
     public addDataRow(dataRow: T): void {
         this._dataRows.push(dataRow)

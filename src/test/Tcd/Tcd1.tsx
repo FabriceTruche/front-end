@@ -3,13 +3,12 @@ import {ITcdColumn} from "../../widgets/Tcd/model/TcdColumn";
 import {factory} from "../../common/Factory";
 import {ITcdManager} from "../../widgets/Tcd/model/TcdManager";
 import {useMemo} from "react";
-import {IField} from "../../widgets/Tcd/model/Field";
 import {IMeasure} from "../../widgets/Tcd/model/Measure";
 import {functionsGroup} from "../../widgets/Tcd/model/functionsGroup";
-import {IMeasureValue} from "../../widgets/Tcd/model/MeasureValue";
-import {ITcdViewManager, TcdMode, DisplayValue} from "../../widgets/Tcd/model/TcdViewManager";
-import {Cell, TcdBlock} from "../../widgets/Tcd/component/TcdBlock";
+import {ITcdViewManager, } from "../../widgets/Tcd/model/TcdViewManager";
 import {TcdTable} from "../../widgets/Tcd/component/TcdTable";
+import {ICell} from "../../widgets/Tcd/model/Cell";
+import {Block} from "./TcdTraces";
 
 function createDummyData<T>(): [ITcdManager<T>, ITcdViewManager<T>] {
 
@@ -124,38 +123,38 @@ export const Tcd1=()=> {
                 {/*    })}*/}
                 {/*</Block>*/}
 
-                <Block>
-                    <TcdBlock
-                        origin={{x:0,y:0}}
-                        mode={TcdMode.top}
-                        header={tcd.rowAxis.map((c:ITcdColumn)=>c.name)} body={tcdView.rowsCell}
-                        totals={tcdView.totalRowsCell}
+                {/*<Block>*/}
+                {/*    <TcdBlock*/}
+                {/*        origin={{x:0,y:0}}*/}
+                {/*        mode={TcdMode.top}*/}
+                {/*        header={tcd.rowAxis.map((c:ITcdColumn)=>c.name)} body={tcdView.rowsCell}*/}
+                {/*        totals={tcdView.totalRowsCell}*/}
 
-                    />
-                </Block>
-                <Block>
-                    <TcdBlock
-                        origin={{x:0,y:0}}
-                        mode={TcdMode.left}
-                        header={tcd.colAxis.map((c:ITcdColumn)=>c.name)} body={tcdView.colsCell}
-                        totals={[]}
-                    />
-                </Block>
-                <Block>
-                    <TcdBlock
-                        origin={{x:0,y:0}}
-                        mode={TcdMode.top}
-                        header={tcdView.measuresCell.map((c:Cell<IMeasure>)=>`${c.object.funcGroup.name}(${c.object.column.name})`)}
-                        body={tcdView.measuresValueCell}
-                        totals={[]}
-                    />
-                </Block>
+                {/*    />*/}
+                {/*</Block>*/}
+                {/*<Block>*/}
+                {/*    <TcdBlock*/}
+                {/*        origin={{x:0,y:0}}*/}
+                {/*        mode={TcdMode.left}*/}
+                {/*        header={tcd.colAxis.map((c:ITcdColumn)=>c.name)} body={tcdView.colsCell}*/}
+                {/*        totals={[]}*/}
+                {/*    />*/}
+                {/*</Block>*/}
+                {/*<Block>*/}
+                {/*    <TcdBlock*/}
+                {/*        origin={{x:0,y:0}}*/}
+                {/*        mode={TcdMode.top}*/}
+                {/*        header={tcdView.measuresCell.map((c:Cell<IMeasure>)=>`${c.object.funcGroup.name}(${c.object.column.name})`)}*/}
+                {/*        body={tcdView.measuresValueCell}*/}
+                {/*        totals={[]}*/}
+                {/*    />*/}
+                {/*</Block>*/}
                 <Block>
                     *TOTAL*
-                    {tcdView.totalRowsCell.map((t:Cell<DisplayValue>)=>{
+                    {tcdView.totalRowsCell.map((t:ICell)=>{
                         return (
                             <div>
-                                [y={t.coord.y},x={t.coord.x}] - {t.object.displayValue()}
+                                [y={t.rect.y},x={t.rect.x}] - {t.value}
                             </div>
                         )
                     })}
@@ -170,78 +169,6 @@ export const Tcd1=()=> {
     )
 }
 
-const Block=({children}: any) => {
-    return (
-        <div style={{
-            border: "1px solid lightgray",
-            borderRadius: "3px",
-            margin: "10px",
-            padding: "10px",
-        }}>
-            {children}
-        </div>
-    )
-
-}
-type FieldViewProps<T> = {
-    field: IField<T>
-    level: number
-}
-const FieldView = <T,>(props: FieldViewProps<T>) => {
-    return (
-        <div
-            style={{
-                paddingLeft: props.level * 25
-            }}
-        >
-            [{props.field.column.name}][total={props.field.column.total.toString()}]{props.field.value.toString()}(nb={props.field.dataRows.length})[{props.field.dataRows.map((r:any)=>r.id).join(',')}]
-            {props.field.fields.map((f: IField<T>) => {
-                return (
-                    <FieldView key={helper.genKey()} field={f} level={props.level + 1}/>
-                )
-            })}
-        </div>
-    )
-}
-type TerminalsProps<T> = {
-    fields: IField<T>[]
-    title:string
-}
-const Terminals = <T,>(props: TerminalsProps<T>) => {
-    return (
-        <div>
-            <div>{props.title}</div>
-            <div>
-                {props.fields.map((field: IField<any>) => {
-                    return (
-                        <div>{field.value.toString()}({field.column.name}):{field.dataRows.map((r:any)=>r.id).join(',')}
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
-    )
-}
-
-type MeasuresValueProps<T> = {
-    measuresValue: IMeasureValue<T>[]
-}
-const MeasuresValue = <T,>(props: MeasuresValueProps<T>) => {
-    return (
-        <div>
-            <div>measureValuesCount={props.measuresValue.reduce((prev: number, mv:IMeasureValue<T>)=>prev+mv.dataRows.length,0)}</div>
-            <div>
-                {props.measuresValue.map((mv: IMeasureValue<T>) => {
-                    return (
-                        <div>
-                            {mv.value.toString()} - [{mv.dataRows.map((r:any)=>r.id).join(',')}] - ({mv.rowField.value.toString()}:{mv.colField.value.toString()})
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
-    )
-}
 
 
 /*
