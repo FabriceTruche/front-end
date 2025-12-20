@@ -10,6 +10,7 @@ export interface IMeasureValue<T> {
     colField: IField<T>
 
     displayValue(): string
+    isTotalMeasure(): boolean
 }
 
 export class _MeasureValue<T> implements IMeasureValue<T>{
@@ -39,5 +40,12 @@ export class _MeasureValue<T> implements IMeasureValue<T>{
 
     public displayValue(): string {
         return this._measure.column.dataFormatter.format(this._value).value
+    }
+
+    public isTotalMeasure(): boolean {
+        if (!this._rowField.isTerminal())
+            return true
+
+        return !this._colField.isTerminal();
     }
 }

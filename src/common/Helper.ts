@@ -3,11 +3,12 @@ import {ITableData} from "../widgets/Table/TableData";
 import {factory} from "./Factory";
 import {IColumn} from "../widgets/Table/Column";
 import {CSSProperties} from "react";
-import {ITcdColumn} from "../widgets/Tcd/TcdColumn";
+import {ITcdColumn} from "../widgets/Tcd/model/TcdColumn";
 
 export type GenColumn = {
     name: string
     type: "integer"|"string"|"Date"|"boolean"|"index"|"float"
+    total?: boolean
     label?: string
     ratioNull?: number
     min?: number
@@ -558,7 +559,6 @@ class _Helper implements IHelper {
         let type: string = ""
 
         genColumns.forEach((genCol: GenColumn, index:number)=>{
-
                 switch (genCol.type) {
                     case "index":
                         type = "number"
@@ -574,7 +574,7 @@ class _Helper implements IHelper {
                         type = genCol.type
                         break;
                 }
-                tcdColumns.push(factory.createTcdColumn(genCol.name, type, genCol.label))
+                tcdColumns.push(factory.createTcdColumn(genCol.name, type, genCol.total, genCol.label))
             })
 
         return tcdColumns

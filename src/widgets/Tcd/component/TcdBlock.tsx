@@ -1,5 +1,5 @@
 import "./tcdBlock.css"
-import {Coord, TcdMode} from "./TcdViewManager";
+import {Coord, TcdMode, DisplayValue} from "../model/TcdViewManager";
 
 export type Cell<T extends { displayValue: ()=>string }> = {
     object: T
@@ -10,6 +10,7 @@ export type TcdBlockProps<T extends { displayValue: ()=>string }> = {
     mode: TcdMode
     header: string[]      // uniquement une liste de valeurs
     body: Cell<T>[]       // valeur et position
+    totals: Cell<DisplayValue>[]
 }
 export const  TcdBlock= <T extends { displayValue: ()=>string },>(props: TcdBlockProps<T>) => {
     const style = (y: number, x: number) => (
@@ -45,6 +46,19 @@ export const  TcdBlock= <T extends { displayValue: ()=>string },>(props: TcdBloc
                     </div>
                 )
             })}
+
+            {props.totals.map((v: Cell<DisplayValue>, index: number) => {
+                return (
+                    <div
+                        key={index}
+                        className={"tcd-total"}
+                        style={style(shift_y + v.coord.y, shift_x + v.coord.x)}
+                    >
+                        {v.object.displayValue()}
+                    </div>
+                )
+            })}
+
         </pre>
     )
 }

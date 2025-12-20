@@ -1,5 +1,5 @@
-import {Cell, TcdBlock} from "../../widgets/Tcd/TcdBlock";
-import {TcdMode} from "../../widgets/Tcd/TcdViewManager";
+import {Cell, TcdBlock} from "../../widgets/Tcd/component/TcdBlock";
+import {TcdMode} from "../../widgets/Tcd/model/TcdViewManager";
 
 
 export const Tcd2=() => {
@@ -21,6 +21,7 @@ export const Tcd2=() => {
                 body={data}
                 mode={TcdMode.top}
                 origin={{x: 0, y: 0}}
+                totals={[]}
             />
 wwww
             <TcdBlock
@@ -28,6 +29,7 @@ wwww
                 body={data}
                 mode={TcdMode.left}
                 origin={{x: 0, y: 0}}
+                totals={[]}
             />
         </div>
     )

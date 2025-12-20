@@ -4,13 +4,13 @@ import {_FieldEditor, IFieldEditor} from "../widgets/Table/IFieldEditor";
 import {_Column, IColumn} from "../widgets/Table/Column";
 import {_TableData, ITableData} from "../widgets/Table/TableData";
 import {_TableManager, ITableManager} from "../widgets/Table/TableManager";
-import {_Tcd, ITcdColumn} from "../widgets/Tcd/TcdColumn";
-import {_Field, IField} from "../widgets/Tcd/Field";
-import {_TcdManager, ITcdManager} from "../widgets/Tcd/TcdManager";
-import {_MeasureValue, IMeasureValue} from "../widgets/Tcd/MeasureValue";
-import {FuncType} from "../widgets/Tcd/functionsGroup";
-import {_Measure, IMeasure} from "../widgets/Tcd/Measure";
-import {_TcdViewManager, ITcdViewManager} from "../widgets/Tcd/TcdViewManager";
+import {_Tcd, ITcdColumn} from "../widgets/Tcd/model/TcdColumn";
+import {_Field, IField} from "../widgets/Tcd/model/Field";
+import {_TcdManager, ITcdManager} from "../widgets/Tcd/model/TcdManager";
+import {_MeasureValue, IMeasureValue} from "../widgets/Tcd/model/MeasureValue";
+import {FuncType} from "../widgets/Tcd/model/functionsGroup";
+import {_Measure, IMeasure} from "../widgets/Tcd/model/Measure";
+import {_TcdViewManager, ITcdViewManager} from "../widgets/Tcd/model/TcdViewManager";
 
 export interface IFactory {
 
@@ -21,7 +21,7 @@ export interface IFactory {
     createTableManager<T>(data: ITableData<T>, elementId: string): ITableManager<T>
 
     // tcd
-    createTcdColumn(name: string, type: string, label?: string, formatter?: IFormatter): ITcdColumn
+    createTcdColumn(name: string, type: string, total?: boolean, label?: string, formatter?: IFormatter): ITcdColumn
     createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure
     createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T>
     createField<T>(value: any, column: ITcdColumn): IField<T>
@@ -47,8 +47,8 @@ class _Factory implements IFactory {
         return new _FieldEditor(jsx, properties)
     }
 
-    public createTcdColumn(name: string, type: string, label:string="", formatter=undefined) {
-        return new _Tcd(name,type,label, formatter)
+    public createTcdColumn(name: string, type: string, total: boolean=false, label:string="", formatter=undefined) {
+        return new _Tcd(name,type,total,label, formatter)
     }
 
     public createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure {

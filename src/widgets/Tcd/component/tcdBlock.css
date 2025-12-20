@@ -1,0 +1,19 @@
+.tcd-container {
+    display: grid;
+    grid-gap: 2px;
+    grid-auto-columns: 100px;
+    grid-auto-rows: 20px;
+}
+.tcd-header {
+    background: white;
+    color: black;
+    border-radius: 3px;
+}
+.tcd-body {
+    background: #7a94ff;
+    border-radius: 3px;
+}
+.tcd-total {
+    background: #4c6dff;
+    border-radius: 3px;
+}

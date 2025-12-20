@@ -1,0 +1,43 @@
+.tcd-container {
+    display: grid;
+    grid-gap: 2px;
+    grid-auto-columns: 65px;
+    grid-auto-rows: 20px;
+}
+.tcd-header-row {
+    background: white;
+    color: black;
+    border-radius: 3px;
+}
+.tcd-header-col {
+    background: yellow;
+    color: black;
+    border-radius: 3px;
+}
+.tcd-header-measure {
+    background: lightskyblue;
+    color: black;
+    border-radius: 3px;
+}
+.tcd-row, .tcd-col {
+    background: #849cff;
+    border-radius: 3px;
+}
+.tcd-row-total, .tcd-col-total {
+    background: #4167fd;
+    border-radius: 3px;
+}
+.tcd-measure {
+    background: #ff0b0b;
+    border-radius: 3px;
+    color: white;
+}
+.tcd-measure-total {
+    background: #ffa8a8;
+    border-radius: 3px;
+    color: black;
+}
+.tcd-total {
+    background: #4c6dff;
+    border-radius: 3px;
+}

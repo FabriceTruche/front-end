@@ -1,49 +1,50 @@
 import {ITcdColumn} from "./TcdColumn";
 import {IField} from "./Field";
-import {factory} from "../../common/Factory";
+import {factory} from "../../../common/Factory";
 import {IMeasure} from "./Measure";
 import {IMeasureValue} from "./MeasureValue";
 
 export type KeyOf<T> = keyof T
 
 export interface ITcdManager<T> {
-    buildTcd(rowsAxis: KeyOf<T>[], colsAxis: KeyOf<T>[], measures: IMeasure[]): void
-
     initialData: T[]
     columns: ITcdColumn[]
-    rowAxis: KeyOf<T>[]
-    colAxis: KeyOf<T>[]
+    rowAxis: ITcdColumn[]
+    colAxis: ITcdColumn[]
     rowTreeField: IField<T>
     colTreeField: IField<T>
     rowsTerminalField: IField<T>[]
     colsTerminalField: IField<T>[]
     measures: IMeasure[]
     measuresValue: IMeasureValue<T>[]
+
+    buildTcd(rowsAxis: string[], colsAxis: string[], measures: IMeasure[]): void
 }
 
 export class _TcdManager<T> implements ITcdManager<T> {
 
     private readonly _data: T[]
     private readonly _columns: ITcdColumn[]
-    private _rowsAxis: KeyOf<T>[]
-    private _colsAxis: KeyOf<T>[]
+    private _rowsAxis: ITcdColumn[]
+    private _colsAxis: ITcdColumn[]
     private readonly _rowTreeField: IField<T>
     private readonly _colTreeField: IField<T>
     private _rowsTerminalField: IField<T>[]
     private _colsTerminalField: IField<T>[]
     private _measures: IMeasure[]
-    private _measuresValue: IMeasureValue<T>[]
+    private _allMeasuresValue: IMeasureValue<T>[]
 
     public get initialData(): T[] { return this._data }
     public get columns(): ITcdColumn[] { return this._columns}
-    public get rowAxis(): KeyOf<T>[] { return this._rowsAxis }
-    public get colAxis(): KeyOf<T>[] { return this._colsAxis }
+    public get rowAxis(): ITcdColumn[] { return this._rowsAxis }
+    public get colAxis(): ITcdColumn[] { return this._colsAxis }
     public get rowTreeField(): IField<T> { return this._rowTreeField }
     public get colTreeField(): IField<T> { return this._colTreeField }
     public get rowsTerminalField(): IField<T>[] { return this._rowsTerminalField }
     public get colsTerminalField(): IField<T>[] { return this._colsTerminalField }
     public get measures(): IMeasure[] { return this._measures }
-    public get measuresValue(): IMeasureValue<T>[] { return this._measuresValue }
+    public get measuresValue(): IMeasureValue<T>[] { return this._allMeasuresValue } // .filter((m:IMeasureValue<T>)=>!m.isTotalMeasure()) }
+    // public get totalMeasuresValue(): IMeasureValue<T>[] { return this._allMeasuresValue.filter((m:IMeasureValue<T>)=>m.isTotalMeasure()) }
 
     constructor(data: T[], columns: ITcdColumn[]) {
         this._rowsAxis = []
@@ -51,7 +52,7 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._rowsTerminalField = []
         this._colsTerminalField = []
         this._measures = []
-        this._measuresValue = []
+        this._allMeasuresValue = []
         this._data = data
         this._columns = columns
         this._rowTreeField = factory.createField("__rows_field_root__", factory.createTcdColumn("__rows_field_root__","any"))
@@ -70,7 +71,7 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._rowsTerminalField = []
         this._colsTerminalField = []
         this._measures = []
-        this._measuresValue = []
+        this._allMeasuresValue = []
     }
 
     /**
@@ -79,10 +80,10 @@ export class _TcdManager<T> implements ITcdManager<T> {
      * @param axis
      * @private
      */
-    private groupBy(data: T[], axis: KeyOf<T>[]): void {
+    private groupBy(data: T[], axis: ITcdColumn[]): void {
         data.sort((row1:T, row2: T):number=>{
             for(let i=0; i<axis.length; i++) {
-                const field: KeyOf<T> = axis[i]
+                const field: KeyOf<T> = axis[i].name as KeyOf<T>
                 if (row1[field]<row2[field]) return -1
                 if (row1[field]>row2[field]) return 1
             }
@@ -109,19 +110,19 @@ export class _TcdManager<T> implements ITcdManager<T> {
         let currField: IField<T> = rootField
 
         // on démarre sur la seconde ligne
-        for(let i=0; i<sortedData.length; i++) {
-            const prevDataRow: T|null = i>0 ? sortedData[i-1] : null
-            const dataRow : T = sortedData[i]
+        for (let i = 0; i < sortedData.length; i++) {
+            const prevDataRow: T | null = i > 0 ? sortedData[i - 1] : null
+            const dataRow: T = sortedData[i]
             let newValue: boolean = false
 
             currField = rootField
             currField.addDataRow(dataRow)
 
-            for(let k=0; k<axis.length; k++) {
+            for (let k = 0; k < axis.length; k++) {
                 const tcdCol: ITcdColumn = axis[k]
                 const ax: KeyOf<T> = tcdCol.name as KeyOf<T>
 
-                if (newValue || (prevDataRow===null) || (prevDataRow && (prevDataRow[ax]!==dataRow[ax]))) {
+                if (newValue || (prevDataRow === null) || (prevDataRow && (prevDataRow[ax] !== dataRow[ax]))) {
                     // nouvelle valeur pour l'axe "ax"
                     const newField: IField<T> = factory.createField(dataRow[ax], tcdCol)
 
@@ -129,14 +130,15 @@ export class _TcdManager<T> implements ITcdManager<T> {
                     newValue = true
 
                     // on teste le terminal uniquement sur l'ajout d'un nouveau field
-                    if (k===axis.length - 1) {
+                    // est terminal si dernier des axes OU si l'axe possède un total
+                    if ((k === axis.length - 1) || axis[k].total) {
                         terminals.push(currField)
                     }
 
                 } else {
                     const nextField: IField<T> | undefined = currField.lastNestedField()
 
-                    if (nextField===undefined)
+                    if (nextField === undefined)
                         throw new Error('Error interne : lastNestedField must be not null')
 
                     currField = nextField
@@ -175,12 +177,10 @@ export class _TcdManager<T> implements ITcdManager<T> {
             this._colsTerminalField.forEach((colTerm: IField<T>) => {
                 const dataRows: T[] = this.intersect(rowTerm.dataRows, colTerm.dataRows)
 
-                if (dataRows.length === 0) {
-                    // pas de measure => on n'en crée ou pas ?!
-                } else {
-                    // measures à crééer
+                if (dataRows.length>0) {
+                    // measures à créer
                     this._measures.forEach((measure: IMeasure) => {
-                        this._measuresValue.push(factory.createMeasureValue(rowTerm,colTerm,dataRows,measure))
+                        this._allMeasuresValue.push(factory.createMeasureValue(rowTerm,colTerm,dataRows,measure))
                     })
                 }
 
@@ -210,7 +210,13 @@ export class _TcdManager<T> implements ITcdManager<T> {
             })
 
             field.deep = sum
+
+            // totaux => si la ITcdColumn possède un total => ajouter le lenTerminal sur le noeud pour son total
+            // pas de totaux sur un terminal de IField
+            if (field.column.total)
+                field.deep += lenTerminal
         }
+
     }
 
 
@@ -220,12 +226,14 @@ export class _TcdManager<T> implements ITcdManager<T> {
      * @param colsAxis
      * @param measures
      */
-    public buildTcd(rowsAxis: KeyOf<T>[], colsAxis: KeyOf<T>[], measures: IMeasure[]): void {
+    public buildTcd(rowsAxis: string[], colsAxis: string[], measures: IMeasure[]): void {
+
+        const findColumn=(colName:string): ITcdColumn=>this._columns.find((c:ITcdColumn)=>c.name===colName) as ITcdColumn
 
         // définir les axes en ligne et en colonne
         this.reset()
-        this._rowsAxis = [...rowsAxis]
-        this._colsAxis = [...colsAxis]
+        this._rowsAxis = rowsAxis.map((fn:string)=>findColumn(fn))
+        this._colsAxis = colsAxis.map((fn:string)=>findColumn(fn))
         this._measures = [...measures]
 
         // définir l'ordre des colonnes de measures
@@ -240,10 +248,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this.groupBy(dataForColsAxis,this._colsAxis)
 
         // calculer l'abre des fields
-        const rowsTcdColuns: ITcdColumn[] = this._rowsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)
-        const colsTcdColuns: ITcdColumn[] = this._colsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)
-        this.calculateFields(dataForRowsAxis, this._rowTreeField, rowsTcdColuns, this._rowsTerminalField)
-        this.calculateFields(dataForColsAxis, this._colTreeField, colsTcdColuns, this._colsTerminalField)
+        this.calculateFields(dataForRowsAxis, this._rowTreeField, this._rowsAxis, this._rowsTerminalField)
+        this.calculateFields(dataForColsAxis, this._colTreeField, this._colsAxis, this._colsTerminalField)
 
         // calculer la profondeur des fields
         this.calculateDeep(this._rowTreeField, 1)
@@ -277,3 +283,5 @@ export class _TcdManager<T> implements ITcdManager<T> {
 //     // 3. créer la measure et l'affecter
 //     const measure: IMeasure<T> = factory.createMeasure(rowField,colField)
 // })
+// const rowsTcdColuns: ITcdColumn[] = this._rowsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)
+// const colsTcdColuns: ITcdColumn[] = this._colsAxis.map((fn:KeyOf<T>)=>this._columns.find((c:ITcdColumn)=>c.name===fn) as ITcdColumn)

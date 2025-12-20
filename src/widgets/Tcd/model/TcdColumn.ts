@@ -1,10 +1,11 @@
-import {IFormatter} from "../Table/IFormatter";
-import {DataFormatter} from "../Table/DataFormatter";
+import {IFormatter} from "../../Table/IFormatter";
+import {DataFormatter} from "../../Table/DataFormatter";
 
 export interface ITcdColumn {
     name: string
     type: string
     label: string
+    total: boolean
     dataFormatter: IFormatter
 }
 
@@ -12,17 +13,20 @@ export class _Tcd implements ITcdColumn {
     private readonly _name: string
     private readonly _type: string
     private readonly _label: string
+    private readonly _total: boolean
     private _dataFormatter: IFormatter
 
     constructor(
         name: string,
         type: string,
+        total: boolean = false,
         label: string = "",
         dataFormat: IFormatter | undefined = undefined,
     ) {
         this._name = name
         this._type = type
         this._label = label
+        this._total = total
         this._dataFormatter = dataFormat === undefined ? DataFormatter.baseFormatter : dataFormat
     }
 
@@ -36,6 +40,10 @@ export class _Tcd implements ITcdColumn {
 
     public get label(): string {
         return this._label === "" ? this._name : this._label
+    }
+
+    public get total(): boolean {
+        return this._total
     }
 
     public get dataFormatter(): IFormatter {
