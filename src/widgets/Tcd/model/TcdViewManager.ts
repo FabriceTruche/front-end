@@ -53,6 +53,9 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
     private _colsCellMap: Map<IField<T>,Rect> = new Map<IField<T>, Rect>()
     private _measuresCellMap: Map<IMeasureValue<T>, Rect> = new Map<IMeasureValue<T>, Rect>()
 
+    // tcd manager du build en cours
+    private _tcdManager: ITcdManager<T>|null = null
+
     public get rowsCell(): ICell[] { return this._rowsCell }
     public get colsCell(): ICell[] { return this._colsCell }
     public get headerRowsCell(): ICell[] { return this._headerRowsCell }
@@ -69,6 +72,9 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
     public get coordHeaderCols(): Rect { return this._coordHeaderCols }
     public get coordHeaderMeasures(): Rect { return this._coordHeaderMeasures }
 
+    private get nbMeasures(): number { return this.tcd.measures.length }
+    private get tcd(): ITcdManager<T> { return this._tcdManager as ITcdManager<T> }
+
     private reset(): void {
         this._rowsCellMap.clear()
         this._colsCellMap.clear()
@@ -79,7 +85,6 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
         this._headerColsCell = []
         this._measuresCell = []
         this._measuresValueCell = []
-        // this._totalMeasuresValueCell = []
         this._totalRowsCell = []
         this._totalColsCell = []
         this._coordTcd = _defaultRect
@@ -96,21 +101,26 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
      * @param start
      * @param fields
      * @param cellMap
+     * @param totalRoom
      * @private
      */
     private calculateFieldsCoordinatesCascade(
         start: Rect,
         fields: IField<T>[],
         cellMap: Map<IField<T>,Rect>,
+        totalRoom: number
     ): void {
         let spany: number = 0
 
         fields.forEach((f: IField<T>) => {
+            // si colonne total, enlever une ligne pour le ySpan
+            // enlever le nombre de measures pour les cols
+            const adjustWithTotal: number = f.column.total ? totalRoom : 0
             const rect: Rect = {
                 x: start.x,
                 y: start.y + spany,
                 width: 1,
-                height: f.deep
+                height: f.deep - adjustWithTotal
             }
 
             cellMap.set(f,{...rect})
@@ -118,7 +128,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
 
             // traiter les sous-noeuds
             const nextStart: Rect = { x: rect.x+1, y: rect.y, width: 1, height: 1 }
-            this.calculateFieldsCoordinatesCascade(nextStart, f.fields, cellMap)
+            this.calculateFieldsCoordinatesCascade(nextStart, f.fields, cellMap, totalRoom)
         })
     }
 
@@ -126,30 +136,44 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
      *
      * @param rootField
      * @param cellMap
+     * @param totalRoom
      * @private
      */
-    private calculateFieldsCoord(rootField: IField<T>, cellMap: Map<IField<T>,Rect>): void {
-        const startCoord: Rect = { x:0, y:0, width: 1, height: 1 }
-        this.calculateFieldsCoordinatesCascade(startCoord, rootField.fields, cellMap)
+    private calculateFieldsCoord(rootField: IField<T>, cellMap: Map<IField<T>,Rect>, totalRoom: number): void {
+        const startCoord: Rect = {x: 0, y: 0, width: 1, height: 1}
+        this.calculateFieldsCoordinatesCascade(startCoord, rootField.fields, cellMap, totalRoom)
+    }
 
-        // grand total
-        const rect: Rect = {
+    /**
+     *
+     * @private
+     */
+    private calculateGrandTotalabel() {
+        // grand total row
+        const rowRect: Rect = {
             x: 0,
-            y: rootField.deep,
-            width: 1,
+            y: this.tcd.rowTreeField.deep,
+            width: this.tcd.rowAxis.length,
             height: 1
         }
+        this._rowsCellMap.set(this.tcd.rowTreeField,{...rowRect})
 
-        cellMap.set(rootField,{...rect})
+        // grand total col
+        const colRect: Rect = {
+            x: 0,
+            y: this.tcd.colTreeField.deep,
+            width: this.tcd.colAxis.length,
+            height: this.nbMeasures
+        }
+        this._colsCellMap.set(this.tcd.colTreeField,{...colRect})
     }
 
     /**
      *
      * @param measures
-     * @param nbMeasures
      * @private
      */
-    private calculateMeasuresCoord(measures: IMeasureValue<T>[], nbMeasures: number): void {
+    private calculateMeasuresCoord(measures: IMeasureValue<T>[]): void {
         measures.forEach((m: IMeasureValue<T>) => {
             const rowCoord: Rect = this._rowsCellMap.get(m.rowField) as Rect
             const colCoord: Rect = this._colsCellMap.get(m.colField) as Rect
@@ -165,7 +189,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
 
             x = colCoord.x + m.measure.index
             if (m.colField.column.total) {
-                x += (m.colField.deep - nbMeasures )
+                x += (m.colField.deep - this.nbMeasures )
             }
 
             this._measuresCellMap.set(m,{x,y,width:1,height:1})
@@ -175,10 +199,9 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
     /**
      *
      * @param measures
-     * @param nbMeasures
      * @private
      */
-    private calculateLabelTotalsCoord(measures: IMeasureValue<T>[], nbMeasures: number): void {
+    private calculateLabelTotalsCoord(measures: IMeasureValue<T>[]): void {
         measures.forEach((m: IMeasureValue<T>) => {
 
             // on ne traite les libellés qQU'UNE fois pour toutes les measuesValues ==> sur le premier index des measuresValues
@@ -195,7 +218,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                 const rect: Rect = {
                     x: rowCoord.x,
                     y: rowCoord.y + m.rowField.deep - 1,
-                    width: 1,
+                    width: this.tcd.rowAxis.length - rowCoord.x,
                     height: 1
                 }
                 const cell:ICell = factory.createCell(TypeCell.labelTotalRow, rect,`TOTAL '${m.rowField.value}'`)
@@ -205,10 +228,10 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
             // on ne traite ici QUE Les lables des totaux 'TOTAL ...'
             if (colTotal) {
                 const rect: Rect = {
-                    x: colCoord.x + m.colField.deep -  nbMeasures,
+                    x: colCoord.x + m.colField.deep -  this.nbMeasures,
                     y: colCoord.y + m.measure.index,
-                    width: 1,
-                    height: 1
+                    width: this.nbMeasures,
+                    height: this.tcd.colAxis.length - colCoord.y
                 }
                 const cell:ICell = factory.createCell(TypeCell.labelTotalCol, rect,`TOTAL '${m.colField.value}'`)
                 this._totalColsCell.push(cell)
@@ -277,9 +300,8 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
      * @private
      * @param tcdManager
      * @param nbColTerminals
-     * @param nbMeasures
      */
-    private calculateHeaderCoords(tcdManager: ITcdManager<T>, nbColTerminals: number, nbMeasures: number): void {
+    private calculateHeaderCoords(tcdManager: ITcdManager<T>, nbColTerminals: number): void {
         // 1. row
         tcdManager.rowAxis.forEach((axis: ITcdColumn, index: number)=>{
             const rect: Rect = {
@@ -309,7 +331,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
         {
             tcdManager.measures.forEach((m: IMeasure)=> {
                 const rect: Rect = {
-                    x: (i*nbMeasures) + m.index,
+                    x: (i*this.nbMeasures) + m.index,
                     y: 0,
                     width: 1,
                     height: 1
@@ -372,23 +394,25 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
      * @param tcdManager
      */
     public buildTcdView(tcdManager: ITcdManager<T>): void {
+        this._tcdManager = tcdManager
 
         this.reset()
 
         // 1. calculate fields coord
-        this.calculateFieldsCoord(tcdManager.rowTreeField, this._rowsCellMap)
-        this.calculateFieldsCoord(tcdManager.colTreeField, this._colsCellMap)
+        this.calculateFieldsCoord(tcdManager.rowTreeField, this._rowsCellMap,1)
+        this.calculateFieldsCoord(tcdManager.colTreeField, this._colsCellMap,this.nbMeasures)
+        this.calculateGrandTotalabel()
         this.transposeCols()
 
         // 2. calculate measures coord
-        this.calculateMeasuresCoord(tcdManager.measuresValue, tcdManager.measures.length)
+        this.calculateMeasuresCoord(tcdManager.measuresValue)
         this.convertCoordToArray()
 
         // 3 .calculate totals coord
-        this.calculateLabelTotalsCoord(tcdManager.measuresValue, tcdManager.measures.length)
+        this.calculateLabelTotalsCoord(tcdManager.measuresValue)
 
         // 4. entete des col
-        this.calculateHeaderCoords(tcdManager, tcdManager.colsTerminalField.length, tcdManager.measures.length)
+        this.calculateHeaderCoords(tcdManager, tcdManager.colsTerminalField.length)
 
         // 5. calculate coordinates for all parts
         this.calculateCoords(tcdManager)

@@ -13,7 +13,7 @@ export class _Tcd implements ITcdColumn {
     private readonly _name: string
     private readonly _type: string
     private readonly _label: string
-    private readonly _total: boolean
+    private _total: boolean
     private _dataFormatter: IFormatter
 
     constructor(
@@ -44,6 +44,10 @@ export class _Tcd implements ITcdColumn {
 
     public get total(): boolean {
         return this._total
+    }
+
+    public set total(total: boolean) {
+        this._total = total
     }
 
     public get dataFormatter(): IFormatter {

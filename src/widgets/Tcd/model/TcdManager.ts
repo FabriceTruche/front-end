@@ -222,7 +222,6 @@ export class _TcdManager<T> implements ITcdManager<T> {
 
     }
 
-
     /**
      *
      * @param rowsAxis
@@ -238,6 +237,10 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._rowsAxis = rowsAxis.map((fn:string)=>findColumn(fn))
         this._colsAxis = colsAxis.map((fn:string)=>findColumn(fn))
         this._measures = [...measures]
+
+        // vérifier que les axes terminaux n'est pas l'option "total" activée => la déctiver sinon
+        this._rowsAxis[this._rowsAxis.length - 1].total=false
+        this._colsAxis[this._colsAxis.length - 1].total=false
 
         // définir l'ordre des colonnes de measures
         measures.forEach((measure: IMeasure, index: number) => {measure.index=index})

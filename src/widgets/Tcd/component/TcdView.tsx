@@ -32,14 +32,16 @@ type TcdPartViewProps/*<T extends { displayValue: ()=>string }>*/ = {
 }
 const TcdPartView=(props: TcdPartViewProps) => {
     const getStyle=(c:Rect): CSSProperties => {
-        // return {
-        //     gridRow: `${c.y + 1 + props.startPos.y} / span ${c.height}`,
-        //     gridColumn: `${c.x + 1 + props.startPos.x} / span ${c.width}`,
-        // }
         return {
-            gridRow: `${c.y + 1 + props.startPos.y} `,
-            gridColumn: `${c.x + 1 + props.startPos.x} `,
+            gridRow: `${c.y + 1 + props.startPos.y} / span ${c.height}`,
+            gridColumn: `${c.x + 1 + props.startPos.x} / span ${c.width}`,
+            placeItems: "center",
+            display: "grid",
         }
+        // return {
+        //     gridRow: `${c.y + 1 + props.startPos.y} `,
+        //     gridColumn: `${c.x + 1 + props.startPos.x} `,
+        // }
     }
 
     return (
@@ -48,7 +50,7 @@ const TcdPartView=(props: TcdPartViewProps) => {
                 return (
                     <div
                         key={index}
-                        className={props.theme.get(c.typeCell)}
+                        className={"tcd-cell " +props.theme.get(c.typeCell)}
                         style={getStyle(c.rect)}
                     >
                         {c.value}
@@ -61,7 +63,7 @@ const TcdPartView=(props: TcdPartViewProps) => {
 export type TcdViewProps<TRow> = {
     tcdViewManager: ITcdViewManager<TRow>
 }
-export const TcdView=<T  extends { displayValue: ()=>string }>(props: TcdViewProps<T>) => {
+export const TcdView=<T,>(props: TcdViewProps<T>) => {
 
     const startHeaderRow: Rect = props.tcdViewManager.coordHeaderRows;
     const startHeaderCol: Rect = props.tcdViewManager.coordHeaderCols;
@@ -74,7 +76,7 @@ export const TcdView=<T  extends { displayValue: ()=>string }>(props: TcdViewPro
     const theme: Map<TypeCell,string> = getTheme()
 
     return (
-        <pre className="tcd-container">
+        <div className="tcd-container">
             <TcdPartView theme={theme} cells={props.tcdViewManager.headerRowsCell} startPos={startHeaderRow} />
             <TcdPartView theme={theme} cells={props.tcdViewManager.headerColsCell} startPos={startHeaderCol} />
             <TcdPartView theme={theme} cells={props.tcdViewManager.measuresCell} startPos={startHeaderMeasure} />
@@ -87,7 +89,7 @@ export const TcdView=<T  extends { displayValue: ()=>string }>(props: TcdViewPro
 
             <TcdPartView theme={theme} cells={props.tcdViewManager.measuresValueCell} startPos={startMeasure} />
             {/*<TcdPartView theme={theme}="tcd-measure-total" cells={props.tcdViewManager.totalMeasuresValueCell} startPos={startMeasure} />*/}
-        </pre>
+        </div>
     )
 }
 

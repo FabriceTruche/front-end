@@ -55,7 +55,7 @@ export class _Cell implements ICell {
     public get style(): CSSProperties  { return this._style }
 
     public get value(): string {
-        return this._value + "(" + this._typeCell +")"
+        return this._value // + "(" + this._typeCell +")"
     }
 
     public get isTotal(): boolean {

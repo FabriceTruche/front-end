@@ -21,6 +21,7 @@ import {Page1} from "./containers/Page1";
 import {Menu, MenuItem} from "../widgets/Menu/Menu";
 import {Tcd1} from "./Tcd/Tcd1";
 import {Tcd3} from "./Tcd/Tcd3";
+import {Tcd4} from "./Tcd/Tcd4";
 
 
 export const allTests: MenuItem[] = [
@@ -45,7 +46,8 @@ export const allTests: MenuItem[] = [
             {content: TestTable1},
             {content: TestTable2},
             {content: Tcd1 },
-            {content: Tcd3 }
+            {content: Tcd3 },
+            {content: Tcd4 }
         ]
     },
     {

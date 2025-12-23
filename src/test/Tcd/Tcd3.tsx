@@ -7,27 +7,27 @@ import {IMeasure} from "../../widgets/Tcd/model/Measure";
 import {functionsGroup} from "../../widgets/Tcd/model/functionsGroup";
 import {ITcdViewManager} from "../../widgets/Tcd/model/TcdViewManager";
 import {TcdView} from "../../widgets/Tcd/component/TcdView";
-import {TcdTable} from "../../widgets/Tcd/component/TcdTable";
-import {Block, CellTrace, FieldTrace, MeasuresValueTrace, TerminalTrace} from "./TcdTraces";
+import {DataFormatter} from "../../widgets/Table/DataFormatter";
 
 function createDummyData<T>(): [ITcdManager<T>,ITcdViewManager<T>] {
     const maxRowCount = 20
     const schema: GenColumn[] = [
         { name: "id", type: "index", label:"Id" },
-        { name: "lot", total: true , type: "integer", label:"Lot", items: [1,2,3,4/*,7,8,9,10,11*/] },
+        { name: "lot", total: false , type: "integer", label:"Lot", items: [1,2,3,4/*,7,8,9,10,11*/] },
         { name: "type_op", type: "string", label: "Opération", items:["ACHAT","REGUL","SOLDE","OD"] },
         { name: "depot", type: "integer", label: "Dépôt", items: [100, 200, 350, 450, 500, 650, 620, 680, 820, 1000, 1200, 2000] },
-        { name: "facture", total: true, type: "string", label: "Fac.", items:["REG","APA","ENC","INC"] },
+        { name: "facture", total: false, type: "string", label: "Fac.", items:["REG","APA","ENC","INC"] },
         { name: "annee", total: false, type: "integer", label: "Année", items: [2020,2023, 2024, 2025] },
-        { name: "code", total: false, type: "Date", label:"Code", items:["001","002"] },
+        { name: "code", total: true, type: "integer", label:"Code", min: 99, max: 5999 },
         { name: "libelle", type: "string", label:"Libellé" },
         { name: "periode", type: "Date", label: "Période" },
         { name: "debit", type: "integer", label: "Débit"/*, items:[10,20,30,40,50] */},
-        { name: "credit", type: "integer", label: "Crédit", items:[1,2,3,4,5] },
+        { name: "credit", type: "integer", label: "Crédit"/*, items:[1,2,3,4,5]*/ },
     ]
     const columns: ITcdColumn[] = helper.generateTcdColumn(schema)
-    // columns[9].dataFormatter = DataFormatter.currencyFormatter // sum debit
+    // columns[9].dataFormatter = DataFormatter.numberFormatter // sum debit
     // columns[10].dataFormatter = DataFormatter.numberFormatter // count credit
+    columns[8].dataFormatter = DataFormatter.shortPeriodeFormatter
 
     const data: any[] = helper.generateData(schema, maxRowCount, (row:any)=>{
         // if (helper.tf())
@@ -39,7 +39,7 @@ function createDummyData<T>(): [ITcdManager<T>,ITcdViewManager<T>] {
     const count1: IMeasure = factory.createMeasure(columns[9],functionsGroup.count)
     const sum2: IMeasure = factory.createMeasure(columns[10],functionsGroup.sum)
 
-    tcdManager.buildTcd(["facture","annee"],["lot","code"],[count1])
+    tcdManager.buildTcd(["facture","annee","type_op","code"],["lot"],[sum2,count1])
 
     const tcdViewManager = factory.createTcdViewManager<any>()
     tcdViewManager.buildTcdView(tcdManager)
