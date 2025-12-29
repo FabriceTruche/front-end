@@ -66,3 +66,13 @@
     --background: #444;
     --color: white;
 }
+.tcd-row-hover {
+    /*grid-column: 1 / -1;*/ /* Occupe toutes les colonnes */
+    /*background-color: white;
+    transition: background-color 0.1s;
+    z-index: 1; / * Derrière le texte * /
+    border-bottom: 1px solid #eee;*/
+}
+.tcd-row-hover:hover {
+    background-color: #f0f7ff; /* Couleur de survol */
+}

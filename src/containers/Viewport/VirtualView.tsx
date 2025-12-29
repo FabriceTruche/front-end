@@ -13,7 +13,7 @@ import {ViewportInfoCell, ViewportRange, IViewportManager} from "./ViewportDefin
 
 export type VirtualViewProps = {
     nbRows: number;             // nombre de lignes du tcd
-    // rowHeight: number;          // hauteur d'une ligne du tcd (px)
+    rowHeight: number;          // hauteur d'une ligne du tcd (px)
     virtualViewHeight: number;  // hauteur de la virtua view (px)
 
     onUpdateView: (topHeight: number) => ReactElement|null

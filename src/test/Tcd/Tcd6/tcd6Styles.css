@@ -1,0 +1,111 @@
+/* --- CONTENEUR GLOBAL --- */
+.tcd-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* --- TITRES : VISIBILITÉ FORCÉE --- */
+.tcd-title {
+    color: #000000 !important;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 5px 0;
+    padding-left: 5px;
+}
+
+/* --- VIEWPORT ET GRILLE --- */
+.tcd-viewport {
+    height: 600px;
+    overflow: auto;
+    position: relative;
+    border: 1px solid #cbd5e1;
+    background-color: #f1f5f9; /* Fond du viewport */
+}
+
+.tcd-grid-container {
+    display: grid;
+    position: relative;
+    background-color: #ffffff;
+}
+
+/* --- CELLULES DE BASE --- */
+.cell-base {
+    display: flex;
+    align-items: stretch;
+    box-sizing: border-box;
+}
+
+.cell-inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    background-color: #ffffff;
+
+    /* Quadrillage compact */
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+
+    /* Texte Noir Absolu */
+    color: #000000 !important;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- ZONES STICKY & COULEURS ÉPURÉES --- */
+
+/* Header (Top) */
+.cell-header .cell-inner {
+    background-color: #f1f5f9; /* Gris bleuté très clair */
+    font-weight: 700;
+    border-top: 1px solid #cbd5e1;
+}
+
+/* Footer (Bottom) */
+.cell-footer .cell-inner {
+    background-color: #cbd5e1; /* Gris moyen */
+    font-weight: 700;
+    border-top: 2px solid #64748b;
+}
+
+/* Colonnes latérales (G/D) */
+.cell-sticky-x .cell-inner {
+    background-color: #f8fafc;
+}
+
+/* Coins (Intersections) */
+.cell-sticky-corner .cell-inner {
+    background-color: #94a3b8 !important; /* Gris foncé */
+    color: #000000 !important;
+}
+
+/* Logique de collage */
+.cell-sticky-x, .cell-sticky-y {
+    position: sticky;
+}
+
+/* --- SÉPARATEURS VISUELS --- */
+.cell-sticky-left-last .cell-inner {
+    border-right: 2px solid #475569 !important;
+}
+
+.cell-sticky-right .cell-inner {
+    border-left: 2px solid #475569 !important;
+}
+
+/* --- EFFET HOVER AVEC OMBRAGE --- */
+/* On s'assure que le hover ne passe pas au-dessus du header (z-index) */
+.cell-base:not(.cell-sticky-y):hover {
+    z-index: 5;
+}
+
+.cell-base:hover .cell-inner {
+    background-color: #eff6ff !important; /* Bleu très clair */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}

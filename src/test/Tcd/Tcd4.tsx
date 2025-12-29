@@ -10,101 +10,137 @@ import {TcdView} from "../../widgets/Tcd/component/TcdView";
 import {DataFormatter} from "../../widgets/Table/DataFormatter";
 import {TcdTable} from "../../widgets/Tcd/component/TcdTable";
 import {VirtualView} from "../../containers/Viewport/VirtualView";
+import {RowKeyedByOriginalIndex} from "../../widgets/Tcd/component/RowKeyedByOriginalIndex";
+//import TcdRow from "../../widgets/Tcd/component/TcdRow";
 
-function createDummyData<T>(): [ITcdManager<T>,ITcdViewManager<T>] {
-    const maxRowCount = 5000
-    const schema: GenColumn[] = [
-        { name: "id", type: "index", label:"Id" },
-        { name: "lot", total: false , type: "integer", label:"Lot", items: [1,2,3,4/*,7,8,9,10,11*/] },
-        { name: "type_op", type: "string", label: "Opération", items:["ACHAT","REGUL","SOLDE","OD"] },
-        { name: "depot", type: "integer", label: "Dépôt", items: [100, 200, 350, 450, 500, 650, 620, 680, 820, 1000, 1200, 2000] },
-        { name: "facture", total: false, type: "string", label: "Fac.", items:["REG","APA","ENC","INC"] },
-        { name: "annee", total: false, type: "integer", label: "Année", items: [2020,2023, 2024, 2025] },
-        { name: "code", total: true, type: "integer", label:"Code", min: 99, max: 5999 },
-        { name: "libelle", type: "string", label:"Libellé" },
-        { name: "periode", type: "Date", label: "Période" },
-        { name: "debit", type: "integer", label: "Débit"/*, items:[10,20,30,40,50] */},
-        { name: "credit", type: "integer", label: "Crédit"/*, items:[1,2,3,4,5]*/ },
-    ]
-    const columns: ITcdColumn[] = helper.generateTcdColumn(schema)
-    // columns[9].dataFormatter = DataFormatter.numberFormatter // sum debit
-    // columns[10].dataFormatter = DataFormatter.numberFormatter // count credit
-    columns[8].dataFormatter = DataFormatter.shortPeriodeFormatter
-
-    const data: any[] = helper.generateData(schema, maxRowCount)
-    const tcdManager = factory.createTcdManager<any>(data, columns)
-    const count1: IMeasure = factory.createMeasure(columns[9],functionsGroup.count)
-    const sum2: IMeasure = factory.createMeasure(columns[10],functionsGroup.sum)
-
-    tcdManager.buildTcd(["facture","annee","type_op","code"],["lot"],[sum2,count1])
-
-    const tcdViewManager = factory.createTcdViewManager<any>()
-    tcdViewManager.buildTcdView(tcdManager)
-
-    return [tcdManager,tcdViewManager]
+const maxRowCount = 5000
+const height = 150
+const schema: GenColumn[] = [
+    { name: "id", type: "index", label:"Id" },
+    { name: "libelle", type: "string", label: "Libellé" },
+]
+const data = helper.generateData(schema, maxRowCount)
+const columns: ITcdColumn[] = helper.generateTcdColumn(schema)
+type ScrollContext = {
+    firstVisibleRow: number
+    lastVisibleRow: number
+    topHeight: number
 }
+// Configuration
+const ROW_HEIGHT = 30;
+const VIEWPORT_HEIGHT = 400;
+const COLUMN_WIDTH = 180; // Largeur minimale pour voir les données
+const BUFFER_SIZE = 10;
 
-export const Tcd4=()=> {
-    const [tcd, tcdv] = useMemo<[ITcdManager<any>, ITcdViewManager<any>]>(() => {
-        return createDummyData()
-    }, [])
-    // const [firstVisible,setFirstVisible] = useState(0)
-    // const [lastVisible,setLastVisible] = useState(0)
-    // const [rowHeight, setRowHeight] = useState(0)
-    // const firstTr = useRef<HTMLTableRowElement>(null)
+export const Tcd4 = () => {
+    const viewPortRef = useRef<HTMLDivElement>(null);
 
-    // useLayoutEffect(() => {
-    //     if (firstTr.current) {
-    //         const tr = firstTr.current;
-    //         const table = tr.closest('table');
-    //         if (table) {
-    //             const style = window.getComputedStyle(table);
-    //             // On récupère l'espacement vertical (le 2ème paramètre de border-spacing)
-    //             const spacing = parseInt(style.borderSpacing,10)
-    //             console.log("tr.offsetHeight=",tr.offsetHeight, "spacing=",spacing);
-    //             setRowHeight(tr.offsetHeight + spacing);
-    //         }
-    //     }
-    // }, []);
+    const [scrollContext, setScrollContext] = useState({
+        firstVisibleRow: 0,
+        lastVisibleRow: Math.ceil(VIEWPORT_HEIGHT / ROW_HEIGHT) + BUFFER_SIZE,
+    });
 
-    const rowHeight = 22
+    const handleScroll = () => {
+        if (!viewPortRef.current) return;
 
-    const style = {
-        // border: "1px solid gray",
-        // width: '40px',
-        // height: rowHeight
-    }
-    const displayValue = (v: any): string => {
-        if (v === null || v === undefined) return ""
-        if (v instanceof Date) return v.toDateString()
-        return v.toString()
-    }
+        const scrollTop = viewPortRef.current.scrollTop;
+        const currentFirstRow = Math.floor(scrollTop / ROW_HEIGHT);
+        const newBufferStart = Math.max(0, currentFirstRow - BUFFER_SIZE);
+
+        // Mise à jour si on a bougé de plus de 5 lignes pour la stabilité
+        if (Math.abs(newBufferStart - scrollContext.firstVisibleRow) > 5) {
+            const newBufferEnd = newBufferStart + Math.ceil(VIEWPORT_HEIGHT / ROW_HEIGHT) + (BUFFER_SIZE * 2);
+            setScrollContext({
+                firstVisibleRow: newBufferStart,
+                lastVisibleRow: newBufferEnd
+            });
+        }
+    };
+
+    const visibleData = useMemo(() => {
+        return data.slice(scrollContext.firstVisibleRow, scrollContext.lastVisibleRow);
+    }, [scrollContext.firstVisibleRow, scrollContext.lastVisibleRow, data]);
+
+    // Calcul de la largeur totale pour le scroll horizontal
+    const totalWidth = columns.length * COLUMN_WIDTH;
 
     return (
-        <div>
-            <table>
-                <tbody
-                    style={{}}
-                >
-                <tr style={style}>
-                    {tcd.columns.map((column: ITcdColumn) => {
-                        return (
-                            <th
-                                key={column.name}
-                                style={style}
-                            >
-                                {column.name}
-                            </th>
-                        )
-                    })}
-                </tr>
-                </tbody>
-            </table>
-            <pre>
-                {/*firstVisible={firstVisible} nbVisible={lastVisible} trHeight={rowHeight}*/}
-            </pre>
-            <VirtualView
-                virtualViewHeight={200}
+        <div className="tcd-wrapper" style={{ width: '100%', maxWidth: '1000px', margin: '20px auto' }}>
+
+            <div
+                ref={viewPortRef}
+                onScroll={handleScroll}
+                style={{
+                    height: VIEWPORT_HEIGHT,
+                    overflow: "auto", // Gère scroll vertical ET horizontal
+                    position: "relative",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    backgroundColor: "#fff"
+                }}
+            >
+                {/* SIZER : Définit la zone de scroll totale (hauteur et largeur) */}
+                <div style={{
+                    height: data.length * ROW_HEIGHT,
+                    width: totalWidth,
+                    position: 'relative'
+                }}>
+
+                    {/* GRID CONTAINER : Flotte grâce au transform */}
+                    <div style={{
+                        display: "grid",
+                        // On force chaque colonne à faire au moins COLUMN_WIDTH
+                        gridTemplateColumns: `repeat(${columns.length}, ${COLUMN_WIDTH}px)`,
+                        gridAutoRows: `${ROW_HEIGHT}px`,
+                        width: totalWidth,
+                        transform: `translateY(${scrollContext.firstVisibleRow * ROW_HEIGHT}px)`,
+                    }}>
+                        {visibleData.map((row:any, index:number) => (
+                            <RowKeyedByOriginalIndex
+                                key={row.id}
+                                row={row}
+                                columns={columns}
+                                relativeIndex={index}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <style>{`
+                .row-background {
+                    background-color: white;
+                    border-bottom: 1px solid #eee;
+                }
+
+                .row-background:hover {
+                    background-color: #f5faff !important;
+                }
+
+                .cell-data {
+                    display: flex;
+                    align-items: center;
+                    padding: 0 12px;
+                    font-size: 13px;
+                    border-bottom: 1px solid #eee;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    color: #333;
+                }
+                .cell-data:hover {
+                    background-color: gray !important;
+                }
+            `}</style>
+        </div>
+    );
+};
+// <div style={{
+//     // height: "200px",
+//     // border: "1px solid red",
+//     // overflowY: "auto",
+// }}>
+/*
                 nbRows={tcd.initialData.length}
                 onUpdateView={(topHeight: number) => {
 
@@ -168,12 +204,4 @@ export const Tcd4=()=> {
                     )
                 }}
             />
-        </div>
-    )
-}
-
-// <div style={{
-//     // height: "200px",
-//     // border: "1px solid red",
-//     // overflowY: "auto",
-// }}>
+ */

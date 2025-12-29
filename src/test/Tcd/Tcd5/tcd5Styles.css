@@ -1,0 +1,93 @@
+:root {
+    --tcd-bg-viewport: #f1f5f9;
+    --tcd-header-bg: #e2e8f0;    /* Gris bleuté */
+    --tcd-footer-bg: #cbd5e1;    /* Gris moyen */
+    --tcd-sticky-col-bg: #f8fafc; /* Proche du blanc */
+    --tcd-corner-bg: #94a3b8;    /* Gris foncé pour les ancres */
+    --tcd-border-color: #cbd5e1;
+    --tcd-text-main: #1e293b;    /* Noir bleuté pour tout le texte */
+    --tcd-text-footer: #1e40af;  /* Bleu foncé pour les totaux */
+}
+
+.tcd-viewport {
+    height: 600px;
+    overflow: auto;
+    position: relative;
+    border: 1px solid var(--tcd-border-color);
+    border-radius: 12px;
+    background-color: var(--tcd-bg-viewport);
+    contain: paint;
+}
+
+.tcd-grid-container {
+    display: grid;
+    position: relative;
+}
+
+.cell-base {
+    display: flex;
+    align-items: stretch;
+    padding: 3px;
+    box-sizing: border-box;
+    background-color: transparent;
+}
+
+/* --- LOGIQUE STICKY --- */
+.cell-sticky-x, .cell-sticky-y {
+    position: sticky;
+    z-index: 10;
+    background-color: var(--tcd-bg-viewport);
+}
+
+.cell-sticky-corner {
+    z-index: 30 !important;
+}
+
+/* --- COULEURS DES CELLULES INTERNES --- */
+.cell-inner {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid var(--tcd-border-color);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    font-size: 13px;
+    color: var(--tcd-text-main); /* TEXTE NOIR PAR DÉFAUT */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all 0.1s ease;
+}
+
+.cell-header .cell-inner {
+    background-color: var(--tcd-header-bg);
+    color: var(--tcd-text-main); /* TEXTE NOIR */
+    font-weight: 700;
+}
+
+.cell-footer .cell-inner {
+    background-color: var(--tcd-footer-bg);
+    color: var(--tcd-text-footer); /* BLEU FONCÉ POUR LES TOTAUX */
+    font-weight: 700;
+}
+
+.cell-sticky-corner .cell-inner {
+    background-color: var(--tcd-corner-bg) !important;
+    color: var(--tcd-text-main) !important; /* TEXTE NOIR MÊME DANS LES COINS */
+}
+
+.cell-sticky-x .cell-inner {
+    background-color: var(--tcd-sticky-col-bg);
+}
+
+.cell-base:hover .cell-inner {
+    border-color: #3b82f6;
+    background-color: #eff6ff !important;
+}
+
+/* Séparateurs */
+.cell-sticky-left-last { border-right: 2px solid #64748b !important; }
+.cell-sticky-right { right: 0; border-left: 2px solid #64748b !important; }
+
