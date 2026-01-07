@@ -1,7 +1,7 @@
 import {IField} from "../../widgets/Tcd/model/Field";
 import {helper} from "../../common/Helper";
 import {IMeasureValue} from "../../widgets/Tcd/model/MeasureValue";
-import {ICell} from "../../widgets/Tcd/model/Cell";
+import {ITcdCell} from "../../widgets/Tcd/model/Cell";
 
 /************************************************************************************************************
  *
@@ -98,7 +98,7 @@ export const MeasuresValueTrace = <T,>(props: MeasuresValueTraceProps<T>) => {
  */
 export type CellTraceProps = {
     title: string
-    cell: ICell[]
+    cell: ITcdCell[]
 }
 /************************************************************************************************************
  *
@@ -107,7 +107,7 @@ export const CellTrace=(props:CellTraceProps) => {
     return (
         <pre>
             *{props.title}*
-            {props.cell.map((cell:ICell, index:number) => {
+            {props.cell.map((cell:ITcdCell, index:number) => {
                 return (
                     <div key={index}>
                         {JSON.stringify(cell,null)}

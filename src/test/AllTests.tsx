@@ -1,4 +1,3 @@
-import React from "react";
 import {TestPopWindow3} from "./containers/TestPopWindow3";
 import {TestPopWindow4} from "./containers/TestPopWindow4";
 import {TestForm10} from "./containers/TestForm10";
@@ -18,13 +17,11 @@ import {EditorObject1} from "./widgets/EditorObject1";
 import {TestPopWindowV2} from "./containers/TestPopWindowV2";
 import {TestModal1} from "./containers/TestModal1";
 import {Page1} from "./containers/Page1";
-import {Menu, MenuItem} from "../widgets/Menu/Menu";
+import {MenuItem} from "../widgets/Menu/Menu";
 import {Tcd1} from "./Tcd/Tcd1";
 import {Tcd3} from "./Tcd/Tcd3";
 import {Tcd4} from "./Tcd/Tcd4";
-// import {Tcd5App} from "./Tcd/Tcd5/Tcd5App";
-import {Tcd6App} from "./Tcd/Tcd6/Tcd6App";
-
+import {Tcd11} from "./Tcd/Tcd11";
 
 export const allTests: MenuItem[] = [
     {
@@ -50,8 +47,7 @@ export const allTests: MenuItem[] = [
             {content: Tcd1 },
             {content: Tcd3 },
             {content: Tcd4 },
-            // {content: Tcd5App },
-            {content: Tcd6App }
+            {content: Tcd11 },
         ]
     },
     {

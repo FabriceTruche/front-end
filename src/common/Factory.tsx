@@ -11,7 +11,7 @@ import {_MeasureValue, IMeasureValue} from "../widgets/Tcd/model/MeasureValue";
 import {FuncType} from "../widgets/Tcd/model/functionsGroup";
 import {_Measure, IMeasure} from "../widgets/Tcd/model/Measure";
 import {_TcdViewManager, ITcdViewManager} from "../widgets/Tcd/model/TcdViewManager";
-import {_Cell, ICell, Rect, TypeCell} from "../widgets/Tcd/model/Cell";
+import {_Cell, ITcdCell, Rect, TypeCell} from "../widgets/Tcd/model/Cell";
 
 export interface IFactory {
 
@@ -22,13 +22,13 @@ export interface IFactory {
     createTableManager<T>(data: ITableData<T>, elementId: string): ITableManager<T>
 
     // tcd
-    createTcdColumn(name: string, type: string, total?: boolean, label?: string, formatter?: IFormatter): ITcdColumn
-    createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure
-    createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T>
-    createField<T>(value: any, column: ITcdColumn, isRoot?: boolean): IField<T>
-    createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T>
-    createTcdViewManager<T>(): ITcdViewManager<T>
-    createCell(typeCell: TypeCell, rect: Rect, value: string): ICell
+    // createTcdColumn(name: string, type: string, total?: boolean, label?: string, formatter?: IFormatter): ITcdColumn
+    // createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure
+    // createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T>
+    // createField<T>(value: any, column: ITcdColumn, isRoot?: boolean): IField<T>
+    // createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T>
+    // createTcdViewManager<T>(): ITcdViewManager<T>
+    // createCell(typeCell: TypeCell, rect: Rect, value: string): ICell
 }
 
 class _Factory implements IFactory {
@@ -49,33 +49,8 @@ class _Factory implements IFactory {
         return new _FieldEditor(jsx, properties)
     }
 
-    public createTcdColumn(name: string, type: string, total: boolean=false, label:string="", formatter=undefined) {
-        return new _Tcd(name,type,total,label, formatter)
-    }
 
-    public createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure {
-        return new _Measure(column, funcGroup)
-    }
 
-    public createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T> {
-        return new _MeasureValue<T>(rowField, colField, dataRows, measure)
-    }
-
-    public createField<T>(value: any, column: ITcdColumn, isRoot: boolean=false): IField<T> {
-        return new _Field(value, column, isRoot)
-    }
-
-    public createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T> {
-        return new _TcdManager(data,columns)
-    }
-
-    public createTcdViewManager<T>(): ITcdViewManager<T> {
-        return new _TcdViewManager<T>()
-    }
-
-    public createCell(typeCell: TypeCell, rect: Rect, value: string): ICell {
-        return new _Cell(typeCell, rect, value)
-    }
 }
 
 export const factory: IFactory = new _Factory()

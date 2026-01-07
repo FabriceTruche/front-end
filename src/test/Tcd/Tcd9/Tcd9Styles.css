@@ -1,0 +1,77 @@
+:root {
+    --tcd9-bg-base: #ffffff;
+    --tcd9-bg-top: #e6e1f9;       /* Slate 50 - Lignes haut */
+    --tcd9-bg-bottom: #e6e1f9;    /* Slate 100 - Lignes bas (Footer) */
+    --tcd9-bg-left: #e6e1f9;      /* Très léger - Colonnes gauche */
+    --tcd9-bg-right: #e6e1f9;     /* Neutre - Colonnes droite */
+    --tcd9-bg-corner: #cdc2f5;    /* Slate 200 - Intersections */
+
+    --tcd9-border: #c6c6c6;
+    --tcd9-border-heavy: #94a3b8; /* Pour la ligne de séparation header */
+
+    --tcd9-text-main: #0f172a;
+    --tcd9-text-muted: #64748b;
+}
+
+.tcd9-container {
+    background-color: var(--tcd9-bg-base);
+    color: var(--tcd9-text-main);
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+}
+
+/* Style de base : Bordures identiques partout via box-shadow */
+.cell-base {
+    background-color: var(--tcd9-bg-base) ;
+    box-shadow: inset 0 -1px 0 0 var(--tcd9-border), inset -1px 0 0 0 var(--tcd9-border);
+    border: none;
+    display: flex;
+    align-items: center;
+}
+
+/* --- Différenciation des fonds par zone --- */
+
+/* Lignes figées en HAUT */
+.cell-is-sticky-row {
+    background-color: var(--tcd9-bg-top) !important;
+    font-weight: 600;
+}
+
+/* Lignes figées en BAS (Footer) */
+.cell-is-footer {
+    background-color: var(--tcd9-bg-bottom) !important;
+    font-weight: 600;
+}
+
+/* Colonnes figées à GAUCHE */
+.cell-is-sticky-left {
+    background-color: var(--tcd9-bg-left) !important;
+}
+
+/* Colonnes figées à DROITE */
+.cell-is-sticky-right {
+    background-color: var(--tcd9-bg-right) !important;
+}
+
+/* Intersections (Coins) */
+.cell-is-corner {
+    background-color: var(--tcd9-bg-corner) !important;
+    z-index: 50;
+}
+
+/* Séparation marquée pour la fin du header principal */
+.row-last-sticky {
+    box-shadow: inset 0 -2px 0 0 var(--tcd9-border-heavy), inset -1px 0 0 0 var(--tcd9-border) !important;
+}
+
+.cell-base:not([class*="sticky"]):not(.cell-is-footer):hover {
+    background-color: #f1f5f9 !important;
+}
+
+.cell-inner {
+    padding: 0 10px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

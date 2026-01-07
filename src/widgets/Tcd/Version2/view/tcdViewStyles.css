@@ -1,0 +1,104 @@
+:root {
+    /* Palette de couleurs plus sobre et moderne */
+    --tcd9-bg-base: #ffffff;
+    --tcd9-bg-top: #f8fafc;       /* Slate 50 - Très léger */
+    --tcd9-bg-left: #f8fafc;      /* Identique au top pour l'unité */
+    --tcd9-bg-bottom: #f1f5f9;    /* Slate 100 - Un peu plus dense */
+    --tcd9-bg-corner: #f1f5f9;
+
+    /* Bordures plus fines (couleur "Slate 200") */
+    --tcd9-border: #e2e8f0;
+    --tcd9-border-heavy: #cbd5e1; /* Séparation header */
+
+    --tcd9-text-main: #1e293b;    /* Slate 800 */
+    --tcd9-text-muted: #64748b;   /* Slate 500 */
+    --tcd9-accent: #6366f1;       /* Indigo 500 pour les labels si besoin */
+}
+
+/* Conteneur principal */
+.tcd9-container {
+    background-color: var(--tcd9-bg-base);
+    color: var(--tcd9-text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+    font-size: 12.5px; /* Légèrement plus petit pour l'élégance */
+    line-height: 1.5;
+}
+
+/* Style de cellule épuré */
+.cell-base {
+    background-color: var(--tcd9-bg-base);
+    display: flex;
+    align-items: center;
+    /* On utilise une bordure simple mais très claire */
+    box-shadow: inset 0 0 0 1px var(--tcd9-border);
+    background-clip: padding-box;
+    border: none;
+    transition: background-color 0.15s ease;
+}
+
+/* --- Zones Sticky avec étanchéité garantie --- */
+
+/* Style commun pour toutes les zones figées */
+.cell-is-sticky-row,
+.cell-is-footer,
+.cell-is-sticky-left,
+.cell-is-sticky-right,
+.cell-is-corner {
+    background-clip: border-box !important; /* Évite les fuites de texte sous les bords */
+}
+
+.cell-is-sticky-row {
+    background-color: var(--tcd9-bg-top) !important;
+    font-weight: 500; /* Medium au lieu de Bold pour plus de légèreté */
+    color: var(--tcd9-text-main);
+}
+
+.cell-is-sticky-left {
+    background-color: var(--tcd9-bg-left) !important;
+    /* Petit effet d'ombre à droite pour simuler la profondeur au scroll */
+    box-shadow: inset -1px 0 0 0 var(--tcd9-border), inset 0 0 0 1px var(--tcd9-border) !important;
+}
+
+.cell-is-footer {
+    background-color: var(--tcd9-bg-bottom) !important;
+    font-weight: 600;
+}
+
+.cell-is-corner {
+    background-color: var(--tcd9-bg-corner) !important;
+    z-index: 50;
+}
+
+/* Séparation élégante du header */
+.row-last-sticky {
+    box-shadow: inset 0 -2px 0 0 var(--tcd9-border-heavy),
+    inset 0 0 0 1px var(--tcd9-border) !important;
+}
+
+/* Hover subtil */
+.cell-base:not([class*="sticky"]):not(.cell-is-footer):hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Contenu interne */
+.cell-inner {
+    padding: 0 12px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.01em; /* Style plus "pro" */
+}
+
+/* Typage des cellules (optionnel) */
+.typecell-NUMBER {
+    justify-content: flex-end;
+    font-variant-numeric: tabular-nums; /* Alignement parfait des chiffres */
+}
+
+.cell-is-header {
+    color: var(--tcd9-text-muted);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+}

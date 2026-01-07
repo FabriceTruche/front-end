@@ -58,3 +58,6 @@ export class _Tcd implements ITcdColumn {
         this._dataFormatter = formatter;
     }
 }
+export function createTcdColumn(name: string, type: string, total: boolean=false, label:string="", formatter=undefined) {
+    return new _Tcd(name,type,total,label, formatter)
+}

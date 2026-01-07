@@ -1,4 +1,3 @@
-import {CSSProperties} from "react";
 
 export enum TypeCell {
     none,
@@ -23,25 +22,20 @@ export enum TypeCell {
 export type Rect = {
     x: number,
     y: number,
-    width: number,
-    height: number,
+    xSpan: number,
+    ySpan: number,
 }
-export const _defaultRect: Rect = {x: 0, y: 0, width: 1, height: 1};
+export const _defaultRect: Rect = {x: 0, y: 0, xSpan: 1, ySpan: 1};
 
-export interface ICell {
+export interface ITcdCell {
     typeCell: TypeCell
     rect: Rect
     value: string;
-    isTotal: boolean;
-    className: string;
-    style: CSSProperties
 }
-export class _Cell implements ICell {
-    private _typeCell: TypeCell = TypeCell.none
-    private _rect: Rect = _defaultRect
-    private _value: string = ""
-    private _className: string = ""
-    private _style: CSSProperties = {}
+export class _Cell implements ITcdCell {
+    private readonly _typeCell: TypeCell = TypeCell.none
+    private readonly _rect: Rect = _defaultRect
+    private readonly _value: string = ""
 
     constructor(typeCell: TypeCell, rect: Rect, value: string) {
         this._typeCell = typeCell
@@ -51,22 +45,27 @@ export class _Cell implements ICell {
 
     public get typeCell(): TypeCell { return this._typeCell }
     public get rect(): Rect { return this._rect }
-    public get className(): string { return this._className }
-    public get style(): CSSProperties  { return this._style }
 
     public get value(): string {
         return this._value // + "(" + this._typeCell +")"
     }
-
-    public get isTotal(): boolean {
-        switch (this.typeCell) {
-            case TypeCell.labelTotalRow:
-            case TypeCell.labelTotalCol:
-            case TypeCell.totalRowMeasure:
-            case TypeCell.totalColMeasure:
-            case TypeCell.totalMeasure:
-                return true;
-        }
-        return false
-    }
 }
+
+export const createCell=(typeCell: TypeCell, rect: Rect, value: string): ITcdCell => {
+    return new _Cell(typeCell, rect, value)
+}
+
+
+
+
+// public isTotal(): boolean {
+//     switch (this.typeCell) {
+//         case TypeCell.labelTotalRow:
+//         case TypeCell.labelTotalCol:
+//         case TypeCell.totalRowMeasure:
+//         case TypeCell.totalColMeasure:
+//         case TypeCell.totalMeasure:
+//             return true;
+//     }
+//     return false
+// }

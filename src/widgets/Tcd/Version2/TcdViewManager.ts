@@ -2,13 +2,14 @@ import {IField} from "./Field";
 import {IMeasureValue} from "./MeasureValue";
 import {ITcdManager} from "./TcdManager";
 import {IMeasure} from "./Measure";
+import {_defaultRect, createCell, ITcdCell, Rect, TypeCell} from "./TcdCell";
 import {ITcdColumn} from "./TcdColumn";
-import {_defaultRect, createCell, ITcdCell, Rect, TypeCell} from "./Cell";
+import {TcdViewColumn} from "./TcdViewColumn";
 
-export enum TcdMode {
-    left,
-    top
-}
+// export enum TcdMode {
+//     left,
+//     top
+// }
 export interface ITcdViewManager<T> {
     rowsCell: ITcdCell[]
     colsCell: ITcdCell[]
@@ -18,6 +19,9 @@ export interface ITcdViewManager<T> {
     measuresCell: ITcdCell[]
     totalRowsCell: ITcdCell[]
     totalColsCell: ITcdCell[]
+    cells: ITcdCell[]
+    viewColumns: TcdViewColumn[]
+
     coordTcd: Rect
     coordRows: Rect
     coordCols: Rect
@@ -27,7 +31,7 @@ export interface ITcdViewManager<T> {
     coordHeaderMeasures: Rect
 
     buildTcdView(tcdManager: ITcdManager<T>): void
-    // getAllCells(): ICell[]
+    // getAllCells(): ITcdCell[]
 }
 
 export class _TcdViewManager<T> implements ITcdViewManager<T> {
@@ -47,6 +51,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
     private _coordHeaderRows: Rect= _defaultRect
     private _coordHeaderCols: Rect= _defaultRect
     private _coordHeaderMeasures: Rect= _defaultRect
+    private _viewColumns: TcdViewColumn[] = []
 
     // calcul des Coord à travers les map
     private _rowsCellMap: Map<IField<T>,Rect> = new Map<IField<T>, Rect>()
@@ -71,6 +76,19 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
     public get coordHeaderRows(): Rect { return this._coordHeaderRows }
     public get coordHeaderCols(): Rect { return this._coordHeaderCols }
     public get coordHeaderMeasures(): Rect { return this._coordHeaderMeasures }
+    public get cells(): ITcdCell[] {
+        return [
+            ...this._measuresCell,
+            ...this._measuresValueCell,
+            ...this._totalRowsCell,
+            ...this._totalColsCell,
+            ...this._rowsCell,
+            ...this._colsCell,
+            ...this._headerRowsCell,
+            ...this._headerColsCell,
+        ]
+    }
+    public get viewColumns(): TcdViewColumn[] { return this._viewColumns }
 
     private get nbMeasures(): number { return this.tcd.measures.length }
     private get tcd(): ITcdManager<T> { return this._tcdManager as ITcdManager<T> }
@@ -94,6 +112,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
         this._coordHeaderRows = _defaultRect
         this._coordHeaderCols = _defaultRect
         this._coordHeaderMeasures = _defaultRect
+        this._viewColumns = []
     }
 
     /**
@@ -179,16 +198,16 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
             const rowCoord: Rect = this._rowsCellMap.get(m.rowField) as Rect
             const colCoord: Rect = this._colsCellMap.get(m.colField) as Rect
 
-            let x = 0 //this._coordMeasures.x
-            let y = 0 //this._coordMeasures.y
+            let x = 0
+            let y = 0
 
             // si total => calcul différent des Coord
-            y += rowCoord.y
+            y = rowCoord.y
             if (m.rowField.column.total) {
                 y += m.rowField.deep - 1
             }
 
-            x += colCoord.x + m.measure.index
+            x = colCoord.x + m.measure.index
             if (m.colField.column.total) {
                 x += (m.colField.deep - this.nbMeasures )
             }
@@ -199,10 +218,49 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
 
     /**
      *
+     * @private
+     */
+    private calculateLabelTotalsCoord() {
+
+        // ROWS TOTAL LABEL RECT
+        this._rowsCellMap.forEach((r: Rect, field: IField<T>) => {
+
+            // on ne traite que les fields ayant un total et non terminal (de part la propriété)
+            if (field.column.total && !field.isTerminal()) {
+                const rect: Rect = {
+                    x: r.x,
+                    y: r.y + field.deep - 1,
+                    xSpan: this.tcd.rowAxis.length - r.x,
+                    ySpan: 1
+                }
+                const cell:ITcdCell = createCell(TypeCell.labelTotalRow, rect,`TOTAL '${field.value}'`,field.column, true)
+                this._totalRowsCell.push(cell)
+            }
+        })
+
+        // COLS TOTAL LABEL RECT
+        this._colsCellMap.forEach((r: Rect, field: IField<T>) => {
+
+            // on ne traite que les fields ayant un total et non terminal (de part la propriété)
+            if (field.column.total && !field.isTerminal()) {
+                const rect: Rect = {
+                    x: r.x + field.deep -  this.nbMeasures,
+                    y: r.y,
+                    xSpan: this.nbMeasures,
+                    ySpan: this.tcd.colAxis.length - r.y
+                }
+                const cell:ITcdCell = createCell(TypeCell.labelTotalRow, rect,`TOTAL '${field.value}'`,field.column, true)
+                this._totalRowsCell.push(cell)
+            }
+        })
+    }
+
+    /**
+     *
      * @param measures
      * @private
      */
-    private calculateLabelTotalsCoord(measures: IMeasureValue<T>[]): void {
+    private calculateLabelTotalsCoord_OLD(measures: IMeasureValue<T>[]): void {
         measures.forEach((m: IMeasureValue<T>) => {
 
             // on ne traite les libellés qQU'UNE fois pour toutes les measuesValues ==> sur le premier index des measuresValues
@@ -222,7 +280,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                     xSpan: this.tcd.rowAxis.length - rowCoord.x,
                     ySpan: 1
                 }
-                const cell:ITcdCell = createCell(TypeCell.labelTotalRow, rect,`TOTAL '${m.rowField.value}'`)
+                const cell:ITcdCell = createCell(TypeCell.labelTotalRow, rect,`TOTAL '${m.rowField.value}'`,m.rowField.column, true)
                 this._totalRowsCell.push(cell)
             }
 
@@ -234,7 +292,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                     xSpan: this.nbMeasures,
                     ySpan: this.tcd.colAxis.length - colCoord.y
                 }
-                const cell:ITcdCell = createCell(TypeCell.labelTotalCol, rect,`TOTAL '${m.colField.value}'`)
+                const cell:ITcdCell = createCell(TypeCell.labelTotalCol, rect,`TOTAL '${m.colField.value}'`,m.colField.column, true)
                 this._totalColsCell.push(cell)
             }
         })
@@ -246,38 +304,75 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
      */
     private convertCoordToArray() {
 
-        const toArray = <K extends {
-            displayValue: () => string
-        }, >(m: Map<K, Rect>, pred: (key: K) => TypeCell): ITcdCell[] => {
+        const toArray = <K extends {value: any},>(
+            m: Map<K, Rect>,
+            predInfoCell: (key: K) => {typeCell: TypeCell, column: ITcdColumn, isLabel: boolean}
+
+        ): ITcdCell[] => {
             const cells: ITcdCell[] = []
             m.forEach((v: Rect, k: K) => {
-                const typeCell: TypeCell = pred(k)
-                const cell: ITcdCell = createCell(typeCell, v, k.displayValue())
+                const { typeCell, column, isLabel } = predInfoCell(k)
+                const cell: ITcdCell = createCell(typeCell, v, k.value, column,isLabel)
                 cells.push(cell)
             })
             return cells
         }
-        this._rowsCell = toArray(this._rowsCellMap, (key: IField<T>) => {
-            if (key.isRoot) return TypeCell.labelGrandTotalRow
-            return TypeCell.row
-        })
-        this._colsCell = toArray(this._colsCellMap, (key: IField<T>) => {
-            if (key.isRoot) return TypeCell.labelGrandTotalCol
-            return TypeCell.col
-        })
-        this._measuresValueCell = toArray(this._measuresCellMap,
+
+        // ROWS CELL
+        this._rowsCell = toArray(
+            this._rowsCellMap,
+            (key: IField<T>) => {
+                return {
+                    typeCell: (key.isRoot) ? TypeCell.labelGrandTotalRow : TypeCell.row,
+                    column: key.column,
+                    isLabel: false
+                }
+            },
+        )
+
+        // COLS CELL
+        this._colsCell = toArray(
+            this._colsCellMap,
+            (key: IField<T>) => {
+                return {
+                    typeCell: (key.isRoot) ? TypeCell.labelGrandTotalCol : TypeCell.col,
+                    column: key.column,
+                    isLabel: false
+                }
+            }
+        )
+
+        // MEASURE VALUE
+        this._measuresValueCell = toArray(
+            this._measuresCellMap,
             (key: IMeasureValue<T>) => {
+                let tc: TypeCell = TypeCell.none
+
                 if (key.rowField.isRoot && key.colField.isRoot)
-                    return TypeCell.grandTotal
+                    tc=TypeCell.grandTotal
 
-                if (key.rowField.isRoot || key.colField.isRoot)
-                    return TypeCell.grandTotalMeasure
+                else if (key.rowField.isRoot || key.colField.isRoot)
+                    tc = TypeCell.grandTotalMeasure
 
-                if (key.isTotal()) return TypeCell.totalMeasure
-                if (key.isColTotal()) return TypeCell.totalColMeasure
-                if (key.isRowTotal()) return TypeCell.totalRowMeasure
-                return TypeCell.measure
-            })
+                else if (key.isTotal())
+                    tc = TypeCell.totalMeasure
+
+                else if (key.isColTotal())
+                    tc = TypeCell.totalColMeasure
+
+                else if (key.isRowTotal())
+                    tc = TypeCell.totalRowMeasure
+
+                else
+                    tc = TypeCell.measure
+
+                return {
+                    typeCell: tc,
+                    column: key.measure.column,
+                    isLabel: false
+                }
+            },
+        )
     }
 
     /**
@@ -311,7 +406,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                 xSpan: 1,
                 ySpan: 1
             }
-            const cell: ITcdCell = createCell(TypeCell.headerRow,rect,axis.label)
+            const cell: ITcdCell = createCell(TypeCell.headerRow,rect,axis.label,axis, true)
             this._headerRowsCell.push(cell)
         })
 
@@ -323,7 +418,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                 xSpan: 1,
                 ySpan: 1
             }
-            const cell: ITcdCell = createCell(TypeCell.headerCol,rect,axis.label)
+            const cell: ITcdCell = createCell(TypeCell.headerCol,rect,axis.label,axis, true)
             this._headerColsCell.push(cell)
         })
 
@@ -337,7 +432,7 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
                     xSpan: 1,
                     ySpan: 1
                 }
-                const cell: ITcdCell = createCell(TypeCell.headerMeasure,rect,m.displayValue())
+                const cell: ITcdCell = createCell(TypeCell.headerMeasure,rect,m.column.name,m.column, true)
                 this._measuresCell.push(cell)
             })
         }
@@ -393,11 +488,30 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
 
     /**
      *
+     * @private
+     */
+    private calculateViewColumns(tcd: ITcdManager<T>) {
+        //row cols
+        tcd.rowAxis.forEach((c: ITcdColumn) => {
+            this._viewColumns.push({width: c.width})
+        })
+
+        // all measures includes GT
+        tcd.colsTerminalField.forEach(()=>{
+            tcd.measures.forEach((m: IMeasure) => {
+                this._viewColumns.push({width: m.column.width})
+            })
+        })
+    }
+
+    /**
+     *
      * @param tcdManager
      */
     public buildTcdView(tcdManager: ITcdManager<T>): void {
         this._tcdManager = tcdManager
 
+        // reset all prévious data
         this.reset()
 
         // 0. calculate coordinates for all parts
@@ -414,49 +528,15 @@ export class _TcdViewManager<T> implements ITcdViewManager<T> {
         this.convertCoordToArray()
 
         // 3 .calculate totals coord
-        this.calculateLabelTotalsCoord(tcdManager.measuresValue)
+        this.calculateLabelTotalsCoord()
 
         // 4. entete des col
         this.calculateHeaderCoords(tcdManager, tcdManager.colsTerminalField.length)
-    }
 
-    /**
-     *
-     */
-    // public getAllCells(): ICell[] {
-    //
-    //     const moveRect=(cells: ICell[], r: Rect): ICell[] => {
-    //         return cells.map((c: ICell) => createCell(
-    //             c.typeCell,
-    //             {
-    //                 x: c.rect.x + r.x,
-    //                 y: c.rect.y + r.y,
-    //                 width: c.rect.width,
-    //                 height: c.rect.height
-    //             },
-    //             c.value
-    //         ))
-    //     }
-    //
-    //     const startHeaderRow: Rect = this.coordHeaderRows;
-    //     const startHeaderCol: Rect = this.coordHeaderCols;
-    //     const startHeaderMeasure: Rect = this.coordHeaderMeasures;
-    //     const startRow: Rect = this.coordRows;
-    //     const startCol: Rect = this.coordCols;
-    //     const startMeasure: Rect = this.coordMeasures;
-    //
-    //     return [
-    //         ...moveRect(this.headerRowsCell,startHeaderRow),
-    //         ...moveRect(this.headerColsCell,startHeaderCol),
-    //         ...moveRect(this.measuresCell,startHeaderMeasure),
-    //         ...moveRect(this.rowsCell,startRow),
-    //         ...moveRect(this.totalRowsCell,startRow),
-    //         ...moveRect(this.colsCell,startCol),
-    //         ...moveRect(this.totalColsCell,startCol),
-    //         ...moveRect(this.measuresValueCell,startMeasure),
-    //     ]
-    // }
-}
+        // 5. calculate viewColumns
+        this.calculateViewColumns(tcdManager)
+    }}
+
 export function createTcdViewManager<T>(): ITcdViewManager<T> {
     return new _TcdViewManager<T>()
 }

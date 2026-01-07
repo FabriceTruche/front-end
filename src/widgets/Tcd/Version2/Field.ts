@@ -13,7 +13,7 @@ export interface IField<T> {
     lastNestedField(): IField<T>|undefined
     addDataRow(dataRow: T): void
     reset(): void
-    displayValue(): string
+    // displayValue(): string
 }
 export class _Field<T> implements IField<T> {
     private readonly _value: any
@@ -65,10 +65,11 @@ export class _Field<T> implements IField<T> {
         this._dataRows = []
     }
 
-    public displayValue(): string {
-        return this._column.dataFormatter.format(this._value).value
-    }
+    // public displayValue(): string {
+    //     return this._column.dataFormatter.format(this._value).value
+    // }
 }
+
 export function createField<T>(value: any, column: ITcdColumn, isRoot: boolean=false): IField<T> {
     return new _Field(value, column, isRoot)
 }

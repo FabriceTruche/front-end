@@ -1,6 +1,8 @@
 import {IField} from "./Field";
 import {IMeasure} from "./Measure";
 import {KeyOf} from "./TcdManager";
+import {ITcdColumn} from "../model/TcdColumn";
+import {_Field} from "../model/Field";
 
 export interface IMeasureValue<T> {
     measure: IMeasure
@@ -9,7 +11,7 @@ export interface IMeasureValue<T> {
     rowField: IField<T>
     colField: IField<T>
 
-    displayValue(): string
+    // displayValue(): string
     isRowTotal(): boolean
     isColTotal(): boolean
     isTotal(): boolean
@@ -40,9 +42,9 @@ export class _MeasureValue<T> implements IMeasureValue<T>{
     public get rowField(): IField<T> { return this._rowField }
     public get colField(): IField<T> { return this._colField }
 
-    public displayValue(): string {
-        return this._measure.column.dataFormatter.format(this._value).value
-    }
+    // public displayValue(): string {
+    //     return this._measure.column.dataFormatter.format(this._value).value
+    // }
 
     public isRowTotal(): boolean {
         return this._rowField.column.total
@@ -60,6 +62,8 @@ export class _MeasureValue<T> implements IMeasureValue<T>{
         // return !this._colField.isTerminal();
     }
 }
+
 export function createMeasureValue<T>(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure): IMeasureValue<T> {
     return new _MeasureValue<T>(rowField, colField, dataRows, measure)
 }
+

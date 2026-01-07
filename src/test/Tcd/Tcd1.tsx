@@ -1,13 +1,13 @@
 import {GenColumn, helper} from "../../common/Helper";
 import {ITcdColumn} from "../../widgets/Tcd/model/TcdColumn";
 import {factory} from "../../common/Factory";
-import {ITcdManager} from "../../widgets/Tcd/model/TcdManager";
+import {createTcdManager, ITcdManager} from "../../widgets/Tcd/model/TcdManager";
 import {useMemo} from "react";
-import {IMeasure} from "../../widgets/Tcd/model/Measure";
+import {createMeasure, IMeasure} from "../../widgets/Tcd/model/Measure";
 import {functionsGroup} from "../../widgets/Tcd/model/functionsGroup";
-import {ITcdViewManager, } from "../../widgets/Tcd/model/TcdViewManager";
+import {createTcdViewManager, ITcdViewManager,} from "../../widgets/Tcd/model/TcdViewManager";
 import {TcdTable} from "../../widgets/Tcd/component/TcdTable";
-import {ICell} from "../../widgets/Tcd/model/Cell";
+import {ITcdCell} from "../../widgets/Tcd/model/Cell";
 import {Block} from "./TcdTraces";
 
 function createDummyData<T>(): [ITcdManager<T>, ITcdViewManager<T>] {
@@ -36,13 +36,13 @@ function createDummyData<T>(): [ITcdManager<T>, ITcdViewManager<T>] {
         // else
         //     row.credit=null
     })
-    const tcdManager = factory.createTcdManager<any>(data, columns)
-    const sum: IMeasure = factory.createMeasure(columns[9],functionsGroup.sum)
-    const count: IMeasure = factory.createMeasure(columns[10],functionsGroup.count)
+    const tcdManager = createTcdManager<any>(data, columns)
+    const sum: IMeasure = createMeasure(columns[9],functionsGroup.sum)
+    const count: IMeasure = createMeasure(columns[10],functionsGroup.count)
 
     tcdManager.buildTcd(["annee","lot","depot"],["credit"],[sum,count])
 
-    const tcdViewManager = factory.createTcdViewManager<any>()
+    const tcdViewManager = createTcdViewManager<any>()
     tcdViewManager.buildTcdView(tcdManager)
 
     return [tcdManager,tcdViewManager]
@@ -151,7 +151,7 @@ export const Tcd1=()=> {
                 {/*</Block>*/}
                 <Block>
                     *TOTAL*
-                    {tcdView.totalRowsCell.map((t:ICell)=>{
+                    {tcdView.totalRowsCell.map((t:ITcdCell)=>{
                         return (
                             <div>
                                 [y={t.rect.y},x={t.rect.x}] - {t.value}

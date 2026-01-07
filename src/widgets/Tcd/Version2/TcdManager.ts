@@ -1,7 +1,7 @@
-import {createTcdColumn, ITcdColumn} from "./TcdColumn";
 import {createField, IField} from "./Field";
 import {IMeasure} from "./Measure";
 import {createMeasureValue, IMeasureValue} from "./MeasureValue";
+import {createTcdColumn, ITcdColumn} from "./TcdColumn";
 
 export type KeyOf<T> = keyof T
 
@@ -16,6 +16,7 @@ export interface ITcdManager<T> {
     colsTerminalField: IField<T>[]
     measures: IMeasure[]
     measuresValue: IMeasureValue<T>[]
+    data: T[]
 
     buildTcd(rowsAxis: string[], colsAxis: string[], measures: IMeasure[]): void
 }
@@ -43,6 +44,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
     public get colsTerminalField(): IField<T>[] { return this._colsTerminalField }
     public get measures(): IMeasure[] { return this._measures }
     public get measuresValue(): IMeasureValue<T>[] { return this._allMeasuresValue } // .filter((m:IMeasureValue<T>)=>!m.isTotalMeasure()) }
+    public get data(): T[] { return this._data }
+
     // public get totalMeasuresValue(): IMeasureValue<T>[] { return this._allMeasuresValue.filter((m:IMeasureValue<T>)=>m.isTotalMeasure()) }
 
     constructor(data: T[], columns: ITcdColumn[]) {
@@ -54,8 +57,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._allMeasuresValue = []
         this._data = data
         this._columns = columns
-        this._rowTreeField = createField("GRAND TOTAL", createTcdColumn("__rows_field_root__","any"), true)
-        this._colTreeField = createField("GRAND TOTAL", createTcdColumn("__cols_field_root__","any"), true)
+        this._rowTreeField = createField("GRAND TOTAL", createTcdColumn("__rows_field_root__"), true)
+        this._colTreeField = createField("GRAND TOTAL", createTcdColumn("__cols_field_root__"), true)
     }
 
     /**
@@ -265,6 +268,10 @@ export class _TcdManager<T> implements ITcdManager<T> {
     }
 
 }
+
 export function createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T> {
     return new _TcdManager(data,columns)
 }
+
+
+

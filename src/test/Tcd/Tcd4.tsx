@@ -1,17 +1,7 @@
 import {GenColumn, helper} from "../../common/Helper";
 import {ITcdColumn} from "../../widgets/Tcd/model/TcdColumn";
-import {factory} from "../../common/Factory";
-import {ITcdManager} from "../../widgets/Tcd/model/TcdManager";
 import React, {Fragment, useLayoutEffect, useMemo, useRef, useState} from "react";
-import {IMeasure} from "../../widgets/Tcd/model/Measure";
-import {functionsGroup} from "../../widgets/Tcd/model/functionsGroup";
-import {ITcdViewManager} from "../../widgets/Tcd/model/TcdViewManager";
-import {TcdView} from "../../widgets/Tcd/component/TcdView";
-import {DataFormatter} from "../../widgets/Table/DataFormatter";
-import {TcdTable} from "../../widgets/Tcd/component/TcdTable";
-import {VirtualView} from "../../containers/Viewport/VirtualView";
 import {RowKeyedByOriginalIndex} from "../../widgets/Tcd/component/RowKeyedByOriginalIndex";
-//import TcdRow from "../../widgets/Tcd/component/TcdRow";
 
 const maxRowCount = 5000
 const height = 150

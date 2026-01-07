@@ -3,7 +3,7 @@ import {ITableData} from "../widgets/Table/TableData";
 import {factory} from "./Factory";
 import {IColumn} from "../widgets/Table/Column";
 import {CSSProperties} from "react";
-import {ITcdColumn} from "../widgets/Tcd/model/TcdColumn";
+import {createTcdColumn, ITcdColumn} from "../widgets/Tcd/model/TcdColumn";
 
 export type GenColumn = {
     name: string
@@ -574,7 +574,7 @@ class _Helper implements IHelper {
                         type = genCol.type
                         break;
                 }
-                tcdColumns.push(factory.createTcdColumn(genCol.name, type, genCol.total, genCol.label))
+                tcdColumns.push(createTcdColumn(genCol.name, type, genCol.total, genCol.label))
             })
 
         return tcdColumns

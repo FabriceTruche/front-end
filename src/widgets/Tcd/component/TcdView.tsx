@@ -1,7 +1,7 @@
 import {ITcdViewManager} from "../model/TcdViewManager";
 import {CSSProperties, Fragment} from "react";
 import "./tcdView.css"
-import {ICell, Rect, TypeCell} from "../model/Cell";
+import {ITcdCell, Rect, TypeCell} from "../model/Cell";
 
 
 function getTheme(): Map<TypeCell,string> {
@@ -26,15 +26,15 @@ function getTheme(): Map<TypeCell,string> {
 }
 
 type TcdPartViewProps/*<T extends { displayValue: ()=>string }>*/ = {
-    cells: ICell[] // Cell<T>[]
+    cells: ITcdCell[] // Cell<T>[]
     startPos: Rect
     theme: Map<TypeCell,string>
 }
 const TcdPartView=(props: TcdPartViewProps) => {
     const getStyle=(c:Rect): CSSProperties => {
         return {
-            gridRow: `${c.y + 1 + props.startPos.y} / span ${c.height}`,
-            gridColumn: `${c.x + 1 + props.startPos.x} / span ${c.width}`,
+            gridRow: `${c.y + 1 /*+ props.startPos.y*/} / span ${c.ySpan}`,
+            gridColumn: `${c.x + 1 /*+ props.startPos.x*/} / span ${c.xSpan}`,
             placeItems: "center",
             display: "grid",
         }
@@ -46,7 +46,7 @@ const TcdPartView=(props: TcdPartViewProps) => {
 
     return (
         <Fragment>
-            {props.cells.map((c: ICell, index: number) => {
+            {props.cells.map((c: ITcdCell, index: number) => {
                 return (
                     <div
                         key={index}

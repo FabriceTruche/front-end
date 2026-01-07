@@ -1,12 +1,12 @@
-import {ITcdColumn} from "./TcdColumn";
 import {FuncType} from "./functionsGroup";
+import {ITcdColumn} from "./TcdColumn";
 
 export interface IMeasure {
     column: ITcdColumn
     funcGroup: FuncType
     index: number;
 
-    displayValue(): string
+    // displayValue(): string
 }
 export class _Measure implements IMeasure {
     private readonly _column: ITcdColumn
@@ -24,10 +24,11 @@ export class _Measure implements IMeasure {
         this._index = 0
     }
 
-    public displayValue(): string {
-        return this.column.name
-    }
+    // public displayValue(): string {
+    //     return this.column.name
+    // }
 }
+
 export function createMeasure(column: ITcdColumn, funcGroup: FuncType): IMeasure {
     return new _Measure(column, funcGroup)
 }
