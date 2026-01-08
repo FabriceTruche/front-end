@@ -41,7 +41,8 @@ function createDummyData<T>(): ITcdManager<T> {
     const sum: IMeasure = createMeasure(columns[10],functionsGroup.sum)
     const avg: IMeasure = createMeasure(columns[0],functionsGroup.avg)
 
-    tcdManager.buildTcd(["facture","annee"],["code","type_op","depot"],[count,sum,avg])
+    // tcdManager.buildTcd(["facture","annee"],["code","type_op","depot"],[count,sum,avg])
+    tcdManager.buildTcd(["facture","annee"],["type_op"],[avg])
 
     return tcdManager
 }
