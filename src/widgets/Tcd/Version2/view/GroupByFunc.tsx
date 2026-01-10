@@ -1,17 +1,17 @@
 import React, { useState, FC } from 'react';
 
 // Définition des types de fonctions disponibles
-export type GroupByFunc = 'SUM' | 'AVG' | 'COUNT' | 'MIN' | 'MAX';
+export type GroupByFuncNames = 'SUM' | 'AVG' | 'COUNT' | 'MIN' | 'MAX';
 
-interface SelectGroupByFuncProps {
-    currentFunc: GroupByFunc;
-    onSelect: (func: GroupByFunc) => void;
+interface GroupByFuncProps {
+    currentFunc: GroupByFuncNames;
+    onSelect: (func: GroupByFuncNames) => void;
 }
 
-export const SelectGroupByFunc: FC<SelectGroupByFuncProps> = ({ currentFunc, onSelect }) => {
+export const GroupByFunc: FC<GroupByFuncProps> = ({ currentFunc, onSelect }) => {
     const [show, setShow] = useState(false);
 
-    const options: { value: GroupByFunc; label: string }[] = [
+    const options: { value: GroupByFuncNames; label: string }[] = [
         { value: 'SUM', label: 'Somme (Σ)' },
         { value: 'AVG', label: 'Moyenne (x̄)' },
         { value: 'COUNT', label: 'Nombre (n)' },
@@ -19,7 +19,7 @@ export const SelectGroupByFunc: FC<SelectGroupByFuncProps> = ({ currentFunc, onS
         { value: 'MAX', label: 'Maximum' },
     ];
 
-    const handleSelect = (func: GroupByFunc) => {
+    const handleSelect = (func: GroupByFuncNames) => {
         onSelect(func);
         setShow(false);
     };

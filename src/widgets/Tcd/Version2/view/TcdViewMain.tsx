@@ -66,6 +66,7 @@ export const TcdViewMain = (props: TcdViewMainProps) => {
                             onApply={(config: ITcdConfigState) => {
                                 console.log("Config Appliquée", config);
                                 setIsConfigOpen(false);
+                                console.log(config)
                                 // Note: Ici, vous devrez probablement appeler une méthode
                                 // de props.tcd pour appliquer rows/cols/measures/filters
                             }}
