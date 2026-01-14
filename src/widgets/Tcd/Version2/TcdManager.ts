@@ -1,7 +1,9 @@
- import {createField, IField} from "./Field";
-import {IMeasure} from "./Measure";
+import {createField, IField} from "./Field";
+import {IMeasure, createMeasure} from "./Measure";
 import {createMeasureValue, IMeasureValue} from "./MeasureValue";
 import {createTcdColumn, ITcdColumn} from "./TcdColumn";
+import {TcdColumnOption, TcdConfig} from "./view/TcdConfig";
+import {FuncObject} from "./functionsGroup";
 
 export type KeyOf<T> = keyof T
 
@@ -18,12 +20,13 @@ export interface ITcdManager<T> {
     measuresValue: IMeasureValue<T>[]
     data: T[]
 
-    buildTcd(rowsAxis: string[], colsAxis: string[], measures: IMeasure[]): void
+    // createMeasure(column: string, funcGroup: string): IMeasure|null
+    // getColumnByName(name: string): ITcdColumn|null
+    buildTcd(data: T[], config: TcdConfig): void // rowsAxis: string[], colsAxis: string[], measures: (IMeasure|null)[]): void
 }
 
 export class _TcdManager<T> implements ITcdManager<T> {
-
-    private readonly _data: T[]
+    private _data: T[]
     private readonly _columns: ITcdColumn[]
     private _rowsAxis: ITcdColumn[]
     private _colsAxis: ITcdColumn[]
@@ -48,15 +51,15 @@ export class _TcdManager<T> implements ITcdManager<T> {
 
     // public get totalMeasuresValue(): IMeasureValue<T>[] { return this._allMeasuresValue.filter((m:IMeasureValue<T>)=>m.isTotalMeasure()) }
 
-    constructor(data: T[], columns: ITcdColumn[]) {
+    constructor(/*data: T[], columns: ITcdColumn[]*/) {
         this._rowsAxis = []
         this._colsAxis = []
         this._rowsTerminalField = []
         this._colsTerminalField = []
         this._measures = []
         this._allMeasuresValue = []
-        this._data = data
-        this._columns = columns
+        this._data = []
+        this._columns = [] // columns
         this._rowTreeField = createField("GRAND TOTAL", createTcdColumn("__rows_field_root__"), true)
         this._colTreeField = createField("GRAND TOTAL", createTcdColumn("__cols_field_root__"), true)
     }
@@ -74,6 +77,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
         this._colsTerminalField = []
         this._measures = []
         this._allMeasuresValue = []
+        // this._data = []
+        // this;this._columns
     }
 
     /**
@@ -226,26 +231,164 @@ export class _TcdManager<T> implements ITcdManager<T> {
 
     /**
      *
-     * @param rowsAxis
-     * @param colsAxis
-     * @param measures
+     * @param name
      */
-    public buildTcd(rowsAxis: string[], colsAxis: string[], measures: IMeasure[]): void {
+    // public getColumnByName(name: string): ITcdColumn|null {
+    //     const col = this._columns.find((c:ITcdColumn)=>c.name === name)
+    //
+    //     return (col===undefined) ? null : col
+    // }
 
-        const findColumn=(colName:string): ITcdColumn=>this._columns.find((c:ITcdColumn)=>c.name===colName) as ITcdColumn
+    /**
+     * Fusionne deux objets en ignorant les propriétés 'undefined' du second.
+     * @param {Object} target - L'objet de base (priorité basse)
+     * @param {Object} source - L'objet à appliquer (priorité haute, sauf undefined)
+     */
+    private merge(target: any, source: any) {
+        const cleanedSource = Object.fromEntries(
+            Object.entries(source).filter(([_, value]) => value !== undefined)
+        );
 
-        // définir les axes en ligne et en colonne
+        return { ...target, ...cleanedSource };
+    };
+
+    /**
+     *
+     * @private
+     */
+    private createColumn(key: string, value: any, config: TcdConfig): ITcdColumn {
+        let colOption: TcdColumnOption = {}
+
+        // valeurs par défaut
+        switch (typeof value) {
+            case "object":
+                if (value instanceof Date) {
+                    colOption.typeFormat = "date"
+                    colOption.mask = "DD/MM/YYYY"
+                } else {
+                    colOption.typeFormat = "text"
+                }
+                break;
+            case "boolean":
+                colOption.typeFormat = "boolean"
+                break;
+            case "number":
+                colOption.typeFormat = "number"
+                colOption.precision = (value.toString().search(/\./) > 0) ? 2 : 0
+                break;
+            case "string":
+                colOption.typeFormat = "text"
+                break;
+            case "function":
+            case "symbol":
+            case "bigint":
+            case "undefined":
+                throw new Error(`Type de colonne non pris en charge (${typeof value})`)
+        }
+
+        // merge des valeurs par défaut calculées à partir des data avec la config
+        if (config.options[key]!==undefined)
+            colOption = this.merge(colOption, config.options[key])
+
+        return createTcdColumn(key, 100, colOption)
+    }
+
+    /**
+     *
+     * @param config
+     * @private
+     */
+    private createColumns(config: TcdConfig): void {
+        if (this._data.length===0)
+            return
+
+        const object: any = this._data[0]
+
+        Object.keys(object).forEach(key => {
+            const column: ITcdColumn = this.createColumn(key,object[key],config)
+            this._columns.push(column)
+        })
+    }
+
+    /**
+     *
+     * @param collection
+     * @param axesNames
+     * @private
+     */
+    private assignAxes(collection: ITcdColumn[], axesNames: string[]) {
+        axesNames.forEach((axisName: string) => {
+            const ax: ITcdColumn|undefined = this._columns.find((c:ITcdColumn)=>c.name===axisName)
+
+            if (ax!==undefined)
+                collection.push(ax)
+        })
+    }
+
+    /**
+     *
+     * @param column
+     * @param funcGroup
+     */
+    // private createMeasure(column: string, funcGroup: string): IMeasure|null {
+    //     const col =  this.getColumnByName(column)
+    //     const fg = functionsGroup.find((f:IGroupByFunc)=>f.name===funcGroup)
+    //
+    //     if (col===null)
+    //         return null
+    //
+    //     if (fg===undefined)
+    //         return null
+    //
+    //     return createMeasure(col, fg)
+    // }
+
+    /**
+     *
+     * @param config
+     * @private
+     */
+    private createMeasures(config: TcdConfig): void {
+       config.measures.forEach((m:string)=>{
+           const col: ITcdColumn|undefined = this._columns.find((c:ITcdColumn)=>c.name===m)
+
+           if (col!==undefined) {
+               const fn: FuncObject = config.groupByFuncs[m]
+               const measure = createMeasure(col, fn)
+
+               this._measures.push(measure)
+           }
+       })
+    }
+    /**
+     *
+     * @param data
+     * @param config
+     */
+    public buildTcd(data: T[], config: TcdConfig): void { //rowsAxis: string[], colsAxis: string[], measures: (IMeasure|null)[]): void {
+
+        // data
         this.reset()
-        this._rowsAxis = rowsAxis.map((fn:string)=>findColumn(fn))
-        this._colsAxis = colsAxis.map((fn:string)=>findColumn(fn))
-        this._measures = [...measures]
+        this._data = [...data]
+
+        // création des colonnes à partir des data
+        this.createColumns(config)
+
+        // définition des axes en ligne et en colonne à partir de la confi
+        this.assignAxes(this._rowsAxis, config.rows)
+        this.assignAxes(this._colsAxis, config.columns)
+        this.createMeasures(config)
+
+        // this._rowsAxis = rowsAxis.map((fn:string)=>this.getColumnByName(fn)).filter((c:ITcdColumn|null)=>c!==null) as ITcdColumn[]
+        // this._colsAxis = colsAxis.map((fn:string)=>this.getColumnByName(fn)).filter((c:ITcdColumn|null)=>c!==null) as ITcdColumn[]
+        // this._measures = [...measures.filter((m:IMeasure|null)=>m!==null) as IMeasure[]]
 
         // vérifier que les axes terminaux n'est pas l'option "total" activée => la déctiver sinon
         this._rowsAxis[this._rowsAxis.length - 1].total=false
         this._colsAxis[this._colsAxis.length - 1].total=false
 
         // définir l'ordre des colonnes de measures
-        measures.forEach((measure: IMeasure, index: number) => {measure.index=index})
+        this._measures.forEach((measure: IMeasure, index: number) => {measure.index=index})
 
         // initialiser les tableaux servant à calculer l'arbre des fields
         const dataForRowsAxis: T[] = [...this._data]
@@ -269,8 +412,8 @@ export class _TcdManager<T> implements ITcdManager<T> {
 
 }
 
-export function createTcdManager<T>(data: T[], columns: ITcdColumn[]): ITcdManager<T> {
-    return new _TcdManager(data,columns)
+export function createTcdManager<T>(/*data: T[], columns: ITcdColumn[]*/): ITcdManager<T> {
+    return new _TcdManager(/*data,columns*/)
 }
 
 

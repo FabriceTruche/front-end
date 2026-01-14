@@ -32,12 +32,12 @@
 }
 .xbg-button-selected {
     border-color: rgba(128, 128, 128, 32%);
-    background: rgba(244, 244, 244, 0.44);
-    color: #fdf6fd;
+    /*background: rgba(244, 244, 244, 0.44);*/
+    /*color: #fdf6fd;*/
 }
 .xbg-button:hover {
     border: var(--border-size) solid rgb(138, 138, 138);
     cursor: pointer;
-    background: rgba(244, 244, 244, 0.44);
-    color: #fdf6fd;
+    /*background: rgba(244, 244, 244, 0.44);*/
+    /*color: #fdf6fd;*/
 }

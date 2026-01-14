@@ -2,7 +2,7 @@ import React, { useState, useMemo, FC } from 'react';
 import { ITcdColumn } from "../TcdColumn";
 
 interface FilterMenuProps {
-    col: ITcdColumn;
+    col: string;
     data: any[];
     selected: string[];
     onToggle: (c: string, v: string) => void;
@@ -12,18 +12,18 @@ export const FilterMenu: FC<FilterMenuProps> = ({ col, data, selected, onToggle 
     const [show, setShow] = useState<boolean>(false);
 
     const uniqueValues = useMemo<string[]>(() => {
-        const vals = data.map((d: any) => String(d[col.name] ?? ''));
+        const vals = data.map((d: any) => String(d[col] ?? ''));
         return Array.from(new Set(vals)).filter((v: string) => v !== '').sort();
     }, [data, col]);
 
     const handleSelectAll = (): void => {
         uniqueValues.forEach((v: string) => {
-            if (!selected.includes(v)) onToggle(col.name, v);
+            if (!selected.includes(v)) onToggle(col, v);
         });
     };
 
     const handleSelectNone = (): void => {
-        selected.forEach((v: string) => onToggle(col.name, v));
+        selected.forEach((v: string) => onToggle(col, v));
     };
 
     return (
@@ -43,7 +43,7 @@ export const FilterMenu: FC<FilterMenuProps> = ({ col, data, selected, onToggle 
                             <label key={v} className="filter-item">
                                 <input type="checkbox"
                                        checked={selected.includes(v)}
-                                       onChange={() => onToggle(col.name, v)}/>
+                                       onChange={() => onToggle(col, v)}/>
                                 <span className="filter-val-text">{v}</span>
                             </label>
                         ))}

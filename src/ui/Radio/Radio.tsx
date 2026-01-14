@@ -15,7 +15,11 @@ export type XRadioProps = {
     onChange?: (value:any)=>void
 }
 export const Radio=(props:XRadioProps)=>(
-    <div>
+    <div
+        style={{
+            display:"flex",
+        }}
+    >
         {props.choices.map((c:{id:string,label:string,value:any},index:number)=>{
             return (
                 <Fragment key={c.id}>

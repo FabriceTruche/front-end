@@ -55,6 +55,7 @@ export class _FormatService implements IFormatService {
             this.numberFormatCache[precision] = new Intl.NumberFormat('fr-FR', {
                 minimumFractionDigits: precision,
                 maximumFractionDigits: precision,
+                useGrouping: false
             });
         }
         return this.numberFormatCache[precision];

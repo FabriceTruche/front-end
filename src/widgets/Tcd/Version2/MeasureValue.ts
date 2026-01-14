@@ -27,7 +27,7 @@ export class _MeasureValue<T> implements IMeasureValue<T>{
 
     constructor(rowField: IField<T>, colField: IField<T>, dataRows: T[], measure: IMeasure) {
         const values: any[] = dataRows.map(row => row[measure.column.name as KeyOf<T>])
-        const aggragateValue = measure.funcGroup(values)
+        const aggragateValue = measure.funcGroup.func(values)
 
         this._dataRows = dataRows
         this._measure = measure

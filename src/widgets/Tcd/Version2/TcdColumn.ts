@@ -1,9 +1,11 @@
 import { CSSProperties } from 'react';
+import {TcdColumnOption} from "./view/TcdConfig";
 
-export type ColumnFormatType = 'text' | 'number' | 'currency' | 'date' | 'boolean';
+export const ColumnFormatArray = ['text','number','currency','date','boolean'] as const
+export type ColumnFormat = typeof ColumnFormatArray[number]
 
 export interface ITcdColumnFormat {
-    type: ColumnFormatType;
+    type: ColumnFormat;
     precision?: number;
     mask?: string;
 }
@@ -28,17 +30,18 @@ export class TcdColumn implements ITcdColumn {
     constructor(
         name: string,
         width: number,
-        format?: ITcdColumnFormat,
-        defaultStyle?: CSSProperties,
-        label?: string,
-        total?: boolean,
+        options: TcdColumnOption,
+        // format?: ITcdColumnFormat,
+        // defaultStyle?: CSSProperties,
+        // label?: string,
+        // total?: boolean,
     ) {
         this.name = name;
-        this.label = (label===undefined || label===null || label==="") ? name : label;
+        this.label = options.label || name // ===undefined || label===null || label==="") ? name : label;
         this.width = width;
-        this.format = format;
-        this.defaultStyle = defaultStyle || {};
-        this.total = (total!==undefined) && total
+        this.format = {type: options.typeFormat as ColumnFormat, mask: options.mask, precision: options.precision};
+        this.defaultStyle = {};
+        this.total = (options.hasTotal!==undefined) && options.hasTotal
     }
 }
 
@@ -48,21 +51,23 @@ export class TcdColumn implements ITcdColumn {
 export const createTcdColumn = (
     name: string,
     width: number = 100,
-    type: ColumnFormatType = 'text',
-    options: {
-        precision?: number;
-        mask?: string;
-        style?: CSSProperties,
-        label? : string,
-        total?: boolean,
-    } = {}
+    // type: ColumnFormatType = 'text',
+    options: TcdColumnOption = {}
 ): TcdColumn => {
 
-    const format: ITcdColumnFormat = {
-        type: type,
-        precision: options.precision,
-        mask: options.mask
-    };
+// {
+//     precision?: number;
+//     mask?: string;
+//     style?: CSSProperties,
+//     label? : string,
+//     total?: boolean,
+// } = {}
 
-    return new TcdColumn(name, width, format, options.style, options.label, options.total);
+    // const format: ITcdColumnFormat = {
+    //     // type: type,
+    //     precision: options.precision,
+    //     mask: options.mask
+    // };
+
+    return new TcdColumn(name, width, options) //.style, options.label, options.total);
 };

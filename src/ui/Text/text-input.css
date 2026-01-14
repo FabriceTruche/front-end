@@ -2,7 +2,7 @@ input:invalid, textarea:invalid {
     background-color: rgba(255, 0, 0, 0.1);
 }
 input:valid, textarea:valid {
-    background-color: rgba(0, 255, 13, 0.1);
+    background-color: rgba(0, 140, 255, 0.1);
 }
 input::placeholder {
     font-style: italic;
@@ -13,6 +13,7 @@ input, select, textarea {
     border: 1px solid #aaa;
     /* border-color: red; */
     padding: 5px;
+    /*width: 100%;*/
 }
 input:focus, select:focus, textarea:focus {
     /* box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset; */
@@ -28,7 +29,7 @@ input[type="number"] {
     text-align: right;
 }
 form select {
-    width: 100%;
+    /*width: 100%;*/
 }
 .input-text span {
     font-size: 20px;
@@ -44,7 +45,9 @@ form select {
 }
 .input-text {
     display: flex;
+    /*width: 100%;*/
 }
 .input-text input {
     border-radius: 6px 0 0 6px;
+    width: 100%;
 }

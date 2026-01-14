@@ -391,7 +391,7 @@ class _Helper implements IHelper {
     }
     genNumber(min: number, max: number): number {
         const v = min+(Math.random()*((max+1)-min))
-        return Math.trunc(v*1000)/1000
+        return v /* Math.trunc(v*1000)/1000*/
     }
     genWords(min: number=1, max: number=5): string {
         const N = this.genInteger(min,max)

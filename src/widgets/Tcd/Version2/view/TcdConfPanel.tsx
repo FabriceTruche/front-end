@@ -1,48 +1,41 @@
 import React, { useState, DragEvent, FC, ReactElement } from 'react';
-import { ITcdColumn } from "../TcdColumn";
 import { Zone } from "./Zone";
 import './tcdConfStyles.css';
-// Ajoutez GroupByFuncNames aux imports si nécessaire
-import { GroupByFuncNames } from './GroupByFunc';
-
-/** Types pour le tri */
-export type TcdSortOrder = 'ASC' | 'DESC' | null;
-
-/** État de configuration complet */
-export interface ITcdConfigState {
-    rows: ITcdColumn[];
-    columns: ITcdColumn[];
-    measures: ITcdColumn[];
-    filters_columns: ITcdColumn[];
-    filters: Record<string, string[]>;
-    sorts: Record<string, TcdSortOrder>;
-    // Ajout du dictionnaire pour les fonctions de groupe
-    groupByFuncs: Record<string, GroupByFuncNames>;
-}
+import {TcdConfig, TcdSortOrder} from "./TcdConfig";
+import {FuncObject} from "../functionsGroup";
 
 interface TcdConfPanelProps {
-    allColumns: ITcdColumn[];
+    // allColumns: string[];
+    config: TcdConfig;
     tcdData: any[];
-    onApply: (config: ITcdConfigState) => void;
+    onApply: (config: TcdConfig) => void;
     onCancel: () => void;
 }
 
 export const TcdConfPanel: FC<TcdConfPanelProps> = ({
-                                                        allColumns,
+                                                        config,
                                                         tcdData,
                                                         onApply,
                                                         onCancel
                                                     }): ReactElement => {
-    const [rows, setRows] = useState<ITcdColumn[]>([]);
-    const [columns, setColumns] = useState<ITcdColumn[]>([]);
-    const [measures, setMeasures] = useState<ITcdColumn[]>([]);
-    const [filters_columns, setFilters_columns] = useState<ITcdColumn[]>([]);
-    const [filters, setFilters] = useState<Record<string, string[]>>({});
+    const [rows, setRows] = useState<string[]>([]);
+    const [columns, setColumns] = useState<string[]>([]);
+    const [measures, setMeasures] = useState<string[]>([]);
+    const [filtersColumns, setFiltersColumns] = useState<string[]>([]);
+    const [filtersValues, setFiltersValues] = useState<Record<string, string[]>>({});
     const [sorts, setSorts] = useState<Record<string, TcdSortOrder>>({});
-    const [groupByFuncs, setGroupByFuncs] = useState<Record<string, GroupByFuncNames>>({});
+    const [funcObjects, setFuncObjects] = useState<Record<string, FuncObject>>({});
+    const [columnOptions, setColumnOptions] = useState<TcdConfig['options']>({});
 
-    const updateGroupByFunc = (colName: string, func: GroupByFuncNames): void => {
-        setGroupByFuncs(prev => ({ ...prev, [colName]: func }));
+    const updateColumnOption = (colName: string, key: string, value: any) => {
+        setColumnOptions(prev => ({
+            ...prev,
+            [colName]: { ...prev[colName], [key]: value }
+        }));
+    }
+
+    const updateGroupByFunc = (colName: string, func: FuncObject): void => {
+        setFuncObjects(prev => ({ ...prev, [colName]: func }));
     };
 
     /** Initialisation du Drag */
@@ -52,18 +45,18 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
 
     /** Supprime une colonne de toutes les zones actives */
     const removeFromAll = (name: string): void => {
-        const filterFn = (prev: ITcdColumn[]): ITcdColumn[] => prev.filter((c: ITcdColumn) => c.name !== name);
+        const filterFn = (prev: string[]): string[] => prev.filter((c: string) => c !== name);
         setRows(filterFn);
         setColumns(filterFn);
         setMeasures(filterFn);
-        setFilters_columns(filterFn);
+        setFiltersColumns(filterFn);
     };
 
     /** Gestion du Drop avec calcul de l'index d'insertion */
     const handleDrop = (e: DragEvent<HTMLDivElement>, zone: 'rows' | 'cols' | 'measures' | 'pool' | 'filters'): void => {
         e.preventDefault();
         const name: string = e.dataTransfer.getData("columnName");
-        const col: ITcdColumn | undefined = allColumns.find((c: ITcdColumn) => c.name === name);
+        const col: string | undefined = config.allColumns.find((c: string) => c === name);
 
         if (!col) return;
 
@@ -83,7 +76,7 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
 
         removeFromAll(name);
 
-        const insertAt = (prev: ITcdColumn[]): ITcdColumn[] => {
+        const insertAt = (prev: string[]): string[] => {
             const next = [...prev];
             next.splice(insertIndex, 0, col);
             return next;
@@ -92,12 +85,12 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
         if (zone === 'rows') setRows(insertAt);
         else if (zone === 'cols') setColumns(insertAt);
         else if (zone === 'measures') setMeasures(insertAt);
-        else if (zone === 'filters') setFilters_columns(insertAt);
+        else if (zone === 'filters') setFiltersColumns(insertAt);
     };
 
     /** Toggle des valeurs de filtres */
     const toggleFilterValue = (colName: string, value: string): void => {
-        setFilters((prev: Record<string, string[]>) => {
+        setFiltersValues((prev: Record<string, string[]>) => {
             const current: string[] = prev[colName] || [];
             const next: string[] = current.includes(value)
                 ? current.filter((v: string) => v !== value)
@@ -128,7 +121,17 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
                     <div className="tcd-conf-actions">
                         <button type="button" className="btn-cancel" onClick={onCancel}>Annuler</button>
                         <button type="button" className="btn-apply-elegant"
-                                onClick={() => onApply({ rows, columns, measures, filters, filters_columns, sorts, groupByFuncs })}>
+                                onClick={() => onApply({
+                                    allColumns: config.allColumns,
+                                    rows: rows,
+                                    columns: columns,
+                                    measures: measures,
+                                    filters_values: filtersValues,
+                                    filters: filtersColumns,
+                                    sorts: sorts,
+                                    groupByFuncs: funcObjects,
+                                    options: columnOptions
+                                })}>
                             Appliquer
                         </button>
                     </div>
@@ -140,35 +143,44 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
                         <div className="tcd-conf-pool"
                              onDragOver={(e: DragEvent<HTMLDivElement>) => e.preventDefault()}
                              onDrop={(e: DragEvent<HTMLDivElement>) => handleDrop(e, 'pool')}>
-                            {allColumns.map((col: ITcdColumn) => (
-                                <div key={col.name} draggable
-                                     onDragStart={(e: DragEvent<HTMLDivElement>) => onDragStart(e, col.name)}
+                            {config.allColumns.map((col: string) => (
+                                <div key={col} draggable
+                                     onDragStart={(e: DragEvent<HTMLDivElement>) => onDragStart(e, col)}
                                      className="tcd-conf-card">
                                     <span className="drag-handle">⠿</span>
-                                    <span className="col-label-text">{col.label || col.name}</span>
+                                    <span className="col-label-text">{col}</span>
                                 </div>
                             ))}
                         </div>
                     </section>
 
                     <div className="tcd-conf-drop-grid">
-                        <Zone title="Filtres" colorClass="z-filter" fields={filters_columns}
+                        <Zone title="Filtres" colorClass="z-filter" fields={filtersColumns}
                               onDrop={(e: DragEvent<HTMLDivElement>) => handleDrop(e, 'filters')}
                               onRemove={removeFromAll} onDragStart={onDragStart}
-                              tcdData={tcdData} filters={filters} onFilter={toggleFilterValue}
-                              sorts={sorts} onSort={toggleSort} />
+                              tcdData={tcdData} filters={filtersValues} onFilter={toggleFilterValue}
+                              sorts={sorts} onSort={toggleSort}
+                              columnOptions={columnOptions}
+                              onUpdateOption={updateColumnOption}
+                        />
 
                         <Zone title="Colonnes" colorClass="z-cols" fields={columns}
                               onDrop={(e: DragEvent<HTMLDivElement>) => handleDrop(e, 'cols')}
                               onRemove={removeFromAll} onDragStart={onDragStart}
-                              tcdData={tcdData} filters={filters} onFilter={toggleFilterValue}
-                              sorts={sorts} onSort={toggleSort} />
+                              tcdData={tcdData} filters={filtersValues} onFilter={toggleFilterValue}
+                              sorts={sorts} onSort={toggleSort}
+                              columnOptions={columnOptions}
+                              onUpdateOption={updateColumnOption}
+                        />
 
                         <Zone title="Lignes" colorClass="z-rows" fields={rows}
                               onDrop={(e: DragEvent<HTMLDivElement>) => handleDrop(e, 'rows')}
                               onRemove={removeFromAll} onDragStart={onDragStart}
-                              tcdData={tcdData} filters={filters} onFilter={toggleFilterValue}
-                              sorts={sorts} onSort={toggleSort} />
+                              tcdData={tcdData} filters={filtersValues} onFilter={toggleFilterValue}
+                              sorts={sorts} onSort={toggleSort}
+                              columnOptions={columnOptions}
+                              onUpdateOption={updateColumnOption}
+                        />
 
                         <Zone title="Valeurs (Σ)"
                               colorClass="z-measures"
@@ -176,8 +188,10 @@ export const TcdConfPanel: FC<TcdConfPanelProps> = ({
                               onDrop={e => handleDrop(e, 'measures')}
                               onRemove={removeFromAll}
                               onDragStart={onDragStart}
-                              groupByFuncs={groupByFuncs}
+                              groupByFuncs={funcObjects}
                               onUpdateGroupByFunc={updateGroupByFunc}
+                              columnOptions={columnOptions}
+                              onUpdateOption={updateColumnOption}
                         />
                     </div>
                 </div>

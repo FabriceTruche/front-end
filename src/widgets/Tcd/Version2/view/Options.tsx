@@ -1,34 +1,32 @@
 import React, { useState, useMemo, FC } from 'react';
-import {ColumnFormatType, ITcdColumn} from "../TcdColumn";
+import {ColumnFormatArray, ColumnFormat, ITcdColumn} from "../TcdColumn";
+import {List, ListItem} from "../../../../ui/List/List";
+import {Form} from "../../../../containers/Form/Form";
+import {TextInput} from "../../../../ui/Text/TextInput";
+import {Checkbox} from "../../../../ui/Checkbox/Checkbox";
 
 interface OptionsProps {
-    col: ITcdColumn;
-    onTypeFormatChange?: (typeFormat: ColumnFormatType) => void;
-    onPrecisionChangeChange?: (precision: number) => void;
-    onDateMaskChange?: (mask: string) => void;
+    col: string;
+    onOptionChange?: (value: any, propName: string) => void
+    // onTypeFormatChange?: (typeFormat: ColumnFormatType) => void;
+    // onPrecisionChangeChange?: (precision: number) => void;
+    // onDateMaskChange?: (mask: string) => void;
+    // onSetTotalChange?: (total: boolean) => void;
 }
 
-export const Options: FC<OptionsProps> = ({ col, onTypeFormatChange, onPrecisionChangeChange, onDateMaskChange }) => {
+export const Options: FC<OptionsProps> = ({ col, onOptionChange /*, onPrecisionChangeChange, onDateMaskChange */}) => {
     const [show, setShow] = useState<boolean>(false);
-
-    // const uniqueValues = useMemo<string[]>(() => {
-    //     const vals = data.map((d: any) => String(d[col.name] ?? ''));
-    //     return Array.from(new Set(vals)).filter((v: string) => v !== '').sort();
-    // }, [data, col]);
-    //
-    // const handleSelectAll = (): void => {
-    //     uniqueValues.forEach((v: string) => {
-    //         if (!selected.includes(v)) onToggle(col.name, v);
-    //     });
-    // };
-    //
-    // const handleSelectNone = (): void => {
-    //     selected.forEach((v: string) => onToggle(col.name, v));
-    // };
 
     return (
         <div className="filter-wrapper">
-            <button type="button" className="btn-filter" onClick={() => setShow(!show)}>⚙</button>
+            <button
+                type="button"
+                className="btn-filter"
+                title="Options"
+                onClick={() => setShow(!show)}
+            >
+                ⚙
+            </button>
 
             {show && (
                 <div className="filter-popover">
@@ -38,6 +36,46 @@ export const Options: FC<OptionsProps> = ({ col, onTypeFormatChange, onPrecision
                         <button type="button" className="btn-filter-ok" onClick={() => setShow(false)}>Ok</button>
                     </div>
                     <div className="filter-scroll">
+                        <Form>
+                            <List
+                                items={ColumnFormatArray.map((v: string) => ({value: v, label: v}))}
+                                label={"Format"}
+                                name={"listFormat"}
+                                multiple={false}
+                                onChange={(val:ListItem[]) => onOptionChange && onOptionChange(val[0].value, 'format')}
+                            />
+                            <TextInput
+                                name="mask"
+                                type="text"
+                                label="Mask"
+                                placeholder="Saisissez un mask de date"
+                                required={false}
+                                data={["D","DD","M","MM","YYYY"]}
+                                onChange={(val:ListItem[]) => onOptionChange && onOptionChange(val[0].value, 'mask')}
+                            />
+                            <TextInput
+                                name="precision"
+                                type="number"
+                                label="Precision"
+                                placeholder="Saisissez un nombre de décimales"
+                                required={false}
+                                onChange={(value: any)=>onOptionChange && onOptionChange(value, 'precision')}
+                            />
+                            <List
+                                items={[{value: "left", label: "left"},{value: "center", label: "center"},{value: "right", label: "right"},]}
+                                label={"Align."}
+                                name={"align"}
+                                multiple={false}
+                                onChange={(value:ListItem[]) => onOptionChange && onOptionChange(value[0], 'alignment')}
+                            />
+                            <Checkbox
+                                name={"total"}
+                                label={"Total"}
+                                onChange={(value:any) => onOptionChange && onOptionChange(value, 'hasTotal')}
+                            />
+
+                        </Form>
+
                         {/*{uniqueValues.map((v: string) => (*/}
                         {/*    <label key={v} className="filter-item">*/}
                         {/*        <input type="checkbox"*/}
