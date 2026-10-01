@@ -1,13 +1,12 @@
 import {AnyObject, DbColumn, ResponseQuery} from "./common";
-import {ITableData} from "../widgets/Table/TableData";
-import {factory} from "./Factory";
-import {IColumn} from "../widgets/Table/Column";
 import {CSSProperties} from "react";
-import {createTcdColumn, ITcdColumn} from "../widgets/Tcd/model/TcdColumn";
+import {IColumn} from "../widgets/common/Column";
+import {ITableData} from "../widgets/common/TableData";
+import {InputType} from "../widgets/common/ColumnDefinition";
 
 export type GenColumn = {
     name: string
-    type: "integer"|"string"|"Date"|"boolean"|"index"|"float"
+    dataType: "integer"|"string"|"Date"|"boolean"|"index"|"float"
     total?: boolean
     label?: string
     ratioNull?: number
@@ -15,19 +14,30 @@ export type GenColumn = {
     max?: number
     items?: any[]
 }
-
+export enum TypeProperty {
+    id,
+    foreignKey,
+    enumValues,
+    date,
+    string,
+    number,
+    boolean,
+    standard
+}
 export interface IHelper {
 
     // common
     display(data: any[], showHierarchy?: boolean): void
     ifStr(cond:boolean,str:string):string
+    convertToLabel(colName: string):string
 
     // DTO / Object
     findItem<T,U>(items:T[],predicat:((item:T)=>boolean),returnValue:((item:T)=>U),defaultValue:U):U
     getById<T extends {id:string} >(items:T[],id:string):T|null
 
-    // table
-    convertToTableData<T>(response:any, pred?:(c:DbColumn)=>string): ITableData<T>
+    // table/column
+    // convertToTableData<T>(response:any, pred?:(c:DbColumn)=>string): ITableData<T>
+    getTypeProperty(propName: string): TypeProperty
 
     // api / sql
     executeQuery(sql:string): Promise<ResponseQuery>
@@ -45,8 +55,10 @@ export interface IHelper {
     aleatDate(): Date
     rand(min: number, max: number): number
     generateData(genColumns: GenColumn[], count: number, validate?: (row:any)=>void): any[]
-    generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[]
-    convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): ITableData<T>
+    // getInputTypes(genColumns: GenColumn[]): Record<string, InputProps>
+
+    // generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[]
+    // convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): ITableData<T>
 
     // date managment
     today:Date
@@ -63,6 +75,7 @@ export interface IHelper {
     toStandardDate(d: Date): string
     toPeriode(d: Date): Date|null
     periodeFormat(d : Date): string
+    parseIsoDatesToObjects(jsonString: string): any
 
     // UI text width calculation
     getCssStyleById(prop:string,elementId:string):string
@@ -356,6 +369,18 @@ class _Helper implements IHelper {
         )
     }
 
+    // Expression régulière pour valider le format de date ISO 8601 (ex: "2026-08-20T14:28:55.000Z")
+    private isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/;
+
+    public parseIsoDatesToObjects(jsonString: string): any {
+        return JSON.parse(jsonString, (key, value) => {
+            if (typeof value === 'string' && this.isoDateRegex.test(value)) {
+                return new Date(value);
+            }
+            return value;
+        });
+    };
+
     /*********************************************************************************************************
      * data generator
      */
@@ -476,34 +501,34 @@ class _Helper implements IHelper {
      * @param response
      * @param pr
      */
-    public convertToTableData<T>(response: any, pr?: (c: DbColumn) => string): ITableData<T> {
-        const pred = (pr === undefined) ? (c: DbColumn): string => c.name : pr
-
-        if (response.error === undefined) {
-            // const inputData: ITableData<T> = {
-            //     data: response.data,
-            //     columns: response.meta.map((c: DbColumn) => ({
-            //         name: c.name,
-            //         type: c.type,
-            //         sort: 0,
-            //         filter: "",
-            //         label: pred(c)
-            //     }))
-            // }
-            // return inputData
-
-            return factory.createTableData(
-                response.data,
-                response.meta.map((c: DbColumn) => ({
-                    name: c.name,
-                    type: c.type,
-                    sort: 0,
-                    filter: "",
-                    label: pred(c)
-                })))
-        }
-        return factory.createTableData<T>()
-    }
+    // public convertToTableData<T>(response: any, pr?: (c: DbColumn) => string): ITableData<T> {
+    //     const pred = (pr === undefined) ? (c: DbColumn): string => c.name : pr
+    //
+    //     if (response.error === undefined) {
+    //         // const inputData: ITableData<T> = {
+    //         //     data: response.data,
+    //         //     columns: response.meta.map((c: DbColumn) => ({
+    //         //         name: c.name,
+    //         //         type: c.type,
+    //         //         sort: 0,
+    //         //         filter: "",
+    //         //         label: pred(c)
+    //         //     }))
+    //         // }
+    //         // return inputData
+    //
+    //         return factory.createTableData(
+    //             response.data,
+    //             response.meta.map((c: DbColumn) => ({
+    //                 name: c.name,
+    //                 type: c.type,
+    //                 sort: 0,
+    //                 filter: "",
+    //                 label: pred(c)
+    //             })))
+    //     }
+    //     return factory.createTableData<T>()
+    // }
 
 
     /**
@@ -514,7 +539,7 @@ class _Helper implements IHelper {
      */
     public generateData(genColumns: GenColumn[], count: number, validate?: (row:any)=>void ): any[] {
         const rows: any[] = []
-        let i=0
+        let i: number=0
 
         while (i<count) {
             const row: {[prop:string]:any} = {}
@@ -522,7 +547,7 @@ class _Helper implements IHelper {
             for(const genCol of genColumns) {
                 const items: any[]|undefined = genCol.items
 
-                switch (genCol.type) {
+                switch (genCol.dataType) {
                     case "index":
                         row[genCol.name]=i+1
                         break;
@@ -554,47 +579,81 @@ class _Helper implements IHelper {
         return rows
     }
 
-    public generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[] {
-        const tcdColumns: ITcdColumn[] = []
-        let type: string = ""
+    /**
+     *
+     * @param genColumns
+     */
+    // public getInputTypes(genColumns: GenColumn[]): Record<string, InputProps> {
+    //     let res: Record<string, InputProps> = {}
+    //     let it: InputType
+    //
+    //     genColumns.forEach((genCol: GenColumn) => {
+    //         switch (genCol.dataType) {
+    //             case "index":
+    //                 it = "int"
+    //                 break
+    //             case "integer":
+    //                 it = "int"
+    //                 break;
+    //             case "float":
+    //                 it = "real"
+    //                 break;
+    //             case "string":
+    //                 it = "text"
+    //                 break;
+    //             case "Date":
+    //                 it = "date"
+    //                 break;
+    //             case "boolean":
+    //                 it = "boolean"
+    //                 break;
+    //         }
+    //         res[genCol.name] = { type: it }
+    //     })
+    //     return res
+    // }
 
-        genColumns.forEach((genCol: GenColumn, index:number)=>{
-                switch (genCol.type) {
-                    case "index":
-                        type = "number"
-                        break;
-                    case "Date":
-                        type = "date"
-                        break;
-                    default:
-                    case "integer":
-                    case "float":
-                    case "string":
-                    case "boolean":
-                        type = genCol.type
-                        break;
-                }
-                tcdColumns.push(createTcdColumn(genCol.name, type, genCol.total, genCol.label))
-            })
-
-        return tcdColumns
-    }
+    // public generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[] {
+    //     const tcdColumns: ITcdColumn[] = []
+    //     let type: string = ""
+    //
+    //     genColumns.forEach((genCol: GenColumn, index:number)=>{
+    //             switch (genCol.type) {
+    //                 case "index":
+    //                     type = "number"
+    //                     break;
+    //                 case "Date":
+    //                     type = "date"
+    //                     break;
+    //                 default:
+    //                 case "integer":
+    //                 case "float":
+    //                 case "string":
+    //                 case "boolean":
+    //                     type = genCol.type
+    //                     break;
+    //             }
+    //             tcdColumns.push(createTcdColumn(genCol.name, type, genCol.total, genCol.label))
+    //         })
+    //
+    //     return tcdColumns
+    // }
     /**
      *
      * @param data
      * @param columns
      * @param labelPred
      */
-    public convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?:(c:GenColumn)=>string): ITableData<T> {
-        // const inputData: TableData<T> = {
-        //     data: data,
-        //     columns: columns.map((c: GenColumn):Column => new Column(c.name, c.type, labelPred ? labelPred(c) : ( c.label ?? c.name )))
-        // }
-        return factory.createTableData(
-            data,
-            columns.map((c: GenColumn): IColumn => factory.createColumn(c.name, c.type, labelPred ? labelPred(c) : (c.label ?? c.name)))
-        )
-    }
+    // public convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?:(c:GenColumn)=>string): ITableData<T> {
+    //     // const inputData: TableData<T> = {
+    //     //     data: data,
+    //     //     columns: columns.map((c: GenColumn):Column => new Column(c.name, c.type, labelPred ? labelPred(c) : ( c.label ?? c.name )))
+    //     // }
+    //     return factory.createTableData(
+    //         data,
+    //         columns.map((c: GenColumn): IColumn => factory.createColumn(c.name, c.type, labelPred ? labelPred(c) : (c.label ?? c.name)))
+    //     )
+    // }
 
 
     private _getWidthText(text:string, font:string):number {
@@ -729,7 +788,42 @@ class _Helper implements IHelper {
         })
     }
 
+    getTypeProperty(propName: string): TypeProperty {
+        if (propName.endsWith('_ID')) return TypeProperty.foreignKey
+        if (propName.startsWith('type')) return TypeProperty.enumValues
+        if (propName.startsWith('Date')) return TypeProperty.date
+        if (propName==="ID") return TypeProperty.id
+        return TypeProperty.standard
+    }
 
+    /**
+     * Transforme une chaîne selon les règles :
+     * 1) Le premier caractère est toujours en majuscule.
+     * 2) Les minuscules sont conservées telles quelles.
+     * 3) Tout caractère majuscule rencontré (après le 1er) est précédé d'un espace et converti en minuscule.
+     */
+    convertToLabel(input: string):string {
+        if (!input) return '';
+
+        return input.replace("_ID","")
+            .split('')
+            .map((char, index) => {
+                // Règle 1 : Premier caractère toujours en majuscule
+                if (index === 0) {
+                    return char.toUpperCase();
+                }
+
+                // Règle 3 : Si majuscule rencontrée après le 1er caractère
+                // (on vérifie aussi que ce soit bien une lettre et pas un chiffre/symbole)
+                if (char >= 'A' && char <= 'Z') {
+                    return ` ${char.toLowerCase()}`;
+                }
+
+                // Règle 2 : Minuscules (et autres caractères) copiés tels quels
+                return char;
+            })
+            .join('');
+    }
 }
 
 export const helper:IHelper = new _Helper()

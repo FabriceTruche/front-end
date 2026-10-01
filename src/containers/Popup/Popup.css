@@ -1,8 +1,18 @@
+/* --- Variables globales & Reset --- */
 #root {
-    --test-border: 0px red solid;
-    /*--test-border: 1px red solid;*/
+    --modal-bg: #ffffff;
+    --modal-mask: rgba(15, 23, 42, 0.3); /* Teinte ardoise douce pour le fond */
+    --text-main: #334155;    /* Gris foncé lisible (évite le noir pur) */
+    --text-muted: #64748b;   /* Pour les éléments secondaires */
+    --border-color: #e2e8f0; /* Bordures fines et discrètes */
+    --accent-color: #3b82f6; /* Bleu moderne pour le bouton principal */
+    --accent-hover: #2563eb;
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-#modal{
+
+/* --- Structure du Modal --- */
+#modal {
     position: fixed;
     z-index: 99999;
     top: 0;
@@ -10,110 +20,117 @@
     bottom: 0;
     left: 0;
     display: none;
-    /*transform: scale(0.7);*/
-    /*transform-origin: 0% 0% 0px;*/
+    align-items: center;     /* Centrage moderne avec Flexbox au lieu des transform % */
+    justify-content: center;
 }
-#modal.open{
-    display: block;
+
+#modal.open {
+    display: flex;
 }
-#modal .mask{
-    background: black;
-    opacity: 0.2;
+
+/* --- Masque d'arrière-plan --- */
+#modal .mask {
+    background: var(--modal-mask);
+    backdrop-filter: blur(4px); /* Léger flou artistique en arrière-plan */
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
 }
-#modal .container{
+
+/* --- Conteneur de la Popup --- */
+#modal .container {
     position: relative;
-    background: white;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%) scale(1);
-    width: fit-content;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;
-    /*border-radius: 8px;*/
-    /* padding-left: 5px;
-    padding-right: 5px; */
-    padding-bottom: 10px;
-    padding-top: 0px;
+    background: var(--modal-bg);
+    width: 100%;
+    max-width: 440px; /* Largeur maximale propre pour une popup standard */
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: modalFadeIn 0.2s ease-out;
 }
-#modal .container .content{
+
+/* --- Contenu Interne (Grid) --- */
+#modal .container .content {
     display: grid;
-    grid-template-columns: 1fr minmax(200px,auto);
-    grid-template-rows: 1fr auto;
-    align-items: center;
-    padding: 0px;
+    grid-template-columns: 1fr; /* Simplifié car l'icône est commentée dans le TSX */
+    gap: 12px;
+    padding: 24px 24px 16px 24px;
 }
-#modal .container .content .icon{
-    grid-row: 1/span 2;
-    grid-column: 1;
-    font-size: 25px;
-    margin: 10px;
-    padding: 10px ;
-    align-self: start;
-    border: var(--test-border);
-    /*border-radius: 3px;*/
+
+/* --- Titre --- */
+#modal .container .content .title {
+    color: #0f172a;
+    font-size: 16px;       /* Police plutôt petite mais affirmée */
+    font-weight: 600;      /* Semi-bold pour la lisibilité */
+    text-align: left;      /* Alignement à gauche plus naturel et moderne */
 }
-#modal .container .content .icon:hover {
-    background-color: lightgray;
-    cursor: pointer;
+
+/* --- Message / Corps de texte --- */
+#modal .container .content .message {
+    color: var(--text-muted);
+    font-size: 14px;       /* Taille de police standard de lecture, très propre */
+    line-height: 1.5;      /* Hauteur de ligne aérée pour faciliter la lecture */
+    overflow-y: auto;
+    max-height: 40vh;      /* Évite que la popup dépasse de l'écran */
 }
-#modal .container .content .title{
-    background-color: #b2a2be;
-    color: white;
-    /* margin-top: 10px; */
-    /* margin-right: 10px; */
-    margin: 3px;
-    padding-top: 5px ;
-    padding-bottom: 5px ;
-    /* justify-self: center; */
-    text-align: center;
-    grid-row: 1;
-    grid-column: 2;
-    font-size: 24px;
-    /*border-top-left-radius: 20px;*/
-    /*border-top-right-radius: 20px;*/
-    
-    /* border: var(--test-border); */
-}
-#modal .container .content .message{
-    /*margin: 10px;*/
-    /*padding-top: 10px ;*/
-    /*margin-right: 10px;*/
-    margin: 5px;
-    /*padding-bottom: 10px ;*/
-    grid-row: 2;
-    grid-column: 2;
-    border: var(--test-border);
-    overflow: auto;
-    min-height: 50px;
-    max-height: 30vw;
-}
+
+/* --- Séparateur --- */
 #modal .container .separator {
-    border-top: 1px lightgray solid;
-    margin: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    margin: 0;
 }
+
+/* --- Zone des boutons --- */
 #modal .container .buttons {
     display: flex;
-    flex-flow: row-reverse;
-    padding-bottom: 10px;
-    margin-right: 20px;
+    justify-content: flex-end; /* Alignement à droite classique */
+    gap: 8px;                  /* Espace constant entre les boutons */
+    padding: 12px 24px;
+    background-color: #f8fafc; /* Léger fond gris pour détacher la zone d'action */
 }
+
+/* --- Boutons (Style Général) --- */
 #modal button {
-    /* width: 80px; */
-    /* margin-left: 10px;
-    margin-right: 0px; */
-    font-size: 15px;
-    /* padding: 8px 16px; */
-    /*border-radius: 3px;*/
-    border: 3px lightgray solid;
-}
-#modal button:hover {
-    border: 3px gray solid;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-main);
     cursor: pointer;
+    transition: all 0.15s ease;
 }
-#modal .container div.close:hover{
-    color: black;
+
+#modal button:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* Distinction du bouton "Ok" (Le premier bouton à droite grâce au flex-end du TSX) */
+/* Note: Dans ton TSX, le bouton OK est rendu en premier, donc physiquement à gauche du bouton Cancel si on utilise flex-end.
+   Pour avoir un bouton bleu principal sur le "OK", on cible le premier bouton : */
+#modal .buttons button:first-child {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+#modal .buttons button:first-child:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+/* --- Petite animation d'apparition --- */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }

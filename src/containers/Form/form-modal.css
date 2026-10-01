@@ -1,0 +1,195 @@
+/* ==========================================================================
+   1. L'ARRIÈRE-PLAN DE LA MODALE (OVERLAY)
+   ========================================================================== */
+.form-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    /* Rideau sombre très léger pour laisser passer un maximum du tableau en fond */
+    background-color: rgba(0, 0, 0, 0.15);
+
+    /* Effet de flou "verre dépoli" (Glassmorphism) équilibré */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); /* Compatibilité Safari */
+
+    /* Centrage absolu au pixel près */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+/* ==========================================================================
+   2. LE CONTENEUR DE LA MODALE (DIALOG CONTENT)
+   ========================================================================== */
+.form-modal-content {
+    background: #ffffff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 700px; /* Aligné sur ton gabarit Grid de FormObject */
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    /* Bordure fine et double ombre profonde pour découper la modale du fond clair */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.15);
+
+    /* Animation fluide d'apparition (Zoom + montée) */
+    animation: modalAppear 0.25s ease-out;
+}
+
+/* Définition de l'animation d'ouverture */
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* ==========================================================================
+   3. EN-TÊTE, CORPS ET PIED DE PAGE
+   ========================================================================== */
+.form-modal-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+}
+
+.form-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.form-modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #aaa;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.form-modal-close-btn:hover {
+    color: #333;
+}
+
+.form-modal-body {
+    padding: 24px;
+    overflow-y: auto; /* Permet le défilement interne si le formulaire est très grand */
+}
+
+.form-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: flex-end;
+    background: #fcfcfc;
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #4a4a4a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: #e5e5e5;
+    color: #222;
+}
+
+/* ==========================================================================
+   4. STYLE DES CHAMPS DE FORMULAIRE ÉDITABLES (MODIFIABLES)
+   ========================================================================== */
+
+/* État de base de tes inputs du FormComponents */
+.form-modal-body input:not(:disabled),
+.form-modal-body textarea:not(:disabled),
+.form-modal-body select:not(:disabled) {
+    background-color: #ffffff;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #2f3640;
+    font-size: 14px;
+    width: 100%; /* S'assure qu'ils occupent l'espace alloué */
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out; /* Effet de transition doux */
+}
+
+/* État au Survol (:hover) */
+.form-modal-body input:not(:disabled):hover,
+.form-modal-body textarea:not(:disabled):hover,
+.form-modal-body select:not(:disabled):hover {
+    border-color: #3867d6;          /* Bordure bleutée */
+    background-color: #f8faff;      /* Voile bleu très discret en fond */
+}
+
+/* État Actif / Focus (:focus) - Effet Halo moderne */
+.form-modal-body input:not(:disabled):focus,
+.form-modal-body textarea:not(:disabled):focus,
+.form-modal-body select:not(:disabled):focus {
+    outline: none;                  /* Supprime le contour par défaut du navigateur */
+    border-color: #4b7bec;          /* Bleu affirmé */
+    background-color: #ffffff;      /* Retour au blanc pur pour l'écriture */
+
+    /* Halo lumineux externe + ombre interne douce */
+    box-shadow: 0 0 0 4px rgba(75, 123, 236, 0.15),
+    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   5. STYLE PRONONCÉ DES CHAMPS VERROUILLÉS (DISABLED / LECTURE SEULE)
+   ========================================================================== */
+.form-modal-body input:disabled,
+.form-modal-body textarea:disabled,
+.form-modal-body select:disabled {
+    background-color: #e9ecef !important;      /* Gris acier soutenu */
+    color: #495057 !important;                 /* Texte contrasté et lisible */
+    border: 1px solid #ced4da !important;      /* Bordure marquée */
+    cursor: not-allowed !important;            /* Curseur d'interdiction 🚫 */
+    opacity: 1 !important;                     /* Force l'opacité complète du fond */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important; /* Effet enfoncé */
+
+    /* Dessin des micro-rayures grises via un gradient linéaire répété */
+    background-image: linear-gradient(
+            135deg,
+            rgba(0, 0, 0, 0.02) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(0, 0, 0, 0.02) 50%,
+            rgba(0, 0, 0, 0.02) 75%,
+            transparent 75%,
+            transparent
+    ) !important;
+    background-size: 8px 8px !important;       /* Répétition serrée du motif */
+}
+
+/* Sécurité : Bloque tout effet visuel de focus si l'utilisateur clique sur un champ disabled */
+.form-modal-body input:disabled:focus,
+.form-modal-body textarea:disabled:focus,
+.form-modal-body select:disabled:focus {
+    outline: none !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}

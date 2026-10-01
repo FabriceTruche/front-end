@@ -5,7 +5,7 @@ export type CheckboxProps = {
     name: string
     defaultValue?: boolean
     title?:string
-    label: string
+    label?: string
     help?: string
     debug?:boolean
     onChange?: (value:any)=>void

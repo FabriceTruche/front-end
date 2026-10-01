@@ -1,48 +1,64 @@
 import {GenColumn, helper} from "../../common/Helper";
-import React, {useMemo} from "react";
-import {TcdViewMain} from "../../widgets/Tcd/Version2/view/TcdViewMain";
-import {functionsGroup} from "../../widgets/Tcd/Version2/functionsGroup";
-import {TcdConfig} from "../../widgets/Tcd/Version2/view/TcdConfig";
+import {TcdConfig} from "../../widgets/Tcd/TcdConfig";
+import {functionsGroup} from "../../widgets/Tcd/functionsGroup";
+import {TcdViewMain} from "../../widgets/Tcd/component/TcdViewMain";
 
 // GENERATE DATA
 const maxRowCount = 200
 const schema: GenColumn[] = [
-    { name: "id", type: "index", label:"Id" },
-    { name: "lot", total: false , type: "integer", label:"Lot", items: [1,2,3,4/*,7,8,9,10,11*/] },
-    { name: "type_op", total: false, type: "string", label: "Opération", items:["ACHAT","REGUL","SOLDE","OD"] },
-    { name: "depot", type: "integer", label: "Dépôt", items: [100, 200, 350, 450, 500, 650, 620, 680, 820, 1000, 1200, 2000] },
-    { name: "facture", total: false, type: "string", label: "Fac.", items:["REG","APA","ENC","INC","AA1","AA2","AA3","ZZO"] },
-    { name: "annee", total: false, type: "integer", label: "Année", items: [2020,2023, 2024, 2025] },
-    { name: "code", total: true, type: "float", label:"Code", min: 99, max: 5999 },
-    { name: "libelle", type: "string", label:"Libellé" },
-    { name: "periode", type: "Date", label: "Période" },
-    { name: "debit", type: "float", label: "Débit"/*, items:[10,20,30,40,50] */},
-    { name: "credit", type: "float", label: "Crédit"/*, items:[1,2,3,4,5]*/ },
+    { name: "id", dataType: "index", label:"Id" },
+    { name: "lot", total: false , dataType: "integer", label:"Lot", items: [1,2,3,4/*,7,8,9,10,11*/] },
+    { name: "type_op", total: false, dataType: "string", label: "Opération", items:["ACHAT","REGUL","SOLDE","OD"] },
+    { name: "depot", dataType: "integer", label: "Dépôt", items: [100, 200, 350, 450, 500, 650, 620, 680, 820, 1000, 1200, 2000] },
+    { name: "facture", total: false, dataType: "string", label: "Fac.", items:["REG","APA","ENC","INC","AA1","AA2","AA3","ZZO"] },
+    { name: "annee", total: false, dataType: "integer", label: "Année", items: [2020,2023, 2024, 2025] },
+    { name: "code", total: true, dataType: "float", label:"Code", min: -99, max: 99 },
+    { name: "libelle", dataType: "string", label:"Libellé" },
+    { name: "periode", dataType: "Date", label: "Période" },
+    { name: "debit", dataType: "float", label: "Débit"/*, items:[10,20,30,40,50] */},
+    { name: "credit", dataType: "float", label: "Crédit"/*, items:[1,2,3,4,5]*/ },
 ]
 const data: any[] = helper.generateData(schema, maxRowCount)
 
 // CREATION DE LA CONFIG
 const config: TcdConfig = {
     allColumns: schema.map((gc: GenColumn)=>gc.name),
-    rows: ["facture","annee"],
-    columns: ["type_op"],
+    rows: [
+        "facture",
+        "annee"
+        // "libelle",
+    ],
+    columns: [
+        "type_op",
+        //"code",
+    ],
     // measures: ["debit","credit","id"],
-    measures: ["id"],
+    measures: [
+        "debit",
+        "code"
+        /*"credit",*/
+    ],
     groupByFuncs:
         {
-            debit: functionsGroup.sum,
-            credit: functionsGroup.avg,
-            id: functionsGroup.sum,
+            debit: functionsGroup.count,
+            code: functionsGroup.sum,
+            /*credit: functionsGroup.sum,
+            id: functionsGroup.sum,*/
+
         },
     filters: [],
     filters_values: {},
     sorts: {},
     options: {
         facture: {
-            hasTotal: false,
+            hasTotal: true,
         },
         annee: {
             hasTotal: true
+        },
+        code: {
+            dataType: "number",
+            precision: 1,
         }
     }
 }

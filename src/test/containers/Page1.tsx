@@ -1,7 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {Page} from "../../containers/Page/Page";
-import {TestTable2} from "../Table/TestTable2";
-import {TestTable1} from "../Table/TestTable1";
 
 export const Page1 = ()=> {
     return (
@@ -13,8 +11,6 @@ export const Page1 = ()=> {
                     // height: "100px"
                 }}
             >
-                <TestTable1 />
-                <TestTable2 />
                 World
             </pre>
         </Page>

@@ -1,5 +1,5 @@
 import "./Popup.css"
-import React, {ReactElement, useEffect, useState} from "react";
+import React, {ReactElement, useState} from "react";
 
 const defaultButton = (show: () => void) => (
     <button onClick={() => show()}>Open</button>
@@ -27,6 +27,8 @@ export const Popup_V0 = (props: PopWindowProps) => {
         if (f) f()
         setVisible(false)
     }
+
+    console.log("show",act)
 
     return (
         <div

@@ -1,16 +1,10 @@
 import {Menu, MenuItem} from "../../widgets/Menu/Menu";
 import React from "react";
-import {Page1} from "../containers/Page1";
-import {TestTable2} from "../Table/TestTable2";
-import {Page2} from "../containers/Page2";
-import {TestTable1} from "../Table/TestTable1";
 
 export const mxMenu: MenuItem[] = [
 
     {
         image: "business_center", label: "Actifs", content: [
-            {image: "man", label: "Tiers", content: TestTable1 },
-            {image: "hotel", label: "Lots", content: TestTable2},
             {image: "license", label: "Contrats"},
         ]
     },

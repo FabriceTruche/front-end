@@ -1,0 +1,47 @@
+export {}
+
+// import {useState} from "react";
+// import {AnyObject} from "../../common/common";
+// import { Popup_V0 } from "../../containers/Popup/Popup_V0";
+// import {TestForm2Content} from "./TestForm2Content";
+//
+// export const TestForm2Popup = () => {
+//     const [values, setValues] = useState<AnyObject>({})
+//     const [isValid,setIsValid]=useState<boolean>(false)
+//
+//     return (
+//         <div>
+//             <Popup_V0
+//                 title="__Form"
+//                 activator={(show: () => void) => (
+//                     <button onClick={() => {
+//                         show()
+//                     }}>
+//                         Click to show __Form
+//                     </button>
+//                 )}
+//                 content={(hide: () => void) => (
+//                     <TestForm2Content
+//                         onChange={(values:AnyObject, isValid:boolean)=>{
+//                             setValues(values)
+//                             setIsValid(isValid)
+//                             hide()
+//                         }}
+//                         showButton={true}
+//                     />
+//                 )}
+//                 // onOk={() => {
+//                 // }}
+//                 // onCancel={() => {
+//                 // }}
+//             />
+//             <div>
+//                 <pre>
+//                     values={JSON.stringify(values,null,3)}<br/>
+//                     isValid={isValid.toString()}
+//                 </pre>
+//             </div>
+//         </div>
+//     )
+// }
+//
