@@ -1,9 +1,8 @@
 import React, { DragEvent, FC } from 'react';
 import { FilterMenu } from "./FilterMenu"; // Nom mis à jour
-// import {Options} from "./Options";
 import {GroupByFunc} from "./GroupByFunc";
-import {FuncObject} from "../functionsGroup";
-import {SortOrder} from "../../common/ColumnDefinition";
+import {FuncObject} from "./functionsGroup";
+import {SortOrder} from "../common/Column";
 
 interface ZoneProps {
     title: string;

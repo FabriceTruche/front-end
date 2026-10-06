@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Field from './FormComponents';
-import { FormObject, FormObjectConfig } from './FormObject';
+import {FormObject, FormObjectConfig} from './FormObject';
 import {FullFeatureFormState} from "./FormDemoMain";
 
 const citySuggestions = ['Paris', 'Lyon', 'Marseille', 'Nantes', 'Strasbourg'];
@@ -78,21 +78,21 @@ export const FormObjectDemo: React.FC = () => {
 
     const completeObjectConfig: FormObjectConfig<FullPayload> = {
         champTexte: { label: '1. Texte libre (Standard)', placeholder: 'Saisissez du texte...' },
-        motDePasse: { label: '2. Mot de passe masqué', type: 'password' },
-        courriel: { label: '3. Adresse Email', type: 'email' },
-        adresseWeb: { label: '4. URL Internet', type: 'url' },
-        telephone: { label: '5. Téléphone (Filtre au vol)', type: 'tel' },
-        heureSimple: { label: '6. Heure (Sélecteur HTML5)', type: 'time' },
-        entierStrict: { label: '7. Nombre Entier', type: 'number', decimals: 0 },
-        valeurDecimal: { label: '8. Nombre Décimal (Précision 4)', type: 'number', decimals: 4 },
-        curseurRange: { label: '9. Curseur Glissant', type: 'range', min: 0, max: 100, step: 5 },
-        dateStandard: { label: '10. Date standard', type: 'date' },
-        dateEtHeure: { label: '11. Date et heure locales', type: 'datetime' },
-        moisAnnee: { label: '12. Sélection de Mois / Année', type: 'month' },
+        motDePasse: { label: '2. Mot de passe masqué', uiType: 'password' },
+        courriel: { label: '3. Adresse Email', uiType: 'email' },
+        adresseWeb: { label: '4. URL Internet', uiType: 'url' },
+        telephone: { label: '5. Téléphone (Filtre au vol)', uiType: 'tel' },
+        heureSimple: { label: '6. Heure (Sélecteur HTML5)', uiType: 'time' },
+        entierStrict: { label: '7. Nombre Entier', uiType: 'number', precisions: 0 },
+        valeurDecimal: { label: '8. Nombre Décimal (Précision 4)', uiType: 'number', precisions: 4 },
+        curseurRange: { label: '9. Curseur Glissant', uiType: 'range', min: 0, max: 100, step: 5 },
+        dateStandard: { label: '10. Date standard', uiType: 'date' },
+        dateEtHeure: { label: '11. Date et heure locales', uiType: 'datetime' },
+        moisAnnee: { label: '12. Sélection de Mois / Année', uiType: 'month' },
         caseACocher: { label: '13. Case à cocher d’activation' },
-        villeSaisieSuggestion: { label: '14. Ville avec Datalist', type: 'datalist', suggestions: citySuggestions },
-        groupeSelection: { label: '15. ComboBox / Select Tag', type: 'select', multiple: true, options: roleOptions },
-        blocDescriptionLongue: { label: '16. Bloc de texte étendu (TextArea)', type: 'textarea', placeholder: 'Saisissez vos paragraphes ici...' } // <-- Ajouté
+        villeSaisieSuggestion: { label: '14. Ville avec Datalist', uiType: 'datalist', suggestions: citySuggestions },
+        groupeSelection: { label: '15. ComboBox / Select Tag', uiType: 'select', multiple: false, options: roleOptions },
+        blocDescriptionLongue: { label: '16. Bloc de texte étendu (TextArea)', uiType: 'textarea', placeholder: 'Saisissez vos paragraphes ici...' } // <-- Ajouté
     };
 
     return (

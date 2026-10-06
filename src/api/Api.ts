@@ -1,18 +1,5 @@
 import axios, {AxiosResponse} from "axios";
 import {helper} from "../common/Helper";
-import {FormObjectFieldType} from "../containers/Form/FormObject";
-
-
-export type MetaDataItem = {
-    uiType: FormObjectFieldType;
-    isNullable: boolean;
-    isPrimaryKey: boolean;
-    isAutoIncrement: boolean;
-    isUnique: boolean;
-    maxLength?: number;
-}
-
-export type MetaData = Record<string, MetaDataItem>
 
 const domain = "http://192.168.1.57:3001"
 const subDomain = "api"
@@ -177,3 +164,18 @@ export class CommandApi extends Api implements ICommandApi {
  */
 export const createSqlApi: (entity: string) => ISqlApi = (entity: string) => new SqlApi(entity)
 export const createCommandApi: (entity: string) => ICommandApi = (entity: string) => new CommandApi(entity)
+
+
+
+
+// export type MetaDataItem = {
+//     uiType: UiType;
+//     isNullable: boolean;
+//     isPrimaryKey: boolean;
+//     isAutoIncrement: boolean;
+//     isUnique: boolean;
+//     maxLength?: number;
+// }
+//
+// export type MetaData = Record<string, MetaDataItem>
+

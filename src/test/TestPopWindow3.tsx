@@ -1,7 +1,7 @@
 import {useState} from "react";
-import {SimpleList} from "../../components/SimpleList";
-import {PopupV1} from "../../components/containers/PopupV1";
-import {helper} from "../../common/Helper";
+import {SimpleList} from "../components/SimpleList";
+import {PopupV1} from "../components/containers/PopupV1";
+import {helper} from "../common/Helper";
 
 const items: string[] = helper.genWordsArray()
 

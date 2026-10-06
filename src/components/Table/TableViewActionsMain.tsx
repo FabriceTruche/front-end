@@ -1,56 +1,14 @@
 import {useEffect, useState} from "react";
-import "../../containers/Form/form-modal.css";
+import "../Form/form-modal.css";
 import {ICell} from "../common/Cell";
 import {TableViewMain, TableViewMainProps} from "./TableViewMain";
-import {FormModal} from "../../containers/Form/FormModal";
-import {FieldConfig, FormObject} from "../../containers/Form/FormObject";
+import {FormModal} from "../Form/FormModal";
+import {FieldConfig, FormObject} from "../Form/FormObject";
 import {helper, TypeProperty} from "../../common/Helper";
-import {createCommandApi, createSqlApi, ISqlApi} from "../../model/Api";
-import {TableConfig} from "./TableConfig";
-import {ColumnDefinition} from "../common/ColumnDefinition";
-
-const ConfirmDeleteForm = ({ data, onSubmit }: { data: any; onSubmit: (data: any) => void }) => {
-    return (
-        <form
-            onSubmit={(e) => {
-                e.preventDefault();
-                onSubmit(data); // Déclenche manuellement la suppression
-            }}
-            style={{ padding: "10px 0", textAlign: "center" }}
-        >
-            <div style={{ fontSize: "50px", marginBottom: "15px" }}>⚠️</div>
-            <p style={{ fontSize: "16px", color: "#2f3640", margin: "0 0 10px 0" }}>
-                Vous êtes sur le point de supprimer l'enregistrement <strong>#{data.ID}</strong>.
-            </p>
-            <p style={{ fontSize: "14px", color: "#778ca3", margin: "0 0 25px 0" }}>
-                Cette action est irréversible. Souhaitez-vous continuer ?
-            </p>
-
-            {/* Bouton de confirmation au design "Danger" aligné sur la charte graphique */}
-            <div style={{ display: "flex", justifyContent: "center", gap: "12px" }}>
-                <button
-                    type="submit"
-                    style={{
-                        backgroundColor: "#eb4d4b",
-                        color: "#fff",
-                        border: "none",
-                        padding: "10px 24px",
-                        borderRadius: "6px",
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        boxShadow: "0 2px 5px rgba(235, 77, 75, 0.3)",
-                        transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#ff7675"}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#eb4d4b"}
-                >
-                    💥 Confirmer la suppression 🗑️
-                </button>
-            </div>
-        </form>
-    );
-};
+import {createCommandApi, createSqlApi, ISqlApi} from "../../api/Api";
+import {createEmptyRowFromConfig, TableConfig} from "./TableConfig";
+import {ColumnDefinition} from "../common/Column";
+import {FormConfirmDelete} from "../Form/FormConfirmDelete";
 
 export type EventManager = {
     // ---- add callback
@@ -70,7 +28,7 @@ export type EventManager = {
 
 export type TableViewActionsMainProps = TableViewMainProps & {
     entity: string
-    events: EventManager
+    events?: EventManager
 }
 
 export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
@@ -99,159 +57,19 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
         setLogs(prevLogs => [`[${time}] ${message}`, ...prevLogs]);
     };
 
-    const updateFieldDef = (colName: string, newFieldDef: FieldConfig) => {
-        setConfig((lastConfig) => {
-
-            const newConfig: TableConfig = {
-                ...lastConfig,
-                fieldsDefinition: {
-                    ...lastConfig.fieldsDefinition,
-                    [colName]: {
-                        ...(lastConfig.fieldsDefinition && lastConfig.fieldsDefinition[colName]),
-                        ...newFieldDef
-                    }
-                }
-            }
-            // console.log(colName, newConfig)
-            return newConfig
-        })
-    }
-    const updateColDef = (colName: string, newColDef: ColumnDefinition) => {
-        setConfig((lastConfig) => {
-
-            const newConfig: TableConfig = {
-                ...lastConfig,
-                columnsDefinition: {
-                    ...lastConfig.columnsDefinition,
-                    [colName]: {
-                        ...lastConfig.columnsDefinition[colName],
-                        ...newColDef,
-                    }
-                }
-            }
-            // console.log(colName, newConfig)
-            return newConfig
-        })
-    }
-
-    useEffect(() => {
-        // on chercher les lists de fk et les placer dans la config
-        // la config est complete des noms de colonnes à ce stade
-        props.config.allColumns.forEach((c:string)=>{
-
-            const label: string = helper.convertToLabel(c)
-
-            switch (helper.getTypeProperty(c)) {
-
-                case TypeProperty.id : {
-                    updateColDef(c, {
-                        label: "#"
-                    })
-                    // rendre la saisie impossible
-                    updateFieldDef(c, {
-                        disabled: true,
-                    })
-                    break
-                }
-
-                case  TypeProperty.date : {
-                    updateColDef(c,{
-                        dataType: "date",
-                        mask: "DD-MM-YY",
-                        label
-                    })
-                    updateFieldDef(c,{
-                        type: "date",
-                        label
-                    })
-                    break
-                }
-
-                case TypeProperty.foreignKey : {
-                    // fk colonne ==> on va chercher le tableau de mapping id<=>libellé
-                    const sqlApi: ISqlApi = createSqlApi("lists")
-
-                    sqlApi.getById(c).then(result => {
-                        updateFieldDef(c,{
-                            type: "select",
-                            options: result.data.data,
-                            multiple: false,
-                            label
-                        })
-                        updateColDef(c,{
-                            label
-                        })
-                    })
-                    break;
-                }
-
-                case TypeProperty.enumValues:
-                    const sqlApi: ISqlApi = createSqlApi("enums")
-
-                    sqlApi.getById(c).then(result => {
-                        updateFieldDef(c,{
-                            type: "select",
-                            options: result.data.data,
-                            multiple: false,
-                            label
-                        })
-                        updateColDef(c,{
-                            label
-                        })
-                    })
-                    break
-
-                case TypeProperty.standard :
-                    updateColDef(c,{
-                        label
-                    })
-                    updateFieldDef(c,{
-                        label
-                    })
-                    break
-            }
-        })
-    },[])
-
-
     const events = props.events;
 
     /**
      *
      */
     const createEmptyRow = () : any => {
+        const res: any = createEmptyRowFromConfig(config)
 
-        const res: any = {}
-        props.config.allColumns.forEach((c:string)=> {
-            switch (helper.getTypeProperty(c)) {
-                case TypeProperty.id:
-                    break;
-                case TypeProperty.foreignKey:
-                case TypeProperty.enumValues:
-                    const fdrec = config && config.fieldsDefinition
-                    const fd = fdrec && fdrec[c]
-                    const sel = fd && fd.options
-                    const opt = sel && sel[0]
-                    const option = opt && opt.value
-                    res[c] = option
-                    break;
-                case TypeProperty.date:
-                    res[c] = null
-                    break;
-                case TypeProperty.standard:
-                    res[c] = null
-                    break;
-            }
-        })
-
-        if (events.getNewObject)
+        if (events && events.getNewObject)
             events.getNewObject(res)
-
-        console.log("add object",res)
 
         return res
     }
-
 
     // Action : Clic sur une cellule du tableau
     const handleUpdateRow = (cell: ICell, row: any) => {
@@ -261,13 +79,14 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
             return;
         }
 
-        if (events.onModifyng===undefined || events.onModifyng(row)) {
-            // Comportement classique : Édition
-            setSelectedRow(row);
-            setModalTitle(`Édition de l'enregistrement #${row.ID}`);
-            setIsModalOpen(true);
-            addLog(`Ouverture de la modale en mode ÉDITION pour la ligne ID: ${row.ID}`);
-        }
+        if (events && events.onModifyng)
+            events.onModifyng(row)
+
+        // Comportement classique : Édition
+        setSelectedRow(row);
+        setModalTitle(`Édition de l'enregistrement #${row.ID}`);
+        setIsModalOpen(true);
+        addLog(`Ouverture de la modale en mode ÉDITION pour la ligne ID: ${row.ID}`);
     };
 
     // Action : Clic sur le bouton Ajouter
@@ -279,20 +98,22 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
         if (newObject === null)
             return
 
-        if (events.onAdding===undefined || events.onAdding(newObject)) {
-            setSelectedRow(newObject);
-            setModalTitle("Ajouter un nouvel enregistrement");
-            setIsModalOpen(true);
-            addLog(`Ouverture de la modale en mode CRÉATION`);
-        }
-    };
+        if (events && events.onAdding)
+            events.onAdding(newObject)
+
+        setSelectedRow(newObject);
+        setModalTitle("Ajouter un nouvel enregistrement");
+        setIsModalOpen(true);
+        addLog(`Ouverture de la modale en mode CRÉATION`);
+    }
 
     // suppression d'un ro
     const handleDeleteRow = (row: object) => {
-        if (events.onDeleting===undefined || events.onDeleting(row)) {
-            setRowToDelete(row)
-            setIsConfirmOpen(true)
-        }
+        if (events && events.onDeleting)
+            events.onDeleting(row)
+
+        setRowToDelete(row)
+        setIsConfirmOpen(true)
     }
 
     // Traitement à la fermeture de la modale d'édition
@@ -317,7 +138,7 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
                         setData(newData)
                         setGridVersion(prev => prev + 1);
 
-                        if (events.onAdded)
+                        if (events && events.onAdded)
                             events.onAdded(result.data.data)
                     })
 
@@ -341,7 +162,7 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
                             setData(newData);
                             setGridVersion(prev => prev + 1);
 
-                            if (events.onModified)
+                            if (events && events.onModified)
                                 events.onModified(updatedObject)
                         })
                 }
@@ -366,7 +187,7 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
                     setData(newData);
                     setGridVersion(prev => prev + 1);
 
-                    if (events.onDeleted)
+                    if (events && events.onDeleted)
                         events.onDeleted(objectToDelete);
                 })
         }
@@ -405,10 +226,147 @@ export const TableViewActionsMain = (props: TableViewActionsMainProps) => {
                 isOpen={isConfirmOpen}
                 title="⚠️ Confirmation de suppression"
                 initialData={rowToDelete}
-                formComponent={ConfirmDeleteForm}
+                formComponent={FormConfirmDelete}
                 onClose={handleDeleteModalClose}
             />
         </div>
     );
 };
 
+
+
+
+
+
+// switch (helper.getTypeProperty(c)) {
+//     case TypeProperty.id:
+//         break;
+//     case TypeProperty.foreignKey:
+//     case TypeProperty.enumValues:
+//         const fdrec = config && config.fieldsDefinition
+//         const fd = fdrec && fdrec[c]
+//         const sel = fd && fd.options
+//         const opt = sel && sel[0]
+//         const option = opt && opt.value
+//         res[c] = option
+//         break;
+//     case TypeProperty.date:
+//         res[c] = null
+//         break;
+//     case TypeProperty.standard:
+//         res[c] = null
+//         break;
+// }
+// const updateFieldDef = (colName: string, newFieldDef: FieldConfig) => {
+//     setConfig((lastConfig) => {
+//
+//         const newConfig: TableConfig = {
+//             ...lastConfig,
+//             fieldsDefinition: {
+//                 ...lastConfig.fieldsDefinition,
+//                 [colName]: {
+//                     ...(lastConfig.fieldsDefinition && lastConfig.fieldsDefinition[colName]),
+//                     ...newFieldDef
+//                 }
+//             }
+//         }
+//         // console.log(colName, newConfig)
+//         return newConfig
+//     })
+// }
+// const updateColDef = (colName: string, newColDef: Partial<ColumnDefinition>) => {
+//     setConfig((lastConfig) => {
+//
+//         const newConfig: TableConfig = {
+//             ...lastConfig,
+//             columnsDefinition: {
+//                 ...lastConfig.columnsDefinition,
+//                 [colName]: {
+//                     ...lastConfig.columnsDefinition[colName],
+//                     ...newColDef,
+//                 }
+//             }
+//         }
+//         // console.log(colName, newConfig)
+//         return newConfig
+//     })
+// }
+//
+// useEffect(() => {
+//     // on chercher les lists de fk et les placer dans la config
+//     // la config est complete des noms de colonnes à ce stade
+//     props.config.allColumns.forEach((c:string)=>{
+//
+//         const label: string = helper.convertToLabel(c)
+//
+//         switch (helper.getTypeProperty(c)) {
+//
+//             case TypeProperty.id : {
+//                 updateColDef(c, {
+//                     label: "#"
+//                 })
+//                 // rendre la saisie impossible
+//                 updateFieldDef(c, {
+//                     disabled: true,
+//                 })
+//                 break
+//             }
+//
+//             case  TypeProperty.date : {
+//                 updateColDef(c,{
+//                     dataType: "date",
+//                     mask: "DD-MM-YY",
+//                     label
+//                 })
+//                 updateFieldDef(c,{
+//                     type: "date",
+//                     label
+//                 })
+//                 break
+//             }
+//
+//             case TypeProperty.foreignKey : {
+//                 // fk colonne ==> on va chercher le tableau de mapping id<=>libellé
+//                 const sqlApi: ISqlApi = createSqlApi("lists")
+//
+//                 sqlApi.getById(c).then(result => {
+//                     updateFieldDef(c,{
+//                         type: "select",
+//                         options: result.data.data,
+//                         multiple: false,
+//                         label
+//                     })
+//                     updateColDef(c,{
+//                         label
+//                     })
+//                 })
+//                 break;
+//             }
+//
+//             case TypeProperty.enumValues:
+//                 const sqlApi: ISqlApi = createSqlApi("enums")
+//
+//                 sqlApi.getById(c).then(result => {
+//                     updateFieldDef(c,{
+//                         type: "select",
+//                         options: result.data.data,
+//                         multiple: false,
+//                         label
+//                     })
+//                     updateColDef(c,{
+//                         label
+//                     })
+//                 })
+//                 break
+//
+//             case TypeProperty.standard :
+//                 updateColDef(c,{
+//                     label
+//                 })
+//                 updateFieldDef(c,{
+//                     label
+//                 })
+//                 break
+//         }
+//     })
+// },[])

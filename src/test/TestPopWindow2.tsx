@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {PopupV1} from "../../components/containers/PopupV1";
+import {PopupV1} from "../components/containers/PopupV1";
 
 export const TestPopWindow2 = () => {
     const [value, setValue] = useState("ok")

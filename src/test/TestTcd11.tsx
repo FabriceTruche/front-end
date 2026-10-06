@@ -1,7 +1,7 @@
-import {GenColumn, helper} from "../../common/Helper";
-import {TcdConfig} from "../../widgets/Tcd/TcdConfig";
-import {functionsGroup} from "../../widgets/Tcd/functionsGroup";
-import {TcdViewMain} from "../../widgets/Tcd/component/TcdViewMain";
+import {GenColumn, helper} from "../common/Helper";
+import {TcdConfig} from "../components/Tcd/TcdConfig";
+import {functionsGroup} from "../components/Tcd/functionsGroup";
+import {TcdViewMain} from "../components/Tcd/TcdViewMain";
 
 // GENERATE DATA
 const maxRowCount = 200
@@ -51,19 +51,21 @@ const config: TcdConfig = {
     sorts: {},
     options: {
         facture: {
+            dbType: "number",
             hasTotal: true,
         },
         annee: {
+            dbType: "number",
             hasTotal: true
         },
         code: {
-            dataType: "number",
+            dbType: "number",
             precision: 1,
         }
     }
 }
 
-export const Tcd11=()=> {
+export const TestTcd11=()=> {
     return (
         <TcdViewMain
             config={config}

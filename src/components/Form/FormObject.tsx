@@ -1,17 +1,11 @@
 import React from 'react';
 import * as Field from './FormComponents';
-
-export type FormObjectFieldType =
-    | 'text' | 'password' | 'email' | 'url' | 'tel' |  'textarea'
-    | 'number' | 'range'
-    | 'date' | 'datetime' | 'time' | 'month'
-    | 'checkbox'
-    | 'datalist' | 'select';
+import {UiType} from "../../common/SharedFrontBack";
 
 export interface FieldConfig {
     label?: string;
-    type?: FormObjectFieldType;
-    decimals?: number;
+    uiType?: UiType;
+    precisions?: number;
     min?: number;
     max?: number;
     step?: number;
@@ -41,7 +35,7 @@ export const FormObject = <T extends Record<string, any>>({ data, config = {}, o
                         const fieldConfig: FieldConfig = config[key] || {};
                         const label = fieldConfig.label || key.charAt(0).toUpperCase() + key.slice(1);
 
-                        let uiType: FormObjectFieldType = fieldConfig.type || 'text';
+                        let uiType: UiType = fieldConfig.uiType || 'text';
                         // if (!fieldConfig.type) {
                         //     if (typeof currentValue === "number") uiType = 'number';
                         //     else if (typeof currentValue === 'boolean') uiType = 'checkbox';
@@ -62,7 +56,7 @@ export const FormObject = <T extends Record<string, any>>({ data, config = {}, o
                                                             onChange={(v) => setValue(key, v as any)}/>;
                             case 'number':
                                 return <Field.NumberInput key={key} label={label} value={Number(currentValue)}
-                                                          decimals={fieldConfig.decimals ?? (Number.isInteger(currentValue) ? 0 : 2)}
+                                                          decimals={fieldConfig.precisions ?? (Number.isInteger(currentValue) ? 0 : 2)}
                                                           min={fieldConfig.min} max={fieldConfig.max}
                                                           disabled={fieldConfig.disabled}
                                                           onChange={(v) => setValue(key, v as any)}/>;

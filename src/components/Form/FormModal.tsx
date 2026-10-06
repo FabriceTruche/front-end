@@ -1,7 +1,7 @@
 import React from 'react';
-import {FieldConfig} from "./FormObject";
+// import {FieldConfig} from "./FormObject";
 
-interface FormModalProps<T> {
+interface FormModalProps<T,TConfig> {
     isOpen: boolean;
     title?: string;
     initialData: T;
@@ -11,20 +11,20 @@ interface FormModalProps<T> {
     formComponent: React.ComponentType<{
         data: T;
         onSubmit: (updatedData: T) => void;
-        config?: any;
+        config?: TConfig;
     }>;
-    formConfig?: FieldConfig; // Permet de passer la configuration (optionnelle) au formulaire
+    formConfig?: TConfig; // Permet de passer la configuration (optionnelle) au formulaire
     onClose: (result: T | null) => void; // Retourne l'objet modifié, ou null si annulation
 }
 
-export const FormModal = <T extends Record<string, any>>({
+export const FormModal = <T extends Record<string, any>, TConfig>({
                                                              isOpen,
                                                              title = "Édition",
                                                              initialData,
                                                              formComponent: Form,
                                                              formConfig,
                                                              onClose
-                                                         }: FormModalProps<T>) => {
+                                                         }: FormModalProps<T,TConfig>) => {
 
     if (!isOpen) return null;
 

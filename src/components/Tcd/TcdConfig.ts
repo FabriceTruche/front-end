@@ -1,5 +1,5 @@
 import {FuncObject} from "./functionsGroup";
-import {ColumnDefinition, SortOrder} from "../common/ColumnDefinition";
+import {ColumnDefinition, SortOrder} from "../common/Column";
 
 /** État de configuration complet */
 export type TcdConfig = {

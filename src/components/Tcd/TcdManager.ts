@@ -1,7 +1,7 @@
 import {createField, IField} from "./Field";
 import {IMeasure, createMeasure} from "./Measure";
 import {createMeasureValue, IMeasureValue} from "./MeasureValue";
-import {createColumn, createColumns, IColumn} from "../common/Column";
+import {createColumn, createColumnsFromObject, IColumn} from "../common/Column";
 import {TcdConfig} from "./TcdConfig";
 import {FuncObject} from "./functionsGroup";
 
@@ -266,14 +266,17 @@ export class _TcdManager<T> implements ITcdManager<T> {
      * @param data
      * @param config
      */
-    public buildTcd(data: T[], config: TcdConfig): void { //rowsAxis: string[], colsAxis: string[], measures: (IMeasure|null)[]): void {
+    public buildTcd(data: T[], config: TcdConfig): void {
 
         // data
         this.reset()
         this._data = [...data]
 
+        if (data.length===0)
+            throw new Error("aucune données pour initialiser les colonnesautomatiquement")
+
         // création des colonnes à partir des data
-        this._columns = [...createColumns(data, config.options)]
+        this._columns = [...createColumnsFromObject(data[0])]
 
         // définition des axes en ligne et en colonne à partir de la confi
         this.assignAxes(this._rowsAxis, config.rows)

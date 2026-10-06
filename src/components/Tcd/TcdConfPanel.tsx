@@ -1,9 +1,9 @@
 import React, { useState, DragEvent, FC, ReactElement } from 'react';
 import { Zone } from "./Zone";
 import './tcdConfStyles.css';
-import {TcdConfig} from "../TcdConfig";
-import {FuncObject} from "../functionsGroup";
-import {SortOrder} from "../../common/ColumnDefinition";
+import {TcdConfig} from "./TcdConfig";
+import {FuncObject} from "./functionsGroup";
+import {SortOrder} from "../common/Column";
 
 interface TcdConfPanelProps {
     // allColumns: string[];

@@ -1,6 +1,6 @@
 import {useState} from "react";
-import {PopupList} from "../../components/PopupList";
-import {helper} from "../../common/Helper";
+import {PopupList} from "../components/PopupList";
+import {helper} from "../common/Helper";
 
 const items: string[] = helper.genWordsArray()
 

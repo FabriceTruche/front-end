@@ -1,5 +1,5 @@
 import {IColumn} from "./Column";
-import {SelectOption} from "../../containers/Form/FormComponents";
+import {SelectOption} from "../Form/FormComponents";
 
 export interface IFormatService {
     formatValue<T extends {value: any, column: IColumn}>(cell: T): string;
@@ -63,47 +63,64 @@ export class _FormatService implements IFormatService {
     }
 
     /**
+     *
+     * @param value
+     * @private
+     */
+    private static getCurrencyFormat(value: any): string {
+        return _FormatService.getNumberFormatter(2).format(value) + " €";
+    }
+
+
+    /**
      * Implémentation de ICellFormatter
      */
     public formatValue<T extends {value: any, column: IColumn}>(cell: T): string {
         const { value, column } = cell;
 
         if (value === null) return "";
-        if (!column.format) return String(value);
+        // if (!column.format) return String(value);
 
-        switch (column.format.type) {
+        // vérifier s'il existe une list de valeur a subsituer
+        if (column.option) {
+            // présence d'une liste
+            const labelValue: SelectOption|undefined = column.option.find(item => item.value === value)
+
+            return labelValue ? labelValue.label : value
+        }
+
+        switch (column.dbType) {
             case 'number':
-                return _FormatService.getNumberFormatter(column.format.precision ?? 0).format(value);
 
-            case 'currency':
-                // Utilisation d'un cache pour currency (toujours 2 décimales en général)
-                return _FormatService.getNumberFormatter(2).format(value) + " €";
+                if (column.mask==='currency')
+                    return _FormatService.getCurrencyFormat(value)
+
+                return _FormatService.getNumberFormatter(column.precision ?? 0).format(value);
 
             case 'date':
                 const d = value instanceof Date ? value : new Date(value);
                 if (isNaN(d.getTime())) return String(value);
 
-                const mask = column.format.mask || "DD/MM/YYYY";
+                const mask = column.mask || "DD/MM/YYYY";
                 return _FormatService.getDateFormatByMask(mask).format(d);
 
             case 'boolean':
                 return (value === true || String(value).toLowerCase() === 'true') ? "☑" : "☐";
 
-            case 'text':
+            case 'string':
             default:
-
-                // vérifier s'il existe une list de valeur a subsituer
-                if (column.format.list) {
-                    // présence d'une liste
-                    const labelValue: SelectOption|undefined = column.format.list.find(item => item.value === value)
-
-                    return labelValue ? labelValue.label : value
-                }
-
                 return String(value)
         }
     }
 }
 
 export const formatterService: IFormatService = new _FormatService();
+
+
+
+
+// case 'currency':
+//     // Utilisation d'un cache pour currency (toujours 2 décimales en général)
+//     return _FormatService.getNumberFormatter(2).format(value) + " €";
+//
 

@@ -1,7 +1,7 @@
-import {Menu, MenuItem} from "../../widgets/Menu/Menu";
+import {Menu, MenuItem} from "../components/Menu";
 import React from "react";
 
-export const mxMenu: MenuItem[] = [
+export const testMxMenu: MenuItem[] = [
 
     {
         image: "business_center", label: "Actifs", content: [
@@ -56,4 +56,4 @@ export const mxMenu: MenuItem[] = [
     },
 ]
 
-export const MxMenu = () => <Menu items={mxMenu}/>
+export const MxMenu = () => <Menu items={testMxMenu}/>

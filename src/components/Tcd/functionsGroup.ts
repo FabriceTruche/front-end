@@ -29,22 +29,3 @@ export const functionsGroup: GroupByFunc =
         },
     }
 
-
-
-// export interface IFuncGroup<TValue,TGroup> {
-//     name: string
-//     func: FuncType<TValue,TGroup>
-// }
-// export class _FuncGroup<TValue, TGroup> implements IFuncGroup<TValue, TGroup> {
-//
-//     private readonly _name: string
-//     private readonly _func: FuncType<TValue, TGroup>
-//
-//     constructor(name: string, funcGroup: FuncType<TValue, TGroup>) {
-//         this._name = name
-//         this._func = funcGroup
-//     }
-//
-//     public get name(): string { return this._name}
-//     public get func(): FuncType<TValue, TGroup> { return this._func }
-// }

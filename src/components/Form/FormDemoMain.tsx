@@ -3,7 +3,6 @@ import {
     FormManualDemo,
     FormObjectDemo,
 } from './FormDemo';
-import * as Field from "./FormComponents";
 
 export interface FullFeatureFormState {
     text: string; password: string; email: string; url: string; tel: string;

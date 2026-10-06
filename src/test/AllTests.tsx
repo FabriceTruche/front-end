@@ -1,16 +1,13 @@
-import {TestPopWindow3} from "./containers/TestPopWindow3";
-import {TestPopWindow4} from "./containers/TestPopWindow4";
-import {TestButtonGroup} from "./ui/TestButtonGroup";
-import {TestPopWindow2} from "./containers/TestPopWindow2";
-import {TestPopWindow1} from "./containers/TestPopWindow1";
-import {TestButtonImage} from "./ui/TestButtonImage";
-import {Page1} from "./containers/Page1";
-import {MenuItem} from "../widgets/Menu/Menu";
-import {Tcd11} from "./Tcd/Tcd11";
-import {Table1} from "./Table/Table1";
-import FormDemoMain from "../containers/Form/FormDemoMain";
-import {Table2} from "./Table/Table2";
-import {Table3} from "./Table/Table3";
+import {TestPopWindow3} from "./TestPopWindow3";
+import {TestPopWindow4} from "./TestPopWindow4";
+import {TestButtonGroup} from "./TestButtonGroup";
+import {TestPopWindow2} from "./TestPopWindow2";
+import {TestPopWindow1} from "./TestPopWindow1";
+import {TestButtonImage} from "./TestButtonImage";
+import {TestPage1} from "./TestPage1";
+import {MenuItem} from "../components/Menu";
+import {TestTcd11} from "./TestTcd11";
+import FormDemoMain from "../components/Form/FormDemoMain";
 import {Table4} from "./Table/Table4";
 
 const entities: string[] = [
@@ -43,7 +40,7 @@ const entitiesForm = ()=>entities.map((entity) => ({label: entity, content: ()=>
 export const allTests: MenuItem[] = [
     {
         label: "Containers", content: [
-            {content: Page1},
+            {content: TestPage1},
             {content: TestPopWindow1},
             {content: TestPopWindow2},
             {content: TestPopWindow3},
@@ -52,10 +49,7 @@ export const allTests: MenuItem[] = [
     },
     {
         label: "Widgets", content: [
-            {content: Tcd11 },
-            {content: Table1 },
-            {content: Table2 },
-            {content: Table3 },
+            {content: TestTcd11 },
             {content: ()=>Table4("contrat") },
         ]
     },

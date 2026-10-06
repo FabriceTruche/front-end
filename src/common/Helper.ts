@@ -1,8 +1,5 @@
-import {AnyObject, DbColumn, ResponseQuery} from "./common";
 import {CSSProperties} from "react";
-import {IColumn} from "../widgets/common/Column";
-import {ITableData} from "../widgets/common/TableData";
-import {InputType} from "../widgets/common/ColumnDefinition";
+import {IColumn} from "../components/common/Column";
 
 export type GenColumn = {
     name: string
@@ -37,10 +34,7 @@ export interface IHelper {
 
     // table/column
     // convertToTableData<T>(response:any, pred?:(c:DbColumn)=>string): ITableData<T>
-    getTypeProperty(propName: string): TypeProperty
-
-    // api / sql
-    executeQuery(sql:string): Promise<ResponseQuery>
+    // getTypeProperty(propName: string): TypeProperty
 
     // data generator
     tf(pc?:number):boolean
@@ -55,10 +49,6 @@ export interface IHelper {
     aleatDate(): Date
     rand(min: number, max: number): number
     generateData(genColumns: GenColumn[], count: number, validate?: (row:any)=>void): any[]
-    // getInputTypes(genColumns: GenColumn[]): Record<string, InputProps>
-
-    // generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[]
-    // convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): ITableData<T>
 
     // date managment
     today:Date
@@ -83,10 +73,15 @@ export interface IHelper {
     getWidthFromText(text:string, element:Element):number
     getMaxWidthFromArray(text:string[], element:Element):number
     getMaxWidthFromArrayById(text:string[], elementId:string):number
-    getMaxWidthFromCollectionById(collection:ITableData<{[strProp: string]: string}>, elementId:string, extension?:number): {[strProp: string]: number}
     mergeClassName(cls1: string|undefined, cls2: string|undefined): string|undefined
     mergeCSSProperties(style1: CSSProperties|undefined, style2: CSSProperties|undefined): CSSProperties|undefined
 
+
+    // getMaxWidthFromCollectionById(collection:ITableData<{[strProp: string]: string}>, elementId:string, extension?:number): {[strProp: string]: number}
+    // getInputTypes(genColumns: GenColumn[]): Record<string, InputProps>
+    // generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[]
+    // convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?: (c: GenColumn) => string): ITableData<T>
+    // executeQuery(sql:string): Promise<ResponseQuery>
 }
 
 class _Helper implements IHelper {
@@ -450,28 +445,28 @@ class _Helper implements IHelper {
     /*********************************************************************************************************
      * sql local database
      */
-    public async executeQuery(sql: string): Promise<ResponseQuery> {
-        return new Promise<ResponseQuery>((resolve, reject) =>
-            fetch(
-                'http://192.168.1.57:3001/api/query?_noPagine',
-                {
-                    headers: {'Accept': 'application/json'},
-                    method: "POST",
-                    body: sql
-                }).then((response) => {
-                return response.json()
-            }).then((response: any) => {
-                // console.log(response.result)
-                if (response.error === undefined)
-                    resolve(response.result)
-                else
-                    reject(response)
-            }).catch((error: any) => {
-                    reject(error)
-                }
-            )
-        )
-    }
+    // public async executeQuery(sql: string): Promise<ResponseQuery> {
+    //     return new Promise<ResponseQuery>((resolve, reject) =>
+    //         fetch(
+    //             'http://192.168.1.57:3001/api/query?_noPagine',
+    //             {
+    //                 headers: {'Accept': 'application/json'},
+    //                 method: "POST",
+    //                 body: sql
+    //             }).then((response) => {
+    //             return response.json()
+    //         }).then((response: any) => {
+    //             // console.log(response.result)
+    //             if (response.error === undefined)
+    //                 resolve(response.result)
+    //             else
+    //                 reject(response)
+    //         }).catch((error: any) => {
+    //                 reject(error)
+    //             }
+    //         )
+    //     )
+    // }
 
     /***
      * find ex
@@ -581,81 +576,9 @@ class _Helper implements IHelper {
 
     /**
      *
-     * @param genColumns
+     * @param text
+     * @param font
      */
-    // public getInputTypes(genColumns: GenColumn[]): Record<string, InputProps> {
-    //     let res: Record<string, InputProps> = {}
-    //     let it: InputType
-    //
-    //     genColumns.forEach((genCol: GenColumn) => {
-    //         switch (genCol.dataType) {
-    //             case "index":
-    //                 it = "int"
-    //                 break
-    //             case "integer":
-    //                 it = "int"
-    //                 break;
-    //             case "float":
-    //                 it = "real"
-    //                 break;
-    //             case "string":
-    //                 it = "text"
-    //                 break;
-    //             case "Date":
-    //                 it = "date"
-    //                 break;
-    //             case "boolean":
-    //                 it = "boolean"
-    //                 break;
-    //         }
-    //         res[genCol.name] = { type: it }
-    //     })
-    //     return res
-    // }
-
-    // public generateTcdColumn(genColumns: GenColumn[]): ITcdColumn[] {
-    //     const tcdColumns: ITcdColumn[] = []
-    //     let type: string = ""
-    //
-    //     genColumns.forEach((genCol: GenColumn, index:number)=>{
-    //             switch (genCol.type) {
-    //                 case "index":
-    //                     type = "number"
-    //                     break;
-    //                 case "Date":
-    //                     type = "date"
-    //                     break;
-    //                 default:
-    //                 case "integer":
-    //                 case "float":
-    //                 case "string":
-    //                 case "boolean":
-    //                     type = genCol.type
-    //                     break;
-    //             }
-    //             tcdColumns.push(createTcdColumn(genCol.name, type, genCol.total, genCol.label))
-    //         })
-    //
-    //     return tcdColumns
-    // }
-    /**
-     *
-     * @param data
-     * @param columns
-     * @param labelPred
-     */
-    // public convertToDataTable<T>(data: any[], columns: GenColumn[], labelPred?:(c:GenColumn)=>string): ITableData<T> {
-    //     // const inputData: TableData<T> = {
-    //     //     data: data,
-    //     //     columns: columns.map((c: GenColumn):Column => new Column(c.name, c.type, labelPred ? labelPred(c) : ( c.label ?? c.name )))
-    //     // }
-    //     return factory.createTableData(
-    //         data,
-    //         columns.map((c: GenColumn): IColumn => factory.createColumn(c.name, c.type, labelPred ? labelPred(c) : (c.label ?? c.name)))
-    //     )
-    // }
-
-
     private _getWidthText(text:string, font:string):number {
         if (_Helper.context===null)
             return 0
@@ -687,22 +610,22 @@ class _Helper implements IHelper {
         const font:string=this._getCanvasFont(element)
         return textArr.reduce<number>((prevValue:number,text:string)=>Math.max(prevValue,this._getWidthText(text,font)),0)
     }
-    getMaxWidthFromCollectionById(collection:ITableData<{[strProp: string]: string}>, elementId:string, extension?:number):{[strProp: string]: number} {
-        const element:Element|null=document.getElementById(elementId)
-        let res:AnyObject={}
-
-        if (element) {
-            const font: string = this._getCanvasFont(element)
-
-            collection.columns.forEach((c: IColumn) => {
-                let tableDataStr: string[] = collection.data.map((row: {[strProp: string]: string}) => row[c.name].toString() )
-                tableDataStr.push(c.label)
-                res[c.name] = Math.ceil(this.getMaxWidthFromArray(tableDataStr, element) + (extension===undefined?0:extension)) + "px"
-            })
-        }
-
-        return res
-    }
+    // getMaxWidthFromCollectionById(collection:ITableData<{[strProp: string]: string}>, elementId:string, extension?:number):{[strProp: string]: number} {
+    //     const element:Element|null=document.getElementById(elementId)
+    //     let res:any={}
+    //
+    //     if (element) {
+    //         const font: string = this._getCanvasFont(element)
+    //
+    //         collection.columns.forEach((c: IColumn) => {
+    //             let tableDataStr: string[] = collection.data.map((row: {[strProp: string]: string}) => row[c.name].toString() )
+    //             tableDataStr.push(c.label)
+    //             res[c.name] = Math.ceil(this.getMaxWidthFromArray(tableDataStr, element) + (extension===undefined?0:extension)) + "px"
+    //         })
+    //     }
+    //
+    //     return res
+    // }
     getCssStyle(prop:string,element:Element):string {
         return window.getComputedStyle(element, null).getPropertyValue(prop);
     }
@@ -788,13 +711,13 @@ class _Helper implements IHelper {
         })
     }
 
-    getTypeProperty(propName: string): TypeProperty {
-        if (propName.endsWith('_ID')) return TypeProperty.foreignKey
-        if (propName.startsWith('type')) return TypeProperty.enumValues
-        if (propName.startsWith('Date')) return TypeProperty.date
-        if (propName==="ID") return TypeProperty.id
-        return TypeProperty.standard
-    }
+    // getTypeProperty(propName: string): TypeProperty {
+    //     if (propName.endsWith('_ID')) return TypeProperty.foreignKey
+    //     if (propName.startsWith('type')) return TypeProperty.enumValues
+    //     if (propName.startsWith('Date')) return TypeProperty.date
+    //     if (propName==="ID") return TypeProperty.id
+    //     return TypeProperty.standard
+    // }
 
     /**
      * Transforme une chaîne selon les règles :

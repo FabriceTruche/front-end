@@ -1,4 +1,4 @@
-import {PopupV1} from "../../components/containers/PopupV1";
+import {PopupV1} from "../components/containers/PopupV1";
 
 export const TestPopWindow1 = () => {
     return (

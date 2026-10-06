@@ -1,6 +1,6 @@
-import {Page} from "../../components/containers/Page";
+import {Page} from "../components/containers/Page";
 
-export const Page1 = ()=> {
+export const TestPage1 = ()=> {
     return (
         <Page>
             <pre

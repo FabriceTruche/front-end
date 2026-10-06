@@ -23,11 +23,17 @@ class _StyleService implements IStyleRulesManager {
 
         // Règle d'alignement par type
         this.registerRule('AutoAlignment', (cell: ICell) => {
-            const type = cell.column.format?.type;
+            const dbType = cell.column.dbType;
+            const uiType = cell.column.uiType;
 
-            switch (type) {
+            // liste de substitution alignée à droite
+            if ((uiType === 'select') || (uiType === 'datalist')) {
+                return { textAlign: 'left' };
+            }
+
+            switch (dbType) {
                 case 'number':
-                case 'currency':
+                // case 'currency':
                     return { textAlign: 'right' };
 
                 case 'boolean':
@@ -36,12 +42,13 @@ class _StyleService implements IStyleRulesManager {
                 case 'date':
                     return { textAlign: 'center' };
 
-                case 'text':
+                case 'string':
                 default:
                     // Pour le texte ou les types non spécifiés, on peut forcer à gauche
                     // ou retourner null pour laisser le style par défaut
                     return { textAlign: 'left' };
             }
+
         });
 
         // Règle pour les valeurs négatives

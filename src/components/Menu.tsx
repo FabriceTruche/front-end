@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import {Buttons} from "../../ui/Buttons";
-import {Button} from "../../ui/Button";
-import {Page} from "../../containers/Page/Page";
-import {helper} from "../../common/Helper";
+import {Buttons} from "./Buttons";
+import {Button} from "./Button";
+import {Page} from "./containers/Page";
+import {helper} from "../common/Helper";
 
 
 export type MenuItem = {

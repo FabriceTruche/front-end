@@ -1,6 +1,6 @@
 import * as React from 'react'
-import {Button} from "../../ui/Button";
-import {Buttons} from "../../ui/Buttons";
+import {Button} from "../components/Button";
+import {Buttons} from "../components/Buttons";
 
 export type TestButtonGroupProps = {}
 export const TestButtonGroup = (props: TestButtonGroupProps) => {

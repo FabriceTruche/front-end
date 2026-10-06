@@ -1,6 +1,7 @@
 // components/ApiLoader.tsx
 import React, {useState, useEffect, JSX} from 'react';
-import {createSqlApi, ISqlApi, MetaData} from "../../model/Api";
+import {createSqlApi, ISqlApi} from "../api/Api";
+import {MetaData} from "../common/SharedFrontBack";
 
 export interface ApiResponse<TData = any, TConfig = any> {
     data: TData[];
@@ -16,7 +17,7 @@ export interface GenericTableLoaderProps<TData = any, TMetadata = any> {
     loadingMessage?: string;
 }
 
-export const ApiLoader = <TData = any, TMetadata = MetaData>({
+export const  ApiLoader = <TData = any, TMetadata = MetaData>({
                                                           entity,
                                                           children,
                                                           loadingMessage = "Chargement...",
@@ -26,24 +27,22 @@ export const ApiLoader = <TData = any, TMetadata = MetaData>({
     const [payload, setPayload] = useState<ApiResponse<TData, TMetadata> | null>(null);
 
     useEffect( () => {
-        const fecthData = async () => {
-            try {
-                // nom de l'entity en position 2
-                const api: ISqlApi = createSqlApi(entity)
 
-                setLoading(true);
-                const response = await api.getAll()
-                // console.log(2, response);
+        // nom de l'entity en position 2
+        const api: ISqlApi = createSqlApi(entity)
 
+        setLoading(true);
+        api.getAll()
+            .then(response => {
                 setPayload(response.data);
-            } catch (err: any) {
-                setError(err.message || "Erreur de chargement");
-            } finally {
+            })
+            .catch((error: any) => {
+                setError(error.message || "Erreur de chargement");
+            })
+            .finally(() => {
                 setLoading(false);
-            }
-        }
+            })
 
-        fecthData();
     }, [entity])
 
     if (loading) return <div>{loadingMessage}</div>
@@ -88,3 +87,21 @@ export const ApiLoader = <TData = any, TMetadata = MetaData>({
 
 // const result: ApiResponse<TData, TConfig> = await response.json();
 // console.log(1,rawText);
+// const fecthData = async () => {
+//     try {
+//         // nom de l'entity en position 2
+//         const api: ISqlApi = createSqlApi(entity)
+//
+//         setLoading(true);
+//         const response = await api.getAll()
+//         // console.log(2, response);
+//
+//         setPayload(response.data);
+//     } catch (err: any) {
+//         setError(err.message || "Erreur de chargement");
+//     } finally {
+//         setLoading(false);
+//     }
+// }
+//
+// fecthData();

@@ -1,5 +1,5 @@
 import React, { useState, FC } from 'react';
-import {FuncObject, functionsGroup} from "../functionsGroup";
+import {FuncObject, functionsGroup} from "./functionsGroup";
 
 interface GroupByFuncProps {
     currentFunc: FuncObject;

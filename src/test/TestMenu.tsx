@@ -1,4 +1,4 @@
-import {Menu, MenuItem} from "../../widgets/Menu/Menu";
+import {Menu, MenuItem} from "../components/Menu";
 import React from "react";
 
 export const myMenu: MenuItem[] = [

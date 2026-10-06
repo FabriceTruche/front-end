@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import "./tcdViewStyles.css"
-import { GridView } from "../../common/GridView";
-import {createTcdManager, ITcdManager} from "../TcdManager";
-import { createTcdViewManager, ITcdViewManager } from "../TcdViewManager";
+import { GridView } from "../common/GridView";
+import {createTcdManager, ITcdManager} from "./TcdManager";
+import { createTcdViewManager, ITcdViewManager } from "./TcdViewManager";
 import { TcdConfPanel } from "./TcdConfPanel";
-import {TcdConfig} from "../TcdConfig";
-import {ICell} from "../../common/Cell";
+import {TcdConfig} from "./TcdConfig";
+import {ICell} from "../common/Cell";
 
 export type TcdViewMainProps = {
     data: any[]

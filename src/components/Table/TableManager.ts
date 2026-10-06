@@ -1,8 +1,5 @@
  import { TableConfig } from "./TableConfig";
-import { createColumn, IColumn } from "../common/Column";
-import { KeyOf } from "../Tcd/TcdManager";
-import { SortOrder } from "../common/ColumnDefinition";
- import {SelectOption} from "../../containers/Form/FormComponents";
+import {createColumn, IColumn, SortOrder} from "../common/Column";
 
 export interface ITableManager<T = any> {
     initialData: T[];
@@ -53,13 +50,12 @@ export class _TableManager<T> implements ITableManager<T> {
         this._data = [...data];
 
         this._allColumns = [];
-        config.allColumns.forEach(column => {
+        config.allColumns.forEach(colName => {
             const col: IColumn = createColumn(
-                column,
-                null,
+                colName,
                 60,
-                config.columnsDefinition[column],
-                config.fieldsDefinition && config.fieldsDefinition[column]
+                config.columnsDefinition[colName],
+                config.fieldsDefinition && config.fieldsDefinition[colName]
             );
             this._allColumns.push(col);
         });

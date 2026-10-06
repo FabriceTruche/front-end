@@ -1,97 +1,106 @@
 import { CSSProperties } from 'react';
-import {ColumnDataType, ColumnDefinition} from "./ColumnDefinition";
-import {SelectOption} from "../../containers/Form/FormComponents";
-import {FieldConfig} from "../../containers/Form/FormObject";
+import {SelectOption} from "../Form/FormComponents";
+import {FieldConfig} from "../Form/FormObject";
+import {DbType, UiType} from "../../common/SharedFrontBack";
 
-export interface IColumnFormat {
-    type: ColumnDataType;
-    precision?: number;
-    mask?: string;
-    list?: SelectOption[]
+// Types pour le tri
+export type SortOrder = 'ASC' | 'DESC' | null
+
+// définition des propriétés de base d'une  colonne
+export type ColumnDefinition = {
+    dbType: DbType
+    precision?: number
+    mask?: string
+    hasTotal?: boolean
+    label?: string
+}
+
+// définition minimale d'une colonne
+export const defaultColDef: ColumnDefinition = {
+    dbType: "string"
 }
 
 export interface IColumn {
-    name: string;
-    label: string;
-    width: number;
-    total: boolean;
-    format?: IColumnFormat;
-    defaultStyle?: CSSProperties;
+    name: string
+    label: string
+    dbType: DbType
+    uiType: UiType
+    width: number
+    total: boolean
+    defaultStyle?: CSSProperties
+    option?: SelectOption[]
+    precision?: number
+    mask?: string
+
+    initFromObject(object: any): void
 }
 
 export class _Column implements IColumn {
     public readonly name: string;
-    public readonly label: string;
-    public readonly width: number;
-    public readonly total: boolean;
-    public readonly format?: IColumnFormat;
-    public readonly defaultStyle?: CSSProperties;
-    // public readonly list?:FieldConfig
+    public label: string;
+    public width: number;
+    public total: boolean;
+    public dbType: DbType;
+    public uiType: UiType;
+    public precision?: number;
+    public mask?: string;
+    public option?: SelectOption[]
+    public defaultStyle?: CSSProperties;
 
     constructor(
         name: string,
-        value: any|null,
         width: number,
-        options: ColumnDefinition|undefined,
+        colDef: ColumnDefinition,
         fieldConfig: FieldConfig|undefined,
     ) {
-        let colOption: ColumnDefinition = {}
-
-        // valeurs par défaut si un objet est passé
-        if (value !== null) {
-            switch (typeof value) {
-                case "object":
-                    if (value instanceof Date) {
-                        colOption.dataType = "date"
-                        colOption.mask = "DD/MM/YYYY"
-                    } else {
-                        colOption.dataType = "text"
-                    }
-                    break;
-                case "boolean":
-                    colOption.dataType = "boolean"
-                    break;
-                case "number":
-                    colOption.dataType = "number"
-                    colOption.precision = (value.toString().search(/\./) > 0) ? 2 : 0
-                    break;
-                case "string":
-                    colOption.dataType = "text"
-                    break;
-                case "function":
-                case "symbol":
-                case "bigint":
-                case "undefined":
-                    throw new Error(`Type de colonne non pris en charge (${typeof value})`)
-            }
-        }
-
-        // merge des valeurs par défaut calculées à partir des data avec la config
-        if (options!==undefined)
-            colOption = this.merge(colOption, options)
-
-
-
         this.name = name;
-        this.label = colOption.label || name
+        this.label = colDef.label || name
         this.width = width;
-        this.format = {type: colOption.dataType as ColumnDataType, mask: colOption.mask, precision: colOption.precision, list: fieldConfig?.options};
+        this.dbType = colDef.dbType
+        this.uiType = fieldConfig?.uiType || 'text'
+        this.precision = colDef.precision
+        this.mask = colDef.mask
+        this.option = fieldConfig?.options
         this.defaultStyle = {};
-        this.total = (colOption.hasTotal!==undefined) && colOption.hasTotal
+        this.total = (colDef.hasTotal!==undefined) && colDef.hasTotal
     }
 
     /**
-     * Fusionne deux objets en ignorant les propriétés 'undefined' du second.
-     * @param {Object} target - L'objet de base (priorité basse)
-     * @param {Object} source - L'objet à appliquer (priorité haute, sauf undefined)
+     *
+     * @param object
      */
-    private merge(target: any, source: any) {
-        const cleanedSource = Object.fromEntries(
-            Object.entries(source).filter(([_, value]) => value !== undefined)
-        );
+    public initFromObject(object: any): void {
 
-        return { ...target, ...cleanedSource };
-    };
+        // valeurs par défaut si un objet est passé
+        if (object === undefined)
+            return
+
+        switch (typeof object) {
+            case "object":
+                if (object instanceof Date) {
+                    this.dbType = "date"
+                    this.mask = "DD/MM/YYYY"
+                } else {
+                    this.dbType = "string"
+                }
+                break;
+            case "boolean":
+                this.dbType = "boolean"
+                break;
+            case "number":
+                this.dbType = "number"
+                this.precision = (object.toString().search(/\./) > 0) ? 2 : 0
+                break;
+            case "string":
+                this.dbType = "string"
+                break;
+            case "function":
+            case "symbol":
+            case "bigint":
+            case "undefined":
+                throw new Error(`Type de colonne non pris en charge (${typeof object})`)
+        }
+    }
 }
 
 /**
@@ -99,29 +108,44 @@ export class _Column implements IColumn {
  */
 export const createColumn = (
     name: string,
-    value: any|null = null,
     width: number = 100,
-    options: ColumnDefinition = {},
+    colDef: ColumnDefinition = defaultColDef,
     fieldConfig: FieldConfig = {}
 ): IColumn => {
 
-    return new _Column(name, value, width, options, fieldConfig)
+    return new _Column(name, width, colDef, fieldConfig)
 }
 
 /**
  *
- * @param data
- * @param configOptions
+ * @param object
  */
-export const createColumns = <T,> (
-    data: T[],
-    configOptions: Record<string, ColumnDefinition>
+export const createColumnsFromObject = <T,> (
+    object: any,
 ): IColumn[] => {
 
-    if (data.length===0)
-        return []
-
-    const object: any = data[0]
-
-    return Object.keys(object).map((key: string) => createColumn(key,object,100,configOptions[key]))
+    return Object.keys(object).map((key: string) => {
+        const colDef:IColumn = createColumn(key)
+        colDef.initFromObject(object[key])
+        return colDef
+    })
 }
+
+
+
+
+
+
+
+/**
+ * Fusionne deux objets en ignorant les propriétés 'undefined' du second.
+ * @param {Object} target - L'objet de base (priorité basse)
+ * @param {Object} source - L'objet à appliquer (priorité haute, sauf undefined)
+ */
+// private merge(target: any, source: any) {
+//     const cleanedSource = Object.fromEntries(
+//         Object.entries(source).filter(([_, value]) => value !== undefined)
+//     );
+//
+//     return { ...target, ...cleanedSource };
+// };

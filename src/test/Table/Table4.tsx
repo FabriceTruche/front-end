@@ -1,43 +1,36 @@
-// components/Table4.tsx
 import React from 'react';
-import {createConfigFromMetadata, TableConfig} from "../../widgets/Table/TableConfig";
-import {EventManager, TableViewActionsMain} from "../../widgets/Table/component/TableViewActionsMain";
-import "../../containers/Form/form-modal.css";
-import {ApiLoader} from "../../widgets/common/ApiLoader";
-import {MetaData} from "../../model/Api";
+import {EventManager, TableViewActionsMain} from "../../components/Table/TableViewActionsMain";
+import {useTableLoader} from "../../components/Table/useTableLoader";
 
 // const entityName = "contrat"
 // const columns: string[] = ["ID","Nom","DateEntree","DateSortie","Locataire_ID","typeContrat","LotEnLocation_ID"]
-const events : EventManager = {
-    getNewObject: (row: any) => {
-        // date d'entrée & date d'entrée prévi init au jour
-        // row["DateEntree"]=new Date()
-        // row["DateEntreePrevue"]=new Date()
-    }
-}
+// const events : EventManager = {
+//     getNewObject: (row: any) => {
+//         // date d'entrée & date d'entrée prévi init au jour
+//         // row["DateEntree"]=new Date()
+//         // row["DateEntreePrevue"]=new Date()
+//     }
+// }
 
 export const Table4 = (entityName:string) => {
-    return (
-        <ApiLoader<any, MetaData> entity={entityName}>
-            {(data, metadata) => {
-                // Construction de la configuration de la table spécifique à ce composant si besoin
-                const tc: TableConfig = createConfigFromMetadata(metadata)
-                // tc.columns = columns;
+    const { data, config, loading, error } = useTableLoader(entityName);
 
-                return (
-                    <div>
-                        <TableViewActionsMain
-                            title={`Liste des ${entityName}s`}
-                            entity={entityName}
-                            initialData={data}
-                            config={tc}
-                            canDeleteRow={true}
-                            events={events}
-                        />
-                    </div>
-                );
-            }}
-        </ApiLoader>
+    if (loading) return <div>Chargement...</div>;
+    if (error) return <div>Erreur : {error}</div>;
+    if (!config) return null;
+
+    // Tout est prêt, synchrone et propre !
+    return (
+        <div>
+            <TableViewActionsMain
+                title={`Liste des ${entityName}s`}
+                entity={entityName}
+                initialData={data}
+                config={config}
+                canDeleteRow={true}
+                // events={events}
+            />
+        </div>
     );
 };
 
@@ -104,4 +97,29 @@ export const Table4 = (entityName:string) => {
  *     onDeleted: (row: any) => {
  *         console.log("onDeleted",row)
  *     },
- */
+//  */
+//
+//
+//
+// return (
+//     <ApiLoader<any, MetaData> entity={entityName}>
+//         {(data, metadata) => {
+//             // Construction de la configuration de la table spécifique à ce composant si besoin
+//             const tc: TableConfig = await createConfigFromMetadata(metadata)
+//             // tc.columns = columns;
+//
+//             return (
+//                 <div>
+//                     <TableViewActionsMain
+//                         title={`Liste des ${entityName}s`}
+//                         entity={entityName}
+//                         initialData={data}
+//                         config={tc}
+//                         canDeleteRow={true}
+//                         events={events}
+//                     />
+//                 </div>
+//             );
+//         }}
+//     </ApiLoader>
+// );

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {ReactElement, useState} from "react"
-import {SimpleList} from "../../ui/SimpleList";
-import {PopupV2} from "../../containers/Popup/PopupV2";
+import {SimpleList} from "./SimpleList";
+import {PopupV2} from "./containers/PopupV2";
 
 // Component name : PopupList
 // Creation date : 20/12/2024 - 11:32
