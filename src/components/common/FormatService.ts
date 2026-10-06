@@ -101,7 +101,10 @@ export class _FormatService implements IFormatService {
                 const d = value instanceof Date ? value : new Date(value);
                 if (isNaN(d.getTime())) return String(value);
 
-                const mask = column.mask || "DD/MM/YYYY";
+                const mask = (column.uiType==='month') ? "MMMM/YYYY" :
+                        ((column.uiType==='datetime') ? "DD/MM/YY HH:mm:ss" :
+                        "DD/MM/YYYY")
+
                 return _FormatService.getDateFormatByMask(mask).format(d);
 
             case 'boolean':

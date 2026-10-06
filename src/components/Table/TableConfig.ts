@@ -55,11 +55,14 @@ export async function createConfigFromMetadata(md: MetaData): Promise<TableConfi
         if (keyMetadata.isCurrency) {
             cd[key].dbType = 'number'
             cd[key].mask = 'currency'
+            cd[key].precision = 2
+            fd[key].precisions = 2
         }
 
         if (keyMetadata.isReal) {
             cd[key].dbType = 'number'
             cd[key].precision = 2
+            fd[key].precisions = 2
         }
 
         if (keyMetadata.dbType == "date") {
