@@ -4,6 +4,9 @@ import {createTableManager, ITableManager} from "./TableManager";
 import {createTableViewManager, ITableViewManager} from "./TableViewManager";
 import {ICell, TypeCell} from "../common/Cell";
 import {GridView} from "../common/GridView";
+import {TableFilterBar} from "./TableFilterBar";
+import {Button} from "../Button";
+import {Buttons} from "../Buttons";
 
 export type TableViewMainProps = {
     initialData: any[]
@@ -19,6 +22,8 @@ export type TableViewMainProps = {
 
 export const TableViewMain = (props: TableViewMainProps) => {
     const [data, setData] = useState(props.initialData);
+    const [filters, setFilters] = useState<Record<string, any>>({});
+    const [showFilters, setShowFilters] = useState(false);
 
     // 1. Model
     const tm: ITableManager = useMemo(() => {
@@ -38,7 +43,7 @@ export const TableViewMain = (props: TableViewMainProps) => {
     // 2. Objet de configuration centralisé
     const gridConfig = {
         rowHeight: 26,
-        gridHeight: 600,
+        gridHeight: 500,
         stickyCols: 2,
         stickyRightCols: 0,
         stickyRows: 1,
@@ -56,28 +61,23 @@ export const TableViewMain = (props: TableViewMainProps) => {
 
             {/* Barre d'actions au-dessus de la grille */}
             <div style={{ marginBottom: "12px", display: "flex", justifyContent: "flex-start" }}>
-                <button
-                    onClick={() => props.onAdd && props.onAdd()}
-                    style={{
-                        backgroundColor: "#00b894",
-                        color: "#fff",
-                        border: "none",
-                        padding: "10px 20px",
-                        borderRadius: "6px",
-                        fontSize: "10px",
-                        fontWeight: "bold",
-                        cursor: "pointer",
-                        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-                        transition: "background-color 0.2s"
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#00a884"}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00b894"}
-                >
-                    ➕
-                </button>
+                <Buttons saveState={false}>
+                    <Button
+                        onClick={() => props.onAdd && props.onAdd()}
+                    >
+                        Add
+                    </Button>
+                    <Button
+                        onClick={()=>setShowFilters((f: boolean)=>!f)}
+                    >
+                        Filters
+                    </Button>
+                </Buttons>
+
             </div>
 
             <main className="grid-wrapper">
+
                 <GridView
                     cells={cells}
                     columnsWidth={tv.columnsWidth}
@@ -105,7 +105,19 @@ export const TableViewMain = (props: TableViewMainProps) => {
                         if (props.onDeleteRow)
                             props.onDeleteRow(tm.rowAt(y-1))
                     }}
-                />
+                >
+                    {showFilters && (
+                        <TableFilterBar
+                            config={props.config}
+                            columnsWidth={tv.columnsWidth}
+                            onFilterChange={(newFilters) => {
+                                setFilters(newFilters)
+                                console.log(newFilters)
+                            }}
+                        />
+                    )}
+
+                </GridView>
             </main>
 
             <footer className="app-footer">
@@ -113,3 +125,47 @@ export const TableViewMain = (props: TableViewMainProps) => {
         </div>
     );
 };
+
+
+//
+//
+//
+// {/*<button*/}
+// {/*    style={{*/}
+// {/*        backgroundColor: "#aaa",*/}
+// {/*        color: "#fff",*/}
+// {/*        border: "none",*/}
+// {/*        padding: "10px 20px",*/}
+// {/*        margin: "10px",*/}
+// {/*        borderRadius: "6px",*/}
+// {/*        fontSize: "10px",*/}
+// {/*        fontWeight: "bold",*/}
+// {/*        cursor: "pointer",*/}
+// {/*        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",*/}
+// {/*        transition: "background-color 0.2s"*/}
+// {/*    }}*/}
+// {/*    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#00a884"}*/}
+// {/*    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00b894"}*/}
+// {/*>*/}
+// {/*    Add*/}
+// {/*</button>*/}
+// {/*<button*/}
+// {/*    onClick={() => props.onAdd && props.onAdd()}*/}
+// {/*    style={{*/}
+// {/*        backgroundColor: "#aaa",*/}
+// {/*        color: "#fff",*/}
+// {/*        border: "none",*/}
+// {/*        padding: "10px 20px",*/}
+// {/*        margin: "10px",*/}
+// {/*        borderRadius: "6px",*/}
+// {/*        fontSize: "10px",*/}
+// {/*        fontWeight: "bold",*/}
+// {/*        cursor: "pointer",*/}
+// {/*        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",*/}
+// {/*        transition: "background-color 0.2s"*/}
+// {/*    }}*/}
+// {/*    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#00a884"}*/}
+// {/*    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#00b894"}*/}
+// {/*>*/}
+// {/*    Filters*/}
+// {/*</button>*/}

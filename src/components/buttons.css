@@ -18,7 +18,7 @@
     border-left: transparent 0 solid;
 }
 .xbg-button:has(+ .xbg-button-selected) {
-    border-right : rgba(128, 128, 128, 32%) var(--border-size) solid;
+    border-right : rgb(0, 0, 0) var(--border-size) solid;
 }
 .xbg-button:has(+ .xbg-button:hover) {
     border-right: transparent 0 solid;
@@ -31,7 +31,7 @@
     /*background: rgba(211, 211, 211, 10%);*/
 }
 .xbg-button-selected {
-    border-color: rgba(128, 128, 128, 32%);
+    border-color: rgb(0, 0, 0);
     /*background: rgba(244, 244, 244, 0.44);*/
     /*color: #fdf6fd;*/
 }

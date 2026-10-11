@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, {useEffect, useMemo, useRef, useState, useCallback, useLayoutEffect} from 'react';
 import GridRowVirtual from './GridRowVirtual';
 import { ICell } from "./Cell";
 
@@ -15,25 +15,41 @@ interface GridViewProps {
     canDeleteRow?: boolean;
     onClick?: (cell: ICell) => void
     onDeleteButtonClick?: (y: number) => void
+    children?: React.ReactNode
 }
 
 export const GridView = ({
-                             cells,
-                             columnsWidth,
-                             rowHeight,
-                             height,
-                             stickyCols,
-                             stickyRightCols,
-                             stickyRows,
-                             stickyFooterRows,
-                             onDeleteButtonClick,
-                             gap = 0,
-                             onClick = undefined,
-                             canDeleteRow = false,
-                         }: GridViewProps) => {
+     cells,
+     columnsWidth,
+     rowHeight,
+     height,
+     stickyCols,
+     stickyRightCols,
+     stickyRows,
+     stickyFooterRows,
+     onDeleteButtonClick,
+     gap = 0,
+     onClick = undefined,
+     canDeleteRow = false,
+     children
+}: GridViewProps) => {
+
+    const childrenRef = useRef<HTMLDivElement>(null);
+    const [childrenHeight, setChildrenHeight] = useState(0);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [containerWidth, setContainerWidth] = useState(0);
+
+
+     useLayoutEffect(() => {
+         if (childrenRef && childrenRef.current) {
+             const height = childrenRef.current.clientHeight; // ou getBoundingClientRect().height
+             setChildrenHeight(height);
+         } else
+             setChildrenHeight(0)
+
+         // console.log(1,childrenHeight)
+     },[children]);
 
     // --- 1. Gestion du Resize ---
     useEffect(() => {
@@ -181,6 +197,18 @@ export const GridView = ({
                 contain: 'strict'
             }}
         >
+            {children &&
+                <div
+                    ref={childrenRef}
+                    style={{
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 100,
+                    }}>
+                    {children}
+                </div>
+            }
+
             <div className="tcd9-grid" style={gridStyle}>
                 {startBlockStickRows > 0 && startBlockStickyCols > 0 && (
                     <div className="cell-base cell-is-corner" style={{
@@ -216,6 +244,7 @@ export const GridView = ({
                         canDeleteRow={canDeleteRow}
                         onClick={handleCellClick}             // ✅ Référence de fonction mémorisée
                         onDeleteButtonClick={onDeleteButtonClick}
+                        gapStickyHeight={childrenHeight}
                     />
                 ))}
             </div>

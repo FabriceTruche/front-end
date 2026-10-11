@@ -2,6 +2,8 @@ import {GenColumn, helper} from "../common/Helper";
 import {TcdConfig} from "../components/Tcd/TcdConfig";
 import {functionsGroup} from "../components/Tcd/functionsGroup";
 import {TcdViewMain} from "../components/Tcd/TcdViewMain";
+import {useEffect, useState} from "react";
+import {createSqlApi} from "../api/Api";
 
 // GENERATE DATA
 const maxRowCount = 200
@@ -35,13 +37,13 @@ const config: TcdConfig = {
     // measures: ["debit","credit","id"],
     measures: [
         "debit",
-        "code"
+        // "code"
         /*"credit",*/
     ],
     groupByFuncs:
         {
-            debit: functionsGroup.count,
-            code: functionsGroup.sum,
+            debit: functionsGroup.sum,
+            // code: functionsGroup.sum,
             /*credit: functionsGroup.sum,
             id: functionsGroup.sum,*/
 
@@ -66,6 +68,24 @@ const config: TcdConfig = {
 }
 
 export const TestTcd11=()=> {
+
+    const [rows, setRows] = useState<any[]|null>(null)
+
+    useEffect(()=>{
+        const sqlApi = createSqlApi("opeecriture")
+
+        sqlApi.getAll()
+            .then((response)=>{
+
+                console.log(response)
+
+                const allRows = response.data.data
+                const md = response.data.metadata
+
+                setRows(allRows)
+            })
+    },[])
+
     return (
         <TcdViewMain
             config={config}

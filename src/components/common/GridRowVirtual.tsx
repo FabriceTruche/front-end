@@ -19,13 +19,15 @@ interface GridRowVirtualProps {
     canDeleteRow?: boolean;
     onClick?: (cell: ICell) => void
     onDeleteButtonClick?: (y: number) => void
+    gapStickyHeight: number;
 }
 
 const GridRowVirtual: React.FC<GridRowVirtualProps> = memo(({
-                                                                y, rowCells, isFooter, columnsWidth, stickyCols, stickyRightCols, columnPositions,
-                                                                columnRightPositions, rowHeight, gap, isStickyRow, isLastStickyRow,
-                                                                visibleXRange, renderStartRow, onClick, canDeleteRow, onDeleteButtonClick
-                                                            }) => {
+    y, rowCells, isFooter, columnsWidth, stickyCols, stickyRightCols, columnPositions,
+    columnRightPositions, rowHeight, gap, isStickyRow, isLastStickyRow,
+    visibleXRange, renderStartRow, onClick, canDeleteRow, onDeleteButtonClick,
+    gapStickyHeight
+    }) => {
 
     return (
         <>
@@ -71,7 +73,7 @@ const GridRowVirtual: React.FC<GridRowVirtualProps> = memo(({
                 else if (isStickyTop || isStickyBottom) zIndex = 40;
                 else if (isStickyLeft || isStickyRight) zIndex = 30;
 
-                const stickyTopPos = y * (rowHeight + gap);
+                const stickyTopPos = y * (rowHeight + gap) + gapStickyHeight
                 const stickyLeftPos = columnPositions[x];
                 const stickyRightPos = columnRightPositions[lastColIdx];
 
